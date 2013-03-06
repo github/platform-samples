@@ -1,7 +1,13 @@
 platform-samples
 ================
 
-A public place for all platform sample projects.
+This is a public place for all sample projects related to the GitHub Platform.
 
-Will be open-source and public when it's good and ready. The goal is to have 
-people clone the repo, and get started easily.
+## Hierarchy
+
+The directories are organized to correlate with guides found on developer.github.com.
+But here it is, broken down:
+
+* _api_: here's a bunch of sample code relating to the API. Subdirectories in this
+category are broken up by language. Do you have a language sample you'd like added?
+Make a pull request and we'll consider it. 
