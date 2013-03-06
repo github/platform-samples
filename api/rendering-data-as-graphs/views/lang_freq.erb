@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+  	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.1/d3.v3.min.js"></script>
+    <style>
+    svg {
+      padding: 20px;
+    }
+    rect {
+      fill: #2d578b
+    }
+    text {
+      fill: white;
+    }
+    text.yAxis {
+      font-size: 12px; 
+      font-family: Helvetica, sans-serif;
+      fill: black;
+    }
+    </style>
+  </head>
+  <body>
+    <p>Check out this sweet graph:</p>
+    <div id="lang_freq"></div>
+
+  </body>
+  <script>
+    var data = <%= languages %>;
+
+    var barWidth = 40;
+    var width = (barWidth + 10) * data.length;
+    var height = 300;
+
+    var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
+    var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.count; })]).
+      rangeRound([0, height]);
+
+    // add the canvas to the DOM
+    var languageBars = d3.select("#lang_freq").
+      append("svg:svg").
+      attr("width", width).
+      attr("height", height);
+
+    languageBars.selectAll("rect").
+      data(data).
+      enter().
+      append("svg:rect").
+      attr("x", function(datum, index) { return x(index); }).
+      attr("y", function(datum) { return height - y(datum.count); }).
+      attr("height", function(datum) { return y(datum.count); }).
+      attr("width", barWidth);
+
+    languageBars.selectAll("text").
+      data(data).
+      enter().
+      append("svg:text").
+      attr("x", function(datum, index) { return x(index) + barWidth; }).
+      attr("y", function(datum) { return height - y(datum.count); }).
+      attr("dx", -barWidth/2).
+      attr("dy", "1.2em").
+      attr("text-anchor", "middle").
+      text(function(datum) { return datum.count;});
+
+    languageBars.selectAll("text.yAxis").
+      data(data).
+      enter().append("svg:text").
+      attr("x", function(datum, index) { return x(index) + barWidth; }).
+      attr("y", height).
+      attr("dx", -barWidth/2).
+      attr("text-anchor", "middle").
+      text(function(datum) { return datum.language;}).
+      attr("transform", "translate(0, 18)").
+      attr("class", "yAxis");
+  </script>
+</html>
