@@ -1,7 +1,7 @@
 rendering-data-as-graphs
 ================
 
-This is the sample projct built by following the "[Rendering Data as Graphs][rendering data]"
+This is the sample project built by following the "[Rendering Data as Graphs][rendering data]"
 guide on developer.github.com.
 
 To run these projects, make sure you have [Bundler][bundler] installed; then type
