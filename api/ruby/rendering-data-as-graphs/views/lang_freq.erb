@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+  	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.1/d3.v3.min.js"></script>
+    <style>
+    svg {
+      padding: 20px;
+    }
+    rect {
+      fill: #2d578b
+    }
+    text {
+      fill: white;
+    }
+    text.yAxis {
+      font-size: 12px; 
+      font-family: Helvetica, sans-serif;
+      fill: black;
+    }
+    .cell {
+      position: absolute;
+    }
+    </style>
+  </head>
+  <body>
+    <p>Check this sweet data out:</p>
+    <div id="lang_freq"></div>
+    <p>Or, if you prefer:</p>
+    <div id="byte_freq"></div>
+    <script>
+      var data = <%= languages %>;
+
+      var barWidth = 40;
+      var width = (barWidth + 10) * data.length;
+      var height = 300;
+
+      var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
+      var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.count; })]).
+        rangeRound([0, height]);
+
+      // add the canvas to the DOM
+      var languageBars = d3.select("#lang_freq").
+        append("svg:svg").
+        attr("width", width).
+        attr("height", height);
+
+      languageBars.selectAll("rect").
+        data(data).
+        enter().
+        append("svg:rect").
+        attr("x", function(datum, index) { return x(index); }).
+        attr("y", function(datum) { return height - y(datum.count); }).
+        attr("height", function(datum) { return y(datum.count); }).
+        attr("width", barWidth);
+
+      languageBars.selectAll("text").
+        data(data).
+        enter().
+        append("svg:text").
+        attr("x", function(datum, index) { return x(index) + barWidth; }).
+        attr("y", function(datum) { return height - y(datum.count); }).
+        attr("dx", -barWidth/2).
+        attr("dy", "1.2em").
+        attr("text-anchor", "middle").
+        text(function(datum) { return datum.count;});
+
+      languageBars.selectAll("text.yAxis").
+        data(data).
+        enter().append("svg:text").
+        attr("x", function(datum, index) { return x(index) + barWidth; }).
+        attr("y", height).
+        attr("dx", -barWidth/2).
+        attr("text-anchor", "middle").
+        text(function(datum) { return datum.language;}).
+        attr("transform", "translate(0, 18)").
+        attr("class", "yAxis");
+    </script>
+    <script>
+      var language_bytes = <%= language_byte_count %>
+
+      var childrenFunction = function(d){return d.elements};
+      var sizeFunction = function(d){return d.count;};
+      var colorFunction = function(d){return Math.floor(Math.random()*20)};
+      var nameFunction = function(d){return d.name;};
+   
+      var color = d3.scale.linear()
+                  .domain([0,10,15,20])
+                  .range(["grey","green","yellow","red"]);
+   
+      drawTreemap(5000, 2000, '#byte_freq', language_bytes, childrenFunction, nameFunction, sizeFunction, colorFunction, color);
+
+      function drawTreemap(height,width,elementSelector,language_bytes,childrenFunction,nameFunction,sizeFunction,colorFunction,colorScale){
+       
+          var treemap = d3.layout.treemap()
+              .children(childrenFunction)
+              .size([width,height])
+              .value(sizeFunction);
+       
+          var div = d3.select(elementSelector)
+              .append("div")
+              .style("position","relative")
+              .style("width",width + "px")
+              .style("height",height + "px");
+       
+          div.data(language_bytes).selectAll("div")
+              .data(function(d){return treemap.nodes(d);})
+              .enter()
+              .append("div")
+              .attr("class","cell")
+              .style("background",function(d){ return colorScale(colorFunction(d));})
+              .call(cell)
+              .text(nameFunction);
+      }
+       
+      function cell(){
+          this
+              .style("left",function(d){return d.x + "px";})
+              .style("top",function(d){return d.y + "px";})
+              .style("width",function(d){return d.dx - 1 + "px";})
+              .style("height",function(d){return d.dy - 1 + "px";});
+      }
+    </script>
+  </body>
+</html>
