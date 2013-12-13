@@ -18,20 +18,30 @@ end
 get '/callback' do
   # get temporary GitHub code...
   session_code = request.env['rack.request.query_hash']["code"]
+
   # ... and POST it back to GitHub
   result = RestClient.post("https://github.com/login/oauth/access_token",
                           {:client_id => CLIENT_ID,
                            :client_secret => CLIENT_SECRET,
                            :code => session_code},
                            :accept => :json)
+
+  # extract token and granted scopes
   access_token = JSON.parse(result)["access_token"]
+  scopes = JSON.parse(result)["scope"].split(",")
 
-  auth_result = RestClient.get("https://api.github.com/user", {:params => {:access_token => access_token, :accept => :json}, 
-                                                                          :accept => :json})
+  # fetch user information
+  auth_result = JSON.parse(RestClient.get("https://api.github.com/user",
+                                          {:params => {:access_token => access_token},
+                                           :accept => :json}))
 
-  auth_result = JSON.parse(auth_result)
+  # if the user authorized it, fetch private emails
+  if scopes.include? 'user:email'
+    auth_result['private_emails'] =
+      JSON.parse(RestClient.get("https://api.github.com/user/emails",
+                                {:params => {:access_token => access_token},
+                                 :accept => :json}))
+  end
 
-  erb :basic, :locals => {:login => auth_result["login"],
-                          :hire_status => auth_result["hireable"] ? "hireable" : "not hireable"
-                         }
+  erb :basic, :locals => auth_result
 end

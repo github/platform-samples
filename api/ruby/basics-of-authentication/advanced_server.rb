@@ -1,50 +1,63 @@
-require 'sinatra/auth/github'
+require 'sinatra'
 require 'rest_client'
+require 'json'
 
-module Example
-  class MyBasicApp < Sinatra::Base
-    # !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
-    # Instead, set and test environment variables, like below
-    # if ENV['GITHUB_CLIENT_ID'] && ENV['GITHUB_CLIENT_SECRET']
-    #  CLIENT_ID        = ENV['GITHUB_CLIENT_ID']
-    #  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
-    # end
+# !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
+# Instead, set and test environment variables, like below
+# if ENV['GITHUB_CLIENT_ID'] && ENV['GITHUB_CLIENT_SECRET']
+#  CLIENT_ID        = ENV['GITHUB_CLIENT_ID']
+#  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
+# end
 
-    CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
-    CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
+CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
+CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
-    enable :sessions
+use Rack::Session::Cookie, :secret => rand.to_s()
 
-    set :github_options, {
-      :scopes    => "user",
-      :secret    => CLIENT_SECRET,
-      :client_id => CLIENT_ID,
-      :callback_url => "/callback"
-    }
+def authenticated?
+  puts session[:access_token]
+  session[:access_token]
+end
 
-    register Sinatra::Auth::Github
+def authenticate!
+  erb :index, :locals => {:client_id => CLIENT_ID}
+end
 
-    get '/' do
-      if !authenticated?
-        authenticate!
-      else
-        access_token = github_user["token"]
-        auth_result = RestClient.get("https://api.github.com/user", {:params => {:access_token => access_token, :accept => :json}, 
-                                                                                  :accept => :json})
+get '/' do
+  if !authenticated?
+    authenticate!
+  else
+    access_token = session[:access_token]
+    scopes = session[:scopes]
 
-        auth_result = JSON.parse(auth_result)
+    auth_result = JSON.parse(RestClient.get("https://api.github.com/user",
+                                            {:params => {:access_token => access_token},
+                                             :accept => :json}))
 
-        erb :advanced, :locals => {:login => auth_result["login"],
-                                   :hire_status => auth_result["hireable"] ? "hireable" : "not hireable"}
-      end
+    if scopes.include? 'user:email'
+      auth_result['private_emails'] =
+        JSON.parse(RestClient.get("https://api.github.com/user/emails",
+                                  {:params => {:access_token => access_token},
+                                   :accept => :json}))
     end
 
-    get '/callback' do
-      if authenticated?
-        redirect "/"
-      else
-        authenticate!
-      end
-    end
+    erb :advanced, :locals => {:login => auth_result["login"],
+                               :public_email => auth_result["email"],
+                               :private_emails => auth_result["private_emails"]}
   end
+end
+
+get '/callback' do
+  session_code = request.env['rack.request.query_hash']["code"]
+
+  result = RestClient.post("https://github.com/login/oauth/access_token",
+                          {:client_id => CLIENT_ID,
+                           :client_secret => CLIENT_SECRET,
+                           :code => session_code},
+                           :accept => :json)
+
+  session[:access_token] = JSON.parse(result)["access_token"]
+  session[:scopes] = JSON.parse(result)["scope"].split(",")
+
+  redirect '/'
 end
