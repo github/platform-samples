@@ -15,7 +15,6 @@ CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 use Rack::Session::Cookie, :secret => rand.to_s()
 
 def authenticated?
-  puts session[:access_token]
   session[:access_token]
 end
 
@@ -29,35 +28,34 @@ get '/' do
   else
     access_token = session[:access_token]
     scopes = session[:scopes]
+    has_user_email_scope = scopes.include? 'user:email'
 
-    auth_result = JSON.parse(RestClient.get("https://api.github.com/user",
+    auth_result = JSON.parse(RestClient.get('https://api.github.com/user',
                                             {:params => {:access_token => access_token},
                                              :accept => :json}))
 
-    if scopes.include? 'user:email'
+    if has_user_email_scope
       auth_result['private_emails'] =
-        JSON.parse(RestClient.get("https://api.github.com/user/emails",
+        JSON.parse(RestClient.get('https://api.github.com/user/emails',
                                   {:params => {:access_token => access_token},
                                    :accept => :json}))
     end
 
-    erb :advanced, :locals => {:login => auth_result["login"],
-                               :public_email => auth_result["email"],
-                               :private_emails => auth_result["private_emails"]}
+    erb :advanced, :locals => auth_result
   end
 end
 
 get '/callback' do
-  session_code = request.env['rack.request.query_hash']["code"]
+  session_code = request.env['rack.request.query_hash']['code']
 
-  result = RestClient.post("https://github.com/login/oauth/access_token",
+  result = RestClient.post('https://github.com/login/oauth/access_token',
                           {:client_id => CLIENT_ID,
                            :client_secret => CLIENT_SECRET,
                            :code => session_code},
                            :accept => :json)
 
-  session[:access_token] = JSON.parse(result)["access_token"]
-  session[:scopes] = JSON.parse(result)["scope"].split(",")
+  session[:access_token] = JSON.parse(result)['access_token']
+  session[:scopes] = JSON.parse(result)['scope'].split(',')
 
   redirect '/'
 end
