@@ -26,9 +26,9 @@ class CITutorial < Sinatra::Base
   helpers do
     def process_pull_request(pull_request)
       puts "Processing pull request..."
-      @client.create_status(pull_request['head']['repo']['full_name'], pull_request['head']['sha'], 'pending')
+      @client.create_status(pull_request['base']['repo']['full_name'], pull_request['head']['sha'], 'pending')
       sleep 2 # do busy work...
-      @client.create_status(pull_request['head']['repo']['full_name'], pull_request['head']['sha'], 'success')
+      @client.create_status(pull_request['base']['repo']['full_name'], pull_request['head']['sha'], 'success')
       puts "Pull request processed!"
     end
   end
