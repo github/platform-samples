@@ -11,9 +11,9 @@ rescue KeyError
   exit 1
 end
 
-Octokit.configure do |c|
-  c.api_endpoint = "#{hostname}/api/v3"
-  c.access_token = access_token
+Octokit.configure do |kit|
+  kit.api_endpoint = "#{hostname}/api/v3"
+  kit.access_token = access_token
 end
 
 Octokit.auto_paginate = true
