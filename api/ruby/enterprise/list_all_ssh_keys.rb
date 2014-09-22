@@ -18,7 +18,13 @@ end
 
 Octokit.auto_paginate = true
 
-users = Octokit.all_users
+begin
+  users = Octokit.all_users
+rescue
+  puts "\nAn error occurred."
+  puts "\nPlease check your hostname ('#{hostname}') and access token ('#{access_token}')."
+  exit 1
+end
 
 total = users.length
 puts "Found #{total} users."
