@@ -1,5 +1,6 @@
 require 'octokit'
 
+# Check for environment variables
 begin
   access_token = ENV.fetch("GITHUB_TOKEN")
   hostname = ENV.fetch("GITHUB_HOSTNAME")
@@ -11,12 +12,14 @@ rescue KeyError
   exit 1
 end
 
+# Set up Octokit
 Octokit.configure do |kit|
   kit.api_endpoint = "#{hostname}/api/v3"
   kit.access_token = access_token
   kit.auto_paginate = true
 end
 
+# Get a list of all users
 begin
   users = Octokit.all_users
 rescue
@@ -31,7 +34,10 @@ puts
 
 count = 1
 
+# Print each user's public SSH keys
 users.each do |user|
+  # Skip organization accounts, which are included in the list of users
+  # but don't have any public SSH keys
   if user.type == 'Organization'
     puts "No keys for #{user.login} (user ##{count} of #{total})."
     count += 1
