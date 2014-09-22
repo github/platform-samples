@@ -14,9 +14,8 @@ end
 Octokit.configure do |kit|
   kit.api_endpoint = "#{hostname}/api/v3"
   kit.access_token = access_token
+  kit.auto_paginate = true
 end
-
-Octokit.auto_paginate = true
 
 begin
   users = Octokit.all_users
