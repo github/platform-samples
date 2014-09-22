@@ -1,9 +1,19 @@
 require 'octokit'
 
+begin
+  access_token = ENV.fetch("GITHUB_TOKEN")
+  hostname = ENV.fetch("GITHUB_HOSTNAME")
+rescue KeyError
+  puts
+  puts "To run this script, please set the following environment variables:"
+  puts "- GITHUB_TOKEN: A valid access token"
+  puts "- GITHUB_HOSTNAME: A valid GitHub Enterprise hostname"
+  exit 1
+end
+
 Octokit.configure do |c|
-  c.api_endpoint = 'http(s)://HOSTNAME/api/v3'
-  c.login = 'USERNAME'
-  c.password = 'PASSWORD'
+  c.api_endpoint = "#{hostname}/api/v3"
+  c.access_token = access_token
 end
 
 Octokit.auto_paginate = true
