@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" style="height: 100%;"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Batman: Arkham Knight - Coming 06.02.15</title>
+	<meta name="description" content="Batman Arkham Knight - The Epic Conclusion to the Arkham Trilogy.  Be The Batman. ">
+	<meta name="keywords" content="Batman, Batman Arkham, Arkham Knight, Arkham Origins, Arkham City, Arkham Asylum, Batman Videogame, New Batman Videogame, Be The Batman, Batman 75, Rocksteady, Batman Game, Next Gen Batman">
+	<!---<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">-->
+	<link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico">
+	<link rel="stylesheet" href="/assets/css/main.css">
+	<link href="/assets/css/batmobile/normalize.min.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/css/batmobile/batmobile.css" rel="stylesheet" type="text/css" />
+	<script src="/assets/js/modernizr-2.6.2.min.js"></script>
+	<script src="/assets/js/batmobile/plugins.js"></script>
+	<script src="/assets/js/plugins.js"></script>
+	<script>
+		/**
+		* Function that tracks a click on an outbound link in Google Analytics.
+		* This function takes a valid URL string as an argument, and uses that URL string
+		* as the event label.
+		*/
+		var trackOutboundLink = function(url, label) {
+			ga('send', 'event', 'outbound', '"' + label + '"', url, {'hitCallback':
+				function () {
+				document.location = url;
+				}
+			});
+		}
+
+		var isExperience = true;
+		var isWBID = false;
+	</script>
+
+	
+
+	<script class="kxct" data-id="I6EMq5Ck" data-timing="async" data-version="1.9" type="text/javascript">
+	window.Krux||((Krux=function(){Krux.q.push(arguments)}).q=[]);
+	(function(){
+		var k=document.createElement('script');k.type='text/javascript';k.async=true;
+		var m,src=(m=location.href.match(/\bkxsrc=([^&]+)/))&&decodeURIComponent(m[1]);
+		k.src = /^https?:\/\/([a-z0-9_\-\.]+\.)?krxd\.net(:\d{1,5})?\//i.test(src) ? src : src === "disable" ? "" :
+			(location.protocol==="https:"?"https:":"http:")+"//cdn.krxd.net/controltag?confid=I6EMq5Ck"
+			;
+		var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(k,s);
+
+	}());
+</script>
+
+</head>
+<body style="height: 100%;" class="body-wbid" data-open-panel="">
+	<div class="experiences-container">
+		<ul class="menu js-main-nav">
+			<li class="hamburger"><a href="#" data-nav-menu="hamburger" class="icon-hamburger"></a></li>
+			<li class="profile"><a href="#" data-nav-menu="profile" class="icon-profile"></a></li>
+			<li class="world"><a href="#" data-nav-menu="world" class="icon-world"></a></li>
+			<li class="social"><a href="#" data-nav-menu="social" class="icon-social"></a></li>
+		</ul>
+
+
+		<ul class="menu js-main-nav lang-mobile">
+			<li class="world"><a href="#" data-nav-menu="world" class="icon-world"></a></li>
+		</ul>
+		<div class="section" id="section-wbid" style="overflow: visible; height: 100%; position: inherit;">
+			<div class="wbid-container experiences">
+				<div id="batmobile">
+		<div id="bm-wrapper">
+			<div id="bm-gallery">
+				<div id="bm-galleryBackground">
+					<div id="bm-galleryBackgroundScale">
+                        <img src="../assets/images/batmobile/pursuit/bg-auto.jpg" id="bm-galleryBackgroundImg">
+					</div>
+				</div>
+			</div>
+			<div id="bm-experience"></div>
+			
+			<div id="bm-static">
+				<img src="../assets/batmobile/textures/static/glitch_transition_9.jpg" class="static" id="bm-static11">
+				<img src="../assets/batmobile/textures/static/glitch_transition_8.jpg" class="static" id="bm-static10">
+				<img src="../assets/batmobile/textures/static/glitch_transition_7.jpg" class="static" id="bm-static9">
+				<img src="../assets/batmobile/textures/static/glitch_transition_6.jpg" class="static" id="bm-static8">
+				<img src="../assets/batmobile/textures/static/glitch_transition_5.jpg" class="static" id="bm-static7">
+				<img src="../assets/batmobile/textures/static/glitch_transition_4.jpg" class="static" id="bm-static6">
+				<img src="../assets/batmobile/textures/static/glitch_transition_3.jpg" class="static" id="bm-static5">
+				<img src="../assets/batmobile/textures/static/glitch_transition_2.jpg" class="static" id="bm-static4">
+				<img src="../assets/batmobile/textures/static/glitch_transition_1.jpg" class="static" id="bm-static3">
+				<img src="../assets/batmobile/textures/static/glitch_transition_2.jpg" class="static" id="bm-static2">
+				<img src="../assets/batmobile/textures/static/glitch_transition_1.jpg" class="static" id="bm-static1">
+			</div>
+			
+			<div id="bm-header">
+				<div class="bm-headerline"></div>
+				<h6>Batmobile Experience</h6>
+                <h1 class="bm-pursuittext">PURSUIT MODE</span>
+                <h1 class="bm-battletext">BATTLE MODE</span>
+			</div>
+            
+			<a href="/en_US/" id="bm-logo"></a>
+			<a href="javascript:toggleSound();" id="bm-audio"></a>
+            <a href="javascript:toggleInfo();" id="bm-info"></a>
+            
+			<div id="bm-roadblock">
+                <div id="bm-instructions">
+                    <div class="bm-headerline"></div>
+                    <h6>Batmobile Experience</h6>
+                    <h1>For Vehicle Specs</h1>
+                    <p>Use the navigation to the right</p>
+                </div>
+            </div>
+			
+			<div id="bm-linebox">
+            	<img src="../assets/images/batmobile/line-dot.png" id="bm-linedot">
+            	<img src="../assets/images/batmobile/line-arrow.png" id="bm-linearrow">
+                <div id="bm-linetext">
+					SWITCH TO<br>
+                    <span class="bm-pursuittext">BATTLE MODE</span>
+                    <span class="bm-battletext">PURSUIT MODE</span>
+                </div>
+			</div>
+			
+			<div id="bm-content">
+                <a href="javascript:bmCloseContent();" id="bm-close"><img src="../assets/images/batmobile/close.png" class="tweenAll_025"></a>
+                
+                <div id="bm-pursuit-auto" class="bm-subsection"></div>
+                <div id="bm-pursuit-free" class="bm-subsection"></div>
+                <div id="bm-battle-auto" class="bm-subsection"></div>
+                <div id="bm-battle-free" class="bm-subsection"></div>
+                
+                <!--PURSUIT CONTENT-->
+                <div id="bm-pursuit-section1" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-Engine.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>1.</span> Engine</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet first"></strong>WayneTech hybrid power cell with jet turbine <br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Horsepower:</strong> 1200 bhp<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Top speed 209 mph without afterburner; 0-60 mph in 2.7 seconds</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section2" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-Afterburner.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>2.</span> Afterburner</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Fuel type:</strong> Nitro methane<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Raises maximum speed threshold by 30%<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Temperature at vent:</strong> 1100 °C</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section3" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-Cockpit.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>3.</span> Cockpit</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet first"></strong>Electromagnetic ejector seat<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Enhanced intel and recon capabilities<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Ai and remote guidance systems</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section4" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-ImmobiliserMissiles.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>4.</span> Immobilizer Missiles</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Payload:</strong> 5gm high explosive cl-20/hmx cocrystal<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Warhead:</strong> 2.75 in (70 mm)<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Guidance:</strong> Laser/infrared homing                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section5" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-Wheels.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>5.</span> Wheels</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Material:</strong> Advanced synthetic fibre composite<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Diameter:</strong> 4 ft 7 in (1.40 m)<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Advanced all terrain traction technology                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section6" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-ContainmentUnit.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>6.</span> Containment Unit</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Purpose:</strong> Passenger transport<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Space:</strong> 3 Seats<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Resistant to kinetic forces exceeding 4,500 lb/sq in                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-pursuit-section7" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/PURSUIT-AirBrakes.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>7.</span> Air Brakes with regenerative energy mechanism</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Materials:</strong> Graphene composite<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Actuator:</strong> High speed hydraulic cylinder<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Stopping distance reduction:</strong> 78%</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <br />
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>BATTLE MODE</span><div class="circle"></div></a>
+                </div>
+                
+                <!--BATTLE CONTENT-->
+                <div id="bm-battle-section1" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-ArmorPlating.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>1.</span> Armor Plating</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Thickness:</strong> 120mm at thickest point<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Material:</strong> Carbon nanotube aggregate<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Blast resistance:</strong> Explosive reactive armor around cockpit</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section2" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-VulcanCannon.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>2.</span> Vulcan Gun</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Ammunition gauge:</strong> 25mm<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Length:</strong> 1.8 meters<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Purpose:</strong> Anti-tank and surface to air combat</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section3" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-AntiTank.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>3.</span> 60mm Cannon</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Ammunition type:</strong> 60mm high explosive penetrator shells<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Muzzle velocity:</strong> 1,680 meters per second<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Estimated to penetrate 820 mm of steel armor at point blank range</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section4" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-RiotSuppressor.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>4.</span> Riot Suppressor</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Ammunition:</strong> Non-lethal slam rounds<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Slam rounds:</strong> Flexible plastic casing filled with 50 grams of rubber pellets<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Designed to deliver minimum long-term trauma & render combatant immobile</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section5" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-CrowdControl.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>5.</span> Electroshock Defense</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Voltage:</strong> 200 - 300 kv range<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Delivery:</strong> Front and rear conductor rods<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Purpose:</strong> Propel combatant</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section6" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-Wheels.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>6.</span> Gyroscopic Wheels</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet first"></strong>Hydraulic arm-mounted <br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Capable of 360 lateral spin for combat manoeuvring<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet"></strong>Bullet proof synthetic fibres</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+                <div id="bm-battle-section7" class="bm-subsection">
+                    <ul class="hList">
+                        <li><img src="../assets/images/batmobile/animated/BATTLE-Winch.gif" class="bm-thumb"></li>
+                        <li>
+                            <div class="bm-metainfo">
+                                <h3><span>7.</span> Winch</h3>
+                                <p><img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong class="no-bullet first"></strong>Multipurpose grapple claw<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Range:</strong> 60m<br>
+                                <img src="../assets/images/batmobile/bullet.png" class="bm-bullet"><strong>Weight supported:</strong> 2.2 t</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="javascript:bmToggleMode();" class="cta experience" ><span>PURSUIT MODE</span><div class="circle"></div></a>
+                </div>
+            </div>
+            
+			<div id="bm-nav">
+            	<div id="bm-explore" class="pulser">explore</div>
+                <img src="../assets/images/batmobile/bg-nav.png" id="bm-navbg">
+                <ul>
+                    <li>
+                        <div id="bm-navPulse"></div>
+                        <a href="javascript:bmChangeSection('section1');" class="navitem" id="section1"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a>
+                    </li>
+                    <li><a href="javascript:bmChangeSection('section2');" class="navitem" id="section2"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+                    <li><a href="javascript:bmChangeSection('section3');" class="navitem" id="section3"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+                    <li><a href="javascript:bmChangeSection('section4');" class="navitem" id="section4"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+                    <li><a href="javascript:bmChangeSection('section5');" class="navitem" id="section5"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+                    <li><a href="javascript:bmChangeSection('section6');" class="navitem" id="section6"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+                    <li><a href="javascript:bmChangeSection('section7');" class="navitem" id="section7"><img src="../assets/images/batmobile/highlight.png" class="bm-circle tweenAll_025"></a></li>
+				</ul>
+				<a href="javascript:bmChangeWebGl('auto');" id="bm-auto" class="active">AUTO</a>
+				<div id="bm-navRoll">
+					<ul>
+						<li><span class="bm-rollNumber">1. </span>
+							<span class="bm-rollPursuit">Engine</span>
+							<span class="bm-rollBattle">Armor Plating</span>
+						</li>
+						<li><span class="bm-rollNumber">2. </span>
+							<span class="bm-rollPursuit">Afterburner</span>
+							<span class="bm-rollBattle">Vulcan Gun</span>
+						</li>
+						<li><span class="bm-rollNumber">3. </span>
+							<span class="bm-rollPursuit">Cockpit</span>
+							<span class="bm-rollBattle">60mm Cannon</span>
+						</li>
+						<li><span class="bm-rollNumber">4. </span>
+							<span class="bm-rollPursuit">Immobilizer Missiles</span>
+							<span class="bm-rollBattle">Riot Suppressor</span>
+						</li>
+						<li><span class="bm-rollNumber">5. </span>
+							<span class="bm-rollPursuit">Wheels</span>
+							<span class="bm-rollBattle">Electroshock Defense</span>
+						</li>
+						<li><span class="bm-rollNumber">6. </span>
+							<span class="bm-rollPursuit">Containment Unit</span>
+							<span class="bm-rollBattle">Gyroscopic Wheels</span>
+						</li>
+						<li><span class="bm-rollNumber">7. </span>
+							<span class="bm-rollPursuit">Air Brakes with regenerative energy mechanism</span>
+							<span class="bm-rollBattle">Winch</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+            
+			<a href="javascript:bmToggleMode();" id="bm-togglemode">
+				<div id="bm-modePulse"></div>
+				<div id="bm-modeCircle">
+					<div id="bm-camera"></div>
+					<img src="../assets/images/batmobile/ring1.png" id="bm-ring1" class="bm-ring">
+					<img src="../assets/images/batmobile/ring2.png" id="bm-ring2" class="bm-ring">
+					<img src="../assets/images/batmobile/ring3.png" id="bm-ring3" class="bm-ring">
+				</div>
+				<div id="bm-modeOutline"></div>
+				<div id="bm-modeMarker"></div>
+			</a>
+			
+			<div id="bm-overlay">
+				<div id="bm-loader"></div>
+				<div id="bm-error">
+               		<div id="bm-alert">
+                        <div class="bm-headerline"></div>
+                        <h6>Alert</h6>
+                        <h1>Your Browser does not support the Batmobile Experience.</h1>
+                        <p>Use a WebGL supported browser (Suggested Browser is Google Chrome).</p>
+                        <a href="javascript:bmCloseError();" class="bmCta"><span>Visit The<br>Basic Experience</span><div class="bmCtaCircle"></div></a>
+                    </div>
+				</div>
+                <div id="bm-infowrapper">
+                	<div id="bm-infolegend">
+                    	<img src="../assets/images/batmobile/info-legend.png">
+                        
+                        <div id="tip-header1" class="tip-header">Feature Controls</div>
+                        <div id="tip-next1" class="tip-meta">Next</div>
+                        <div id="tip-next2" class="tip-meta">Next</div>
+                        <div id="tip-previous1" class="tip-meta">Previous</div>
+                        <div id="tip-previous2" class="tip-meta">Previous</div>
+                        <div id="tip-toggle" class="tip-meta">Toggle Mode</div>
+                        
+                        <div id="tip-header2" class="tip-header">Viewport Controls</div>
+                        <div id="tip-zoomin" class="tip-meta">Zoom In</div>
+                        <div id="tip-zoomout" class="tip-meta">Zoom Out</div>
+                        
+                    </div>
+                    <a href="javascript:toggleInfo();" id="bm-infoclose"></a></p>
+                </div>
+			</div>
+		</div>
+
+	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="nav-bkg js-nav-bkg" style="display: none">
+	<div id="hamburger" class="js-nav-modal nav-modal" style="display: none">
+		
+			<ul id="js-nav-menu" class="hamburger-menu nav-list">
+				<li class="menuitem baticon" rel="1"><a href="/en_US/#home"><i class="icon-batmanicon"><div class="circle"></div></i> <span>Home</span></a><div class="line-nav"></div></li>
+				<li class="menuitem double" rel="2"><a href="/en_US/#experience"><i class="icon-steeringwheel"><div class="circle"></div></i> <span>The Batmobile <br> Experience</span></a><div class="line-nav"></div></li>
+				<li class="menuitem box" rel="3"><a href="/en_US/#preorder"><i class="icon-box"><div class="circle"></div></i> <span>Pre-order</span></a><div class="line-nav"></div></li>
+				<li class="menuitem media" rel="4"><a href="/en_US/#media"><i class="icon-media"><div class="circle"></div></i> <span>Media</span></a><div class="line-nav"></div></li>
+				<li class="menuitem community" rel="5"><a href="/en_US/#community"><i class="icon-community"><div class="circle"></div></i> <span>Community</span></a><div class="line-nav"></div></li>
+			</ul>
+			<div class="mobile">
+				<ul class="nav-list">
+					<li><a href="/en_US/wbid/login" class="js-reg"><i class="icon-media"></i><span>Log In</span></a></li>
+					<li><a href="/en_US/wbid/register" class="js-reg"><i class="icon-media"></i><span>Register</span></a></li>
+				</ul>
+			</div>
+		
+	</div>
+	<div id="profile" class="js-nav-modal nav-modal wbid-login" style="display: none">
+		<div class="nav-wrapper">
+
+			
+			<div class="wbid-login">
+				<h4 class="title">WBPlay</h4>
+				<p class="copy">
+					If you have a WBID (Warner Bros. ID) you're already a WBPlay member.
+									</p>
+				<a href="https://wbplay.wbgames.com/en_US/batmanarkhamknight#/login" id="js-nav-login" class="cta-nav wbid-ani"> 
+					<div class="ani-viewport">
+						<span>Log In</span>
+					</div>
+				</a>
+			</div>
+
+			<i class="divider"></i>
+			<h4 class="registration">Not Registered?</h4>
+			<a href="https://wbplay.wbgames.com/en_US/batmanarkhamknight#/register" id="js-nav-create-account" class="cta-nav cta-nav-long wbid-ani"> 
+				<div class="ani-viewport">
+					<span>Create a new account</span>
+				</div>
+			</a>
+					</div>
+	</div>
+	<div id="world" class="js-nav-modal nav-modal languages" style="display: none">
+		<ul class="langs nav-list">
+						<li class="active"><a href="/lang/en_US?redirect=/en_US/batmobile"><i class="flag-en_US"><div class="circle"></div></i> <span>English (US)</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/en_GB?redirect=/en_GB/batmobile"><i class="flag-en_GB"><div class="circle"></div></i> <span>English (UK)</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/it?redirect=/it/batmobile"><i class="flag-it"><div class="circle"></div></i> <span>Italian</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/fr?redirect=/fr/batmobile"><i class="flag-fr"><div class="circle"></div></i> <span>French</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/de?redirect=/de/batmobile"><i class="flag-de"><div class="circle"></div></i> <span>German</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/es?redirect=/es/batmobile"><i class="flag-es"><div class="circle"></div></i> <span>Spanish</span></a><div class="line-nav"></div></li>
+						<li class=""><a href="/lang/pt_BR?redirect=/pt_BR/batmobile"><i class="flag-pt_BR"><div class="circle"></div></i> <span>Brazilian Portuguese</span></a><div class="line-nav"></div></li>
+					</ul>
+	</div>
+	<div id="social" class="js-nav-modal nav-modal" style="display: none">
+		<ul class="social-menu nav-list">
+			<li><a href="http://www.facebook.com/BatmanArkham" target="_blank"><i class="icon-facebook"><div class="circle"></div></i><span>Facebook</span></a><div class="line-nav"></div></li>
+			<li><a href="http://instagram.com/batmanarkham" target="_blank"><i class="icon-instagram"><div class="circle"></div></i><span>Instagram</span></a><div class="line-nav"></div></li>
+			<li><a href="https://twitter.com/batmanarkham" target="_blank"><i class="icon-twitter"><div class="circle"></div></i><span>Twitter</span></a><div class="line-nav"></div></li>
+			<li><a href="http://www.youtube.com/user/BatmanArkhamCity" target="_blank"><i class="icon-youtube"><div class="circle"></div></i><span>YouTube</span></a><div class="line-nav"></div></li>
+		</ul>
+	</div>
+</div>
+	<script type="text/javascript" src="/assets/js/batmobile/batmobile.js"></script>
+	<script src="/assets/js/menu.js"></script>
+	<!-- Begin comScore Tag -->
+	<script>
+	var _comscore = _comscore || [];
+	_comscore.push({ c1: "2", c2: "3000013" });
+	(function() {
+	var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+	s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+	el.parentNode.insertBefore(s, el);
+	})();
+	</script>
+	<noscript>
+	<img src="http://b.scorecardresearch.com/p?c1=2&c2=3000013&cv=2.0&cj=1" />
+	</noscript>
+	<!-- End comScore Tag -->
+
+	<script type="text/javascript">
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() { (i[r].q=i[r].q||[]).push(arguments)}
+
+		,i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		// Switch to local when testing
+		ga('create', 'UA-245108-70', 'batmanarkhamknight.com');
+		ga('send', 'pageview');
+	</script>
+
+	</body>
+</html>
+
+
