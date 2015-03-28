@@ -1,0 +1,208 @@
+#!/bin/bash
+
+# set -x # for debugging
+
+
+GH_TOKEN=""
+
+#### COLORS & FORMATTING
+
+_red=$(tput setaf 1)
+_green=$(tput setaf 2)
+_yellow=$(tput setaf 3)
+_blue=$(tput setaf 4)
+_magenta=$(tput setaf 5)
+_cyan=$(tput setaf 6)
+_white=$(tput setaf 7)
+
+_bold=$(tput bold)
+
+_reset=$(tput sgr0)
+
+_error=${_red}${_bold}
+_command=${_yellow}${_bold}
+_target=${_magenta}
+_em=${_blue}${_bold}
+
+
+#### CORE FUNCTIONS
+
+gh_request()
+{
+  local gh_request_route=$@
+  if [ -n "$GH_TOKEN" ]
+  then
+    curl -s -G "https://api.github.com/$gh_request_route" -H "User-Agent: nathos/ghinfo" -H "Accept: application/vnd.github.full+json" -H "Authorization: token $GH_TOKEN"
+  else
+    curl -s -G "https://api.github.com/$gh_request_route" -H "User-Agent: nathos/ghinfo" -H "Accept: application/vnd.github.full+json"
+  fi
+}
+
+api_request()
+{
+  local api_request_result=$( gh_request "$1") # only make a single API request
+  shift
+
+  api_request_filtered=() # initialize/empty filtered results array
+
+  # loop through all requested jq filter arguments
+  for arg in $* ; do
+    _response=$( echo $api_request_result | jq -r "$arg" )
+    if [[ -n $_response ]] ; then
+      api_request_filtered+=("$_response") # append to filtered result array
+    # else
+    #   echo "No response for $arg"
+    fi
+  done
+}
+
+api_request_forks() # FIXME: refactor this into the main api_request function
+{
+  local api_request_result=$( gh_request "$1") # only make a single API request
+
+  api_request_filtered=() # initialize/empty filtered results array
+
+  response=$( echo $api_request_result | jq -r '.[] | .owner.login' )
+
+}
+
+dependency_test()
+{
+  for dep in curl jq ; do
+    command -v $dep &>/dev/null || { echo -e "\n${_error}Error:${_reset} I require the ${_command}$dep${_reset} command but it's not installed.\n"; exit 1; }
+  done
+}
+
+usage()
+{
+  echo -e "Usage: $0 [options] <argv>...\n"
+  echo "Options:"
+  echo " -u | --user <username>           Display user details"
+  echo " -r | --repo <user/repository>    Display repo details"
+  echo " -h | --help                      Help"
+  echo ""
+}
+
+#### FORMATTED REQUEST FUNCTIONS
+#    Uses format: `api_request 'API_ROUTE' 'FILTER1' 'FILTER2' ...`
+
+user_details()
+{
+  local cleaned_username=$(echo "${username}" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's#/$## ')
+  echo -e "\nDetails for GitHub user ${_magenta}$cleaned_username${_reset}:"
+  local name_length=${#cleaned_username}
+  local header_length=$(( name_length + 25 ))
+  for i in $(seq 1 $header_length); do
+    echo -n "="
+  done
+  echo -e "\n"
+  api_request "users/$cleaned_username" '.name' '.location' '.email' '.bio' '.public_repos' '.public_gists' '.followers' '.following' '.created_at'
+  echo "     Name: ${api_request_filtered[0]}"
+  echo " Location: ${api_request_filtered[1]}"
+  local email=${api_request_filtered[2]}
+  if [ $email != "null" ]; then
+    echo "    Email: $email"
+  fi
+  local bio=${api_request_filtered[3]}
+  if [ "$bio" != "null" ]; then
+    echo "      Bio: $bio"
+  fi
+  echo -e "\n"
+  echo -e " ${_magenta}$cleaned_username${_reset} has shared ${_em}${api_request_filtered[4]}${_reset} public git repositories and ${_em}${api_request_filtered[5]}${_reset} gists.\n"
+  local user_since=${api_request_filtered[8]}
+  for i in $(seq 1 $name_length); do
+    echo -n " "
+  done
+  echo -e "  is followed by ${_em}${api_request_filtered[6]}${_reset} GitHub users and follows ${_em}${api_request_filtered[7]}${_reset} users.\n"
+  for i in $(seq 1 $name_length); do
+    echo -n " "
+  done
+  echo -e "  has been a happy GitHub user since ${_em}${user_since:0:10}${_reset}."
+  echo ""
+}
+
+repo_details()
+{
+  local cleaned_repo=$(echo "${repo}" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's/\.*git$//' -e 's#/$##')
+  echo -e "\nDetails for repository ${_target}$cleaned_repo${_reset}:"
+  local name_length=${#cleaned_repo}
+  local header_length=$(( name_length + 24 ))
+  for i in $(seq 1 $header_length); do
+    echo -n "="
+  done
+  echo -e "\n"
+  api_request "repos/$cleaned_repo" '.name' '.owner.login' '.description' '.forks_count' '.stargazers_count' '.open_issues_count' '.created_at' '.updated_at' '.parent.name' '.parent.owner.login' '.clone_url' '.homepage'
+  echo -e " ${_bold}${_white}${api_request_filtered[0]}${_reset} by ${api_request_filtered[1]}\n"
+  local description=${api_request_filtered[2]}
+  if [ "$description" != "null" ]; then
+    echo " $description" | fmt
+    echo ""
+  fi
+  local homepage=${api_request_filtered[11]} # FIXME: dirty hack because GH returns an empty value instead of null
+  if [[ -n $homepage ]]; then
+    echo " Homepage: $homepage"
+  fi
+  echo -e "\n ${_target}$cleaned_repo${_reset} has been forked ${_em}${api_request_filtered[3]}${_reset} times and starred ${_em}${api_request_filtered[4]}${_reset} times.\n"
+  for i in $(seq 1 $name_length); do
+    echo -n " "
+  done
+  echo -e "  has ${_em}${api_request_filtered[5]}${_reset} open issues.\n"
+  for i in $(seq 1 $name_length); do
+    echo -n " "
+  done
+  local created_at=${api_request_filtered[6]}
+  local updated_at=${api_request_filtered[7]}
+  echo -e "  was created on ${_em}${created_at:0:10}${_reset} and last updated on ${_em}${updated_at:0:10}${_reset}."
+  local parent_name=${api_request_filtered[8]}
+  local parent_owner=${api_request_filtered[9]}
+  if [ $parent_name != "null" ]; then
+    echo -e "\n\n ${_target}${api_request_filtered[0]}${_reset} was forked from ${_yellow}$parent_name${_yellow} by ${_yellow}$parent_owner${_reset}"
+  fi
+  echo -e "\n Clone URL: ${api_request_filtered[10]}"
+
+  echo ""
+}
+
+list_forks()
+{
+  local cleaned_repo=$(echo "${repo}" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's/\.*git$//' -e 's#/$##')
+  echo -e "\nDetails for repository ${_target}$cleaned_repo${_reset}:"
+  local name_length=${#cleaned_repo}
+  local header_length=$(( name_length + 24 ))
+  for i in $(seq 1 $header_length); do
+    echo -n "="
+  done
+  echo -e "\n"
+  api_request "repos/$cleaned_repo" '.name' '.owner.login' '.forks_count'
+  echo -e "${_bold}${_white}${api_request_filtered[0]}${_reset} by ${api_request_filtered[1]}\n"
+  echo -e "\n${_target}$cleaned_repo${_reset} has been forked ${_em}${api_request_filtered[2]}${_reset} times, including forks by these GitHub users:\n"
+  api_request_forks "repos/$cleaned_repo/forks"
+  echo -e "${_blue}$response${_reset}"
+  echo ""
+}
+
+#### MAIN
+
+dependency_test
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help )   usage
+                    exit ;;
+    -t | --token )  shift
+                    GH_TOKEN="$1" ;;
+    -u | --user )   shift
+                    username="$1"
+                    user_details ;;
+    -r | --repo )   shift
+                    repo="$1"
+                    repo_details ;;
+    -f | --forks )  shift
+                    repo="$1"
+                    list_forks
+                    exit ;;
+    * )             usage
+                    exit 1
+  esac
+  shift
+done
