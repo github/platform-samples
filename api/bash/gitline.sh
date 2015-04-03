@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 DOMAIN="https://api.github.com"
 source ~/projects/github_bash_project/.privateVariables.sh
 

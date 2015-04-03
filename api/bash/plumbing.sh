@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # building block, not intended for use by end-user
 # $1 = endpoint, e.g. users/defunkt
