@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. plumbing.sh
+. plumbing
 
 # $1 = username/repo
 # $2 = ref
