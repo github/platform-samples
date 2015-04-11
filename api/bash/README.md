@@ -1,9 +1,16 @@
 This directory contains small scripts that demonstrate some basic uses of the GitHub API.
 
 ## Getting Started
-Many of these bash scripts require a GitHub Token to authenticate your usage of certain API features. 
+Many of these bash scripts require a GitHub Token to authenticate your usage of certain API features. You may [generate a new API token Here](https://github.com/settings/tokens/new). 
 
-## Details
+Once you have a valid token, you may temporarily add it as an environmental variable by running the following in your terminal window:
+
+```
+export GH_TOKEN='YOUR_GITHUB_TOKEN_GOES_HERE'
+```
+
+**Remember:** Your GitHub Token is like a password. *Never commit your token to a repository*. 
+
 Below are brief explanations of each script's functionality, along with instructions on how to use them.
 
 ### set-status 
@@ -12,7 +19,7 @@ Below are brief explanations of each script's functionality, along with instruct
 `set-status` will [create a status for a given Ref](https://developer.github.com/v3/repos/statuses/#create-a-status) in a repository.
 
 #### Usage
-*Note: you will need to have push access to any repository you wish to run `set-status` on.*
+*Note: you will need push access to any repository you wish to use with `set-status`.*
 
 ```
 ./set-status owner/repository SHA '{"state": "success", "target_url": "https://example.com/build/status", "description": "The build succeeded!", "context": "continuous-integration/jenkins"}'
