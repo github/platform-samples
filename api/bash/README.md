@@ -3,25 +3,29 @@ This directory contains small scripts that demonstrate some basic uses of the Gi
 ## Details
 Below are brief explanations of each script's functionality, along with instructions on how to use them.
 
-### pretty-print.sh
+### pretty-print
 
 #### What is it?
-`pretty-print.sh` displays formatted, colorized summaries of GitHub users and repositories. Quickly grab stats, get a sense of project activiy, and display clone URLs, all without leaving the command line.
+`pretty-print` displays formatted, colorized summaries of GitHub users and repositories. Quickly grab stats, get a sense of project activiy, and display clone URLs, all without leaving the command line.
 
 #### Usage
-*Note: `pretty-print.sh` accepts a full GitHub username or repo URL as valid input for all commands. Also, remember to make it executable: `chmod +x pretty-print.sh`.*
+*Note: `pretty-print` accepts a full GitHub username or repo URL as valid input for all commands.*
 
-Display summary of a user:
-`./pretty-print.sh -u <username>`
+Display help text: 
+`./pretty-print -h`
 
-Display a summary of a repository:
-`./pretty-print.sh -r <username/repositoryname>`
+```
+Usage: ./pretty-print [options] <argv>...
 
-Display list of forks for a GitHub repository:
-`./pretty-print.sh -f <username/repositoryname>`
+Options:
+ -f | --forks <user/repository>   Display list of forks for a  repository
+ -r | --repo  <user/repository>   Display a summary of a repository
+ -u | --user  <username>          Display summary of a user
+ -h | --help                      Help
+ ```
 
 #### Dependencies
-This script uses the [jq](http://stedolan.github.io/jq/) JSON processor. Mac users can easily install it with [Homebrew](http://brew.sh): ` brew install jq `
+`pretty-print` uses the [jq](http://stedolan.github.io/jq/) JSON processor. Mac users can easily install it with [Homebrew](http://brew.sh): ` brew install jq `
 
 ## API Documentation
 The full documentation for the GitHub API is [available here](http://developer.github.com).
