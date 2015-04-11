@@ -195,6 +195,7 @@ repo_details()
   echo -e "\n Clone URL: $clone_url \n"
 }
 
+
 list_forks()
 {
   print_header 
@@ -205,9 +206,11 @@ list_forks()
   local forks_count=${api_request_filtered[2]}
 
   echo -e "${_bold}$name${_white}${_reset} by $owner\n"
-  echo -e "\n${_target}$context${_reset} has been forked ${_em}${_reset} times, including $forks_count forks by these GitHub users:\n"
+  echo -e "\n${_target}$context${_reset} has been forked ${_em}$forks_count${_reset} times, including forks by these GitHub users:\n"
 
-  api_request "repos/$context/forks" '.owner.login'
+  api_request_result=$(github_get "repos/$context/forks")
+
+  response=$( echo $api_request_result | jq -r '.[] | .owner.login' )
   echo -e "${_blue}$response${_reset}"
   echo ""
 }
