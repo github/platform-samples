@@ -36,15 +36,6 @@ api_request()
   done
 }
 
-api_request_forks() # FIXME: refactor this into the main api_request function
-{
-  local api_request_result=$( gh_request "$1") # only make a single API request
-
-  api_request_filtered=() # initialize/empty filtered results array
-
-  response=$( echo $api_request_result | jq -r '.[] | .owner.login' )
-}
-
 
 #### COLORS & FORMATTING
 
@@ -209,9 +200,14 @@ list_forks()
   print_header 
   api_request "repos/$context" '.name' '.owner.login' '.forks_count'
 
-  echo -e "${_bold}${_white}${api_request_filtered[0]}${_reset} by ${api_request_filtered[1]}\n"
-  echo -e "\n${_target}$context${_reset} has been forked ${_em}${api_request_filtered[2]}${_reset} times, including forks by these GitHub users:\n"
-  api_request_forks "repos/$context/forks"
+  local name=${api_request_filtered[0]}
+  local owner=${api_request_filtered[1]}
+  local forks_count=${api_request_filtered[2]}
+
+  echo -e "${_bold}$name${_white}${_reset} by $owner\n"
+  echo -e "\n${_target}$context${_reset} has been forked ${_em}${_reset} times, including $forks_count forks by these GitHub users:\n"
+
+  api_request "repos/$context/forks" '.owner.login'
   echo -e "${_blue}$response${_reset}"
   echo ""
 }
