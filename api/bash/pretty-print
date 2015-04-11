@@ -1,29 +1,8 @@
 #!/usr/bin/env bash
-# TODO standardize format
+
 # set -x # for debugging
 
 . plumbing
-
-#### CORE FUNCTIONS
-
-api_request()
-{
-  local api_request_result=$( github_get "$1") # only make a single API request
-  shift # Shift 
-
-  api_request_filtered=() # initialize/empty filtered results array
-
-  # loop through all requested jq filter arguments
-  for arg in $* ; do
-    _response=$( echo $api_request_result | jq -r "$arg" )
-    if [[ -n $_response ]] ; then
-      api_request_filtered+=("$_response") # append to filtered result array
-    # else
-    #   echo "No response for $arg"
-    fi
-  done
-}
-
 
 #### COLORS & FORMATTING
 
@@ -45,7 +24,7 @@ _target=${_magenta}
 _em=${_blue}${_bold}
 
 
-##### META 
+#### INTERNAL METHODS & HELPERS
 
 dependency_test()
 {
@@ -58,16 +37,12 @@ usage()
 {
   echo -e "Usage: $0 [options] <argv>...\n"
   echo "Options:"
-  echo " -f | --forks <user/repository>   Display fork details"
-  echo " -r | --repo  <user/repository>   Display repo details"
-  echo " -u | --user  <username>          Display user details"
-  echo " -t | --token <token>             Set a GitHub token"
+  echo " -f | --forks <user/repository>   Display list of forks for a  repository"
+  echo " -r | --repo  <user/repository>   Display a summary of a repository"
+  echo " -u | --user  <username>          Display summary of a user"
   echo " -h | --help                      Help"
   echo ""
 }
-
-
-#### HELPERS - to reduce duplication
 
 set_user_context()
 {
@@ -100,24 +75,23 @@ print_header()
 
 
 #### FORMATTED REQUEST FUNCTIONS
-#    Uses format: `api_request 'API_ROUTE' 'FILTER1' 'FILTER2' ...`
 
 user_details()
 {
   print_header 
-  api_request "users/$context" '.name' '.location' '.email' '.bio' '.public_repos' '.public_gists' '.followers' '.following' '.created_at'
+  api_request_result=$(github_get "users/$context")
 
   local name_length=${#context}
 
-  local name=${api_request_filtered[0]}
-  local location=${api_request_filtered[1]}
-  local email=${api_request_filtered[2]}
-  local bio=${api_request_filtered[3]}
-  local public_repos=${api_request_filtered[4]}
-  local public_gists=${api_request_filtered[5]}
-  local followers=${api_request_filtered[6]}
-  local following=${api_request_filtered[7]}
-  local user_since=${api_request_filtered[8]}
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local location=$( echo $api_request_result | jq -r '.location' )
+  local email=$( echo $api_request_result | jq -r '.email' )
+  local bio=$( echo $api_request_result | jq -r '.bio' )
+  local public_repos=$( echo $api_request_result | jq -r '.public_repos' )
+  local public_gists=$( echo $api_request_result | jq -r '.public_gists' )
+  local followers=$( echo $api_request_result | jq -r '.followers' )
+  local following=$( echo $api_request_result | jq -r '.following' )
+  local user_since=$( echo $api_request_result | jq -r '.created_at' )
 
   echo "     Name: $name"
   echo " Location: $location"
@@ -142,21 +116,22 @@ user_details()
 repo_details()
 {
   print_header 
-  api_request "repos/$context" '.name' '.owner.login' '.description' '.forks_count' '.stargazers_count' '.open_issues_count' '.created_at' '.updated_at' '.parent.name' '.parent.owner.login' '.clone_url' '.homepage'
+  api_request_result=$(github_get "repos/$context")
 
   local name_length=${#context}
-  local name=${api_request_filtered[0]}
-  local owner=${api_request_filtered[1]}
-  local description=${api_request_filtered[2]}
-  local forks_count=${api_request_filtered[3]}
-  local stargazers_count=${api_request_filtered[4]}
-  local open_issues_count=${api_request_filtered[5]}
-  local created_at=${api_request_filtered[6]}
-  local updated_at=${api_request_filtered[7]}
-  local parent_name=${api_request_filtered[8]}
-  local parent_owner=${api_request_filtered[9]}
-  local clone_url=${api_request_filtered[10]}
-  local homepage=${api_request_filtered[11]}
+
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local owner=$( echo $api_request_result | jq -r '.owner.login' )
+  local description=$( echo $api_request_result | jq -r '.description' )
+  local forks_count=$( echo $api_request_result | jq -r '.forks_count' )
+  local stargazers_count=$( echo $api_request_result | jq -r '.stargazers_count' )
+  local open_issues_count=$( echo $api_request_result | jq -r '.open_issues_count' )
+  local created_at=$( echo $api_request_result | jq -r '.created_at' )
+  local updated_at=$( echo $api_request_result | jq -r '.updated_at' )
+  local parent_name=$( echo $api_request_result | jq -r '.parent.name' )
+  local parent_owner=$( echo $api_request_result | jq -r '.parent.owner.login' )
+  local clone_url=$( echo $api_request_result | jq -r '.clone_url' )
+  local homepage=$( echo $api_request_result | jq -r '.homepage' )
 
   echo -e " ${_bold}${_white}$name${_reset} by $owner\n"
   
@@ -187,11 +162,11 @@ repo_details()
 list_forks()
 {
   print_header 
-  api_request "repos/$context" '.name' '.owner.login' '.forks_count'
+  api_request_result=$(github_get "repos/$context")
 
-  local name=${api_request_filtered[0]}
-  local owner=${api_request_filtered[1]}
-  local forks_count=${api_request_filtered[2]}
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local owner=$( echo $api_request_result | jq -r '.owner.login' )
+  local forks_count=$( echo $api_request_result | jq -r '.forks_count' )
 
   echo -e "${_bold}$name${_white}${_reset} by $owner\n"
   echo -e "\n${_target}$context${_reset} has been forked ${_em}$forks_count${_reset} times, including forks by these GitHub users:\n"
@@ -218,8 +193,6 @@ while [ "$1" != "" ]; do
   case $1 in
     -h | --help )   usage
                     exit ;;
-    -t | --token )  shift
-                    GH_TOKEN="$1" ;;
     -u | --user )   shift
                     set_user_context "$1"
                     user_details ;;
