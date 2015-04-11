@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-
+# TODO standardize format
 # set -x # for debugging
+
+. plumbing
 
 # TODO replace with plumbing
 gh_request()
@@ -67,8 +69,13 @@ set_repo_context()
   context=$(echo "$1" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's/\.*git$//' -e 's#/$##')
 }
 
-print_header(){
+print_whitespace(){
+  for i in $(seq 1 $1); do
+      echo -n " "
+  done
+}
 
+print_header(){
   local name_length=${#context}
   local header_length=$(( name_length + 13 ))
   
@@ -77,7 +84,6 @@ print_header(){
     echo -n "="
   done
   echo -e "\n"
-  
 }
 
 #### CORE FUNCTIONS
@@ -119,12 +125,12 @@ user_details()
   print_header 
 
   local name_length=${#context}
-  local header_length=$(( name_length + 25 ))
   
   api_request "users/$context" '.name' '.location' '.email' '.bio' '.public_repos' '.public_gists' '.followers' '.following' '.created_at'
 
   echo "     Name: ${api_request_filtered[0]}"
   echo " Location: ${api_request_filtered[1]}"
+
   local email=${api_request_filtered[2]}
   local bio=${api_request_filtered[3]}
   local user_since=${api_request_filtered[8]}
@@ -151,39 +157,44 @@ user_details()
 repo_details()
 {
   print_header 
-
   api_request "repos/$context" '.name' '.owner.login' '.description' '.forks_count' '.stargazers_count' '.open_issues_count' '.created_at' '.updated_at' '.parent.name' '.parent.owner.login' '.clone_url' '.homepage'
 
+  local name_length=${#context}
+  local name=${api_request_filtered[0]}
+  local owner=${api_request_filtered[1]}
   local description=${api_request_filtered[2]}
+  local forks_count=${api_request_filtered[3]}
+  local stargazers_count=${api_request_filtered[4]}
+  local open_issues_count=${api_request_filtered[5]}
   local created_at=${api_request_filtered[6]}
   local updated_at=${api_request_filtered[7]}
   local parent_name=${api_request_filtered[8]}
   local parent_owner=${api_request_filtered[9]}
-  local homepage=${api_request_filtered[11]} # FIXME: dirty hack because GH returns an empty value instead of null
+  local clone_url=${api_request_filtered[10]}
+  local homepage=${api_request_filtered[11]}
 
-  echo -e " ${_bold}${_white}${api_request_filtered[0]}${_reset} by ${api_request_filtered[1]}\n"
+  echo -e " ${_bold}${_white}$name${_reset} by $owner\n"
+  
   if [ "$description" != "null" ]; then
     echo " $description" | fmt
-    echo ""
   fi
-  if [[ -n $homepage ]]; then
+
+  if [ "$homepage" != "null" ]; then
     echo " Homepage: $homepage"
   fi
-  echo -e "\n ${_target}$context${_reset} has been forked ${_em}${api_request_filtered[3]}${_reset} times and starred ${_em}${api_request_filtered[4]}${_reset} times.\n"
-  for i in $(seq 1 $name_length); do
-    echo -n " "
-  done
-  echo -e "  has ${_em}${api_request_filtered[5]}${_reset} open issues.\n"
-  for i in $(seq 1 $name_length); do
-    echo -n " "
-  done
+
+  echo -e "\n ${_target}$context${_reset} has been forked ${_em}$forks_count${_reset} times and starred ${_em}$stargazers_count${_reset} times.\n"
+  print_whitespace $name_length
+
+  echo -e "  has ${_em}$open_issues_count${_reset} open issues.\n"
+  print_whitespace $name_length
+
   echo -e "  was created on ${_em}${created_at:0:10}${_reset} and last updated on ${_em}${updated_at:0:10}${_reset}."
   if [ $parent_name != "null" ]; then
-    echo -e "\n\n ${_target}${api_request_filtered[0]}${_reset} was forked from ${_yellow}$parent_name${_yellow} by ${_yellow}$parent_owner${_reset}"
+    echo -e "\n\n ${_target}$name${_reset} was forked from ${_yellow}$parent_name${_yellow} by ${_yellow}$parent_owner${_reset}"
   fi
-  echo -e "\n Clone URL: ${api_request_filtered[10]}"
 
-  echo ""
+  echo -e "\n Clone URL: $clone_url \n"
 }
 
 list_forks()
