@@ -4,9 +4,6 @@
 
 # $1 = username/repo
 # $2 = ref
-postStatus()
-{
-  github_get "repos/$1/commits/$2/status"
-}
 
-postStatus "$@"
+github_get "repos/$1/commits/$2/status"
+
