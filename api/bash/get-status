@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+. plumbing
+
+# $1 = username/repo
+# $2 = ref
+
+github_get "repos/$1/commits/$2/status"
+
