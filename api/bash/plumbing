@@ -31,6 +31,8 @@ github_get()
   fi
 }
 
+# Usage: github_post user/repos ${body}
+# Purpose: Make a curl -X POST with appropriate headers and -d json-payload
 github_post()
 {
     local request_route=$1
