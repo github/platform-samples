@@ -1,28 +1,45 @@
+#!/bin/bash
+
 # building block, not intended for use by end-user
 # $1 = endpoint, e.g. users/defunkt
 # any remaining args = curl options
 
+AUTH="Authorization: token $GH_TOKEN"
+DOMAIN='https://api.github.com/'
+
+ERR_NO_TOKEN=1
+
 # Usage: callAPI "repos/$1/statuses/$2" -d "$3"
 callAPI()
 {
-  local AUTH="Authorization: token $GH_TOKEN"
-  local DOMAIN='https://api.github.com/'
   local REQUEST_URL="$DOMAIN$1"
   shift
 
   curl -i -H "$AUTH" "$@" "$REQUEST_URL"
 }
 
-# Usage: github_get repo/$1/statues/$2
+# Usage: github_get repo/$1/statuses/$2
 # Purpose: Make a curl -s Silent -G Get request
 github_get()
 {
   local request_route=$@
 
-  if [ -n "$GH_TOKEN" ]
-  then
-    curl -s -G "https://api.github.com/$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json" -H "Authorization: token $GH_TOKEN"
+  if [ -n "$GH_TOKEN" ]; then
+    curl -s -G "$DOMAIN$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json" -H "Authorization: token $GH_TOKEN"
   else
-    curl -s -G "https://api.github.com/$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json"
+    curl -s -G "$DOMAIN$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json"
   fi
+}
+
+github_post()
+{
+    local request_route=$1
+    local payload=$2
+
+    if [ -z "$GH_TOKEN" ]; then
+        echo "You must export a GH_TOKEN first."
+        exit ERR_NO_TOKEN
+    else
+        curl --silent -X POST -H "User-Agent: github/platform-samples" -H "$AUTH" "$DOMAIN$request_route" -d ${payload}
+    fi
 }
