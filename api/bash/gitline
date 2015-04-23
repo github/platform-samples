@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-DOMAIN="https://api.github.com"
-source ~/projects/github_bash_project/.privateVariables.sh
+# set -x # for debugging
+
+. plumbing
 
 # Assigning Arguments
 whichMethod=$1
@@ -10,23 +11,23 @@ label_state_or_repo_name=$3
 is_private=$4
 
 function fetchIssuesWhereIAmAssignedWithLabel {
-  response=$(curl --silent ${DOMAIN}/search/issues?q=+label:${label_state_or_repo_name}+assignee:${username}+state:open&sort=created&order=asc)
+  response=$(github_get search/issues?q=+label:${label_state_or_repo_name}+assignee:${username}+state:open&sort=created&order=asc)
   echo "$response"
 }
 
 function fetchNotificationsByRepo {
-  response=$(curl -u ${TOKEN}:x-oauth-basic ${DOMAIN}/repos/${username}/${label_state_or_repo_name}/notifications)
+  response=$(github_get repos/${username}/${label_state_or_repo_name}/notifications)
   echo "$response"
 }
 
 function fetchRepoComments {
-  response=$(curl --silent ${DOMAIN}/repos/${username}/${label_state_or_repo_name}/comments)
+  response=$(github_get repos/${username}/${label_state_or_repo_name}/comments)
   echo "$response"
 }
 
 function createNewRepo {
   body="{\"name\":\"${label_state_or_repo_name}\",\"description\":\"$username\",\"private\":${is_private},\"has_issues\":true,\"has_wiki\":true,\"has_downloads\":false}"
-  response=$(curl --silent -X POST -u ${TOKEN}:x-oauth-basic ${DOMAIN}/user/repos -d ${body})
+  response=$(github_post user/repos ${body})
   echo "$response"
 }
 
