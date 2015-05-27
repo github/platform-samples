@@ -1,17 +1,30 @@
+# GitHub & GitHub Enterprise 2FA auditor
+# ======================================
+#
+# Usage: ruby 2fa_checker.rb <orgname>
+#
+# These environment variables must be set:
+# - GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges
+# - GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL
+#                        (use http://api.github.com for GitHub.com auditing)
+#
+# Requires the Octokit Rubygem: https://github.com/octokit/octokit.rb
+
 require 'octokit.rb'
 
 begin
   ACCESS_TOKEN = ENV.fetch("GITHUB_TOKEN")
-  HOSTNAME = ENV.fetch("GITHUB_HOSTNAME")
+  API_ENDPOINT = ENV.fetch("GITHUB_API_ENDPOINT")
 rescue KeyError
   $stderr.puts "To run this script, please set the following environment variables:"
-  $stderr.puts "- GITHUB_TOKEN: A valid access token with Organzation admin priviliges"
-  $stderr.puts "- GITHUB_HOSTNAME: A valid GitHub Enterprise hostname"
+  $stderr.puts "- GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges"
+  $stderr.puts "- GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL"
+  $stderr.puts "                       (use http://api.github.com for GitHub.com auditing)"
   exit 1
 end
 
 Octokit.configure do |kit|
-  kit.api_endpoint = "#{HOSTNAME}/api/v3"
+  kit.api_endpoint = API_ENDPOINT
   kit.access_token = ACCESS_TOKEN
   kit.auto_paginate = true
 end
