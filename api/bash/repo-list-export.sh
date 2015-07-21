@@ -54,7 +54,7 @@ get_repos()
       repo=$( echo ${all_repos[0]} | cut -f $i -d " " )
       echo "$repo"
 
-    done > repos.txt
+    done | sort > $org.txt
     echo "Total # of repositories in "\'$org\'": $total_repos"
     echo "List saved to $org.txt"
   else
@@ -85,7 +85,7 @@ dependency_test
 
 token_test
 
-if [[ $# -eq 0 ]] ; then
+if [ -z "$*" ] ; then
   echo "Error: no organization name entered" 1>&2
   echo
   usage
