@@ -38,45 +38,45 @@ usage()
   echo ""
 }
 
+# Progress indicator
+working() {
+   echo -n "."
+}
+
+work_done() {
+  echo -n "done!"
+  echo -e "\n"
+}
+
 get_repos()
 {
   last_repo_page=$( curl -s --head -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | sed -nE 's/^Link:.*per_page=100.page=([0-9]+)>; rel="last".*/\1/p' )
 
   if [ "$last_repo_page" == "" ]
   then
-    all_repos=$( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | jq '.[].name' | sed 's/\"//g' )
-
-    total_repos=$( echo $all_repos | sed 's/\"//g' | wc -w | sed 's/ //g' )
     echo "Fetching repository list for '$org' organization on GitHub.com"
-    for (( i=1; i<=$total_repos; i++ ))
-    do
-
-      repo=$( echo ${all_repos[0]} | cut -f $i -d " " )
-      echo "$repo"
-
-    done | sort > $org.txt
+    all_repos=($( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | jq --raw-output '.[].name'  | tr '\n' ' ' ))
+    total_repos=$( echo $all_repos | sed 's/\"//g' | wc -w | tr -d "[:space:]" )
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+    total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
+    echo ""
     echo "Total # of repositories in "\'$org\'": $total_repos"
     echo "List saved to $org.txt"
   else
+    echo "Fetching repository list for '$org' organization on GitHub.com"
+    working
+    all_repos=()
     for (( j=1; j<=$last_repo_page; j++ ))
     do
-      all_repos=$( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100&page=$j" | jq '.[].name' | sed 's/\"//g' )
-
-      total_repos=$( echo $all_repos | sed 's/\"//g' | wc -w | sed 's/ //g' )
-      echo "Fetching repository list for '$org' organization on GitHub.com"
-
-      for (( i=1; i<=$total_repos; i++ ))
-      do
-
-        repo=$( echo ${all_repos[0]} | cut -f $i -d " " )
-        echo "$repo"
-
-      done
-    done | sort > $org.txt
-      grand_total_repos=$(wc -l $org.txt | sed -nE 's/ +([0-9]+) .+/\1/p')
-      echo "Total # of repositories in "\'$org\'": $grand_total_repos"
-      echo "List saved to $org.txt"
-  fi      #end last_repo_page == ""
+      paginated_repos=$( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100&page=$j" | jq --raw-output '.[].name'  | tr '\n' ' ' )
+      all_repos=(${all_repos[@]} $paginated_repos)
+    done
+    work_done
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+    total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
+    echo "Total # of repositories in "\'$org\'": $total_repos"
+    echo "List saved to $org.txt"
+  fi
 }
 
 #### MAIN
