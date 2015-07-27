@@ -54,21 +54,21 @@ get_repos()
 
   if [ "$last_repo_page" == "" ]
   then
-    echo "Fetching repository list for '$org' organization on GitHub.com"
+    echo "Fetching repository list for '$org' organization"
     all_repos=($( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | jq --raw-output '.[].name'  | tr '\n' ' ' ))
     total_repos=$( echo $all_repos | sed 's/\"//g' | wc -w | tr -d "[:space:]" )
     printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
     total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
-    echo ""
+    echo
     echo "Total # of repositories in "\'$org\'": $total_repos"
     echo "List saved to $org.txt"
   else
-    echo "Fetching repository list for '$org' organization on GitHub.com"
-    working
+    echo "Fetching repository list for '$org' organization"
     all_repos=()
-    for (( j=1; j<=$last_repo_page; j++ ))
+    for (( i=1; i<=$last_repo_page; i++ ))
     do
-      paginated_repos=$( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100&page=$j" | jq --raw-output '.[].name'  | tr '\n' ' ' )
+      working
+      paginated_repos=$( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100&page=$i" | jq --raw-output '.[].name'  | tr '\n' ' ' )
       all_repos=(${all_repos[@]} $paginated_repos)
     done
     work_done
@@ -94,14 +94,14 @@ fi
 
 while [ "$1" != "" ]; do
   case $1 in
-    -h | --help )         usage
-                          exit ;;
-    -* )                  echo "Error: invalid argument: '$1'" 1>&2
-                          echo
-                          usage
-                          exit 1;;
-    * )                   org="$1"
-                          get_repos
+    -h | --help )     usage
+                      exit ;;
+    -* )              echo "Error: invalid argument: '$1'" 1>&2
+                      echo
+                      usage
+                      exit 1;;
+    * )               org="$1"
+                      get_repos
   esac
   shift
 done
