@@ -3,14 +3,15 @@
 # set GITHUB_TOKEN to your GitHub or GHE access token
 # set GITHUB_API_ENDPOINT to your GHE API endpoint (defaults to https://api.github.com)
 
-if [ -n "$GITHUB_API_ENDPOINT" ]
-  then
-    url=$GITHUB_API_ENDPOINT
-  else
-    url="https://api.github.com"
+if [ -n "$GITHUB_API_ENDPOINT" ]; then
+  url=$GITHUB_API_ENDPOINT
+else
+  url="https://api.github.com"
 fi
 
 token=$GITHUB_TOKEN
+
+OUTPUT_FORMAT="list"
 
 dependency_test()
 {
@@ -21,8 +22,7 @@ dependency_test()
 
 token_test()
 {
-  if [ -n "$token" ]
-    then
+  if [ -n "$token" ]; then
     token_cmd="Authorization: token $token"
   else
     echo "You must set a Personal Access Token to the GITHUB_TOKEN environment variable"
@@ -48,16 +48,23 @@ work_done() {
   echo -e "\n"
 }
 
+output_list()
+{
+  if [[ "$OUTPUT_FORMAT" == "array" ]]; then
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case | sed -E "s/^(.*)/\"$org\/\1\"/g" | paste -sd ',' - > $org.txt
+  else
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+  fi
+}
+
 get_repos()
 {
   last_repo_page=$( curl -s --head -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | sed -nE 's/^Link:.*per_page=100.page=([0-9]+)>; rel="last".*/\1/p' )
 
-  if [ "$last_repo_page" == "" ]
-  then
+  if [[ "$last_repo_page" == "" ]]; then
     echo "Fetching repository list for '$org' organization"
     all_repos=($( curl -s -H "$token_cmd" "$url/orgs/$org/repos?per_page=100" | jq --raw-output '.[].name'  | tr '\n' ' ' ))
-    total_repos=$( echo $all_repos | sed 's/\"//g' | wc -w | tr -d "[:space:]" )
-    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+    output_list
     total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
     echo
     echo "Total # of repositories in "\'$org\'": $total_repos"
@@ -72,7 +79,7 @@ get_repos()
       all_repos=(${all_repos[@]} $paginated_repos)
     done
     work_done
-    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+    output_list
     total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
     echo "Total # of repositories in "\'$org\'": $total_repos"
     echo "List saved to $org.txt"
@@ -85,23 +92,24 @@ dependency_test
 
 token_test
 
-if [ -z "$*" ] ; then
+if [[ -z "$*" ]] ; then
   echo "Error: no organization name entered" 1>&2
   echo
   usage
   exit 1
 fi
 
-while [ "$1" != "" ]; do
+while [[ "$1" != "" ]]; do
   case $1 in
-    -h | --help )     usage
-                      exit ;;
-    -* )              echo "Error: invalid argument: '$1'" 1>&2
-                      echo
-                      usage
-                      exit 1;;
-    * )               org="$1"
-                      get_repos
+    -h | --help )         usage
+                          exit ;;
+    -a | --array-format ) OUTPUT_FORMAT="array";;
+    -* )                  echo "Error: invalid argument: '$1'" 1>&2
+                          echo
+                          usage
+                          exit 1;;
+    * )                   org="$1"
+                          get_repos
   esac
   shift
 done
