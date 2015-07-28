@@ -48,5 +48,5 @@ Axlsx::Package.new do |p|
     end
   end
   p.use_shared_strings = true
-  p.serialize('audit.xlsx')
+  p.serialize("#{Time.now.strftime "%Y-%m-%d"}-audit.xlsx")
 end
