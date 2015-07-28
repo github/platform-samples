@@ -13,6 +13,8 @@ token=$GITHUB_TOKEN
 
 OUTPUT_FORMAT="list"
 
+today=$(date +"%Y-%m-%d")
+
 dependency_test()
 {
   for dep in curl jq ; do
@@ -53,9 +55,9 @@ work_done() {
 output_list()
 {
   if [[ "$OUTPUT_FORMAT" == "array" ]]; then
-    printf '%s\n' "${all_repos[@]}" | sort --ignore-case | sed -E "s/^(.*)/\"$org\/\1\"/g" | paste -sd ',' - > $org.txt
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case | sed -E "s/^(.*)/\"$org\/\1\"/g" | paste -sd ',' - > $org-$today.txt
   else
-    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org.txt
+    printf '%s\n' "${all_repos[@]}" | sort --ignore-case > $org-$today.txt
   fi
 }
 
@@ -70,7 +72,7 @@ get_repos()
     total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
     echo
     echo "Total # of repositories in "\'$org\'": $total_repos"
-    echo "List saved to $org.txt"
+    echo "List saved to $org-$today.txt"
   else
     echo "Fetching repository list for '$org' organization"
     all_repos=()
@@ -84,7 +86,7 @@ get_repos()
     output_list
     total_repos=$( echo "${all_repos[@]}" | wc -w | tr -d "[:space:]" )
     echo "Total # of repositories in "\'$org\'": $total_repos"
-    echo "List saved to $org.txt"
+    echo "List saved to $org-$today.txt"
   fi
 }
 
