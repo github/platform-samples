@@ -10,6 +10,7 @@
 #                        (use http://api.github.com for GitHub.com auditing)
 #
 # Requires the Octokit Rubygem: https://github.com/octokit/octokit.rb
+# Requires the axlsx Rubygem:   https://github.com/randym/axlsx
 
 require 'octokit.rb'
 require 'axlsx'
