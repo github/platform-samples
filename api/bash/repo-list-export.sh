@@ -34,7 +34,9 @@ usage()
 {
   echo -e "Usage: $0 [options] <orgname>...\n"
   echo "Options:"
-  echo " -h | --help                      Help"
+  echo " -h | --help              Display this help text"
+  echo " -a | --array-format      Output the repository list in"
+  echo "                          \"<orgname>/<repo1>\",\"<orgname>/<repo2>\" format"
   echo ""
 }
 
