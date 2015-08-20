@@ -12,7 +12,7 @@ end
 client = Octokit::Client.new
 users = client.all_users
 n = 1
-puts "Importing users..."
+puts "Aggregating users..."
 full_users = users.map { |u|
   print "\r#{n}/#{users.count}"
   n += 1
@@ -29,9 +29,12 @@ active = full_users.select do |u|
   u.suspended_at.nil? rescue false;
 end
 
-two_days = 172800
+seconds_in_two_days = 60 * # seconds in an minute
+                      60 * # minutes in an hour
+                      48   # hours in 2 days
+
 recent = suspended.select do |u|
-  u[:suspended_at] > (Time.now - two_days)
+  u[:suspended_at] > (Time.now - seconds_in_two_days)
 end
 
 puts ""
