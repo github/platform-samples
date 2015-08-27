@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# User Audit - Generated with Octokitchen https://github.com/kylemacey/octokitchen
+# Suspended User Audit - Generated with Octokitchen https://github.com/kylemacey/octokitchen
 
 # Dependencies
 require "octokit"

@@ -1,4 +1,4 @@
-# User Audit
+# Suspended User Audit
 
 Lists total number of active, suspended, and recently suspended users. Gives the option to unsuspend all recently suspended users. This is mostly useful when a configuration change may have caused a large number of users to become suspended.
 
@@ -32,5 +32,5 @@ export OCTOKIT_ACCESS_TOKEN=00000000000000000000000
 ### Execute
 
 ```shell
-ruby user_audit.rb
+ruby suspended_user_audit.rb
 ```
