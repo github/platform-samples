@@ -6,7 +6,7 @@
 # These environment variables must be set:
 # - GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges
 # - GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL
-#                        (use http://api.github.com for GitHub.com auditing)
+#                        (use https://api.github.com for GitHub.com auditing)
 #
 # Requires the Octokit Rubygem: https://github.com/octokit/octokit.rb
 
@@ -19,7 +19,7 @@ rescue KeyError
   $stderr.puts "To run this script, please set the following environment variables:"
   $stderr.puts "- GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges"
   $stderr.puts "- GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL"
-  $stderr.puts "                       (use http://api.github.com for GitHub.com auditing)"
+  $stderr.puts "                       (use https://api.github.com for GitHub.com auditing)"
   exit 1
 end
 
