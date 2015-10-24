@@ -14,7 +14,7 @@
     <p>
       <% if defined? private_emails %>
       With your permission, we were also able to dig up your private email addresses:
-      <%= private_emails.join(', ') %>
+      <%= private_emails.map{ |private_email_address| private_email_address["email"] }.join(', ') %>
       <% else %>
       Also, you're a bit secretive about your private email addresses.
       <% end %>
