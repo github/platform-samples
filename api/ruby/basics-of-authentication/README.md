@@ -1,10 +1,11 @@
-basics-of-authentication
-================
+# basics-of-authentication
 
 This is the sample project built by following the "[Basics of Authentication][basics of auth]"
 guide on developer.github.com.
 
 It consists of two different servers: one built correctly, and one built less optimally.
+
+## Install and Run project
 
 To run these projects, make sure you have [Bundler][bundler] installed; then type
 `bundle install` on the command line.
