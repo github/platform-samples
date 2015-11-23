@@ -2,6 +2,10 @@ require 'sinatra'
 require 'rest_client'
 require 'json'
 
+# Need dotenv gem to run GitHub client!
+require 'dotenv'
+Dotenv.load
+
 # !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
 # Instead, set and test environment variables, like below
 # if ENV['GITHUB_CLIENT_ID'] && ENV['GITHUB_CLIENT_SECRET']
