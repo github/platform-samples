@@ -13,6 +13,9 @@ To run these projects, make sure you have [Bundler][bundler] installed; then typ
 For the "less optimal" server, type `ruby server.rb` on the command line.
 
 For the correct server, enter `ruby advanced_server.rb` on the command line.
+See `advanced_server.rb` for environment variables you can set, including
+non-production environments. If any config variables are missing, you'll be
+prompted to supply them before the server starts.
 
 Both commands will run the server at `localhost:4567`.
 
