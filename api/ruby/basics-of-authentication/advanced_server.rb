@@ -15,7 +15,7 @@ include CLIHelper
 
 CLIENT_ID       = ENV["GITHUB_CLIENT_ID"] || get_required_from_user("Client ID")
 CLIENT_SECRET   = ENV["GITHUB_CLIENT_SECRET"] || get_required_from_user("Client Secret")
-BASE_GITHUB_URL = ENV["GITHUB_URL"] || get_required_from_user("Base GitHub URL", default: "https://github.com")
+BASE_GITHUB_URL = ENV["GITHUB_URL"] || get_required_from_user("Base GitHub URL", :default => "https://github.com")
 BASE_API_URL    = case URI.parse(BASE_GITHUB_URL).host
                   when "github.com"
                     "https://api.github.com"
