@@ -81,8 +81,6 @@ end
 get "/callback" do
   session_code = request.env["rack.request.query_hash"]["code"]
 
-  binding.pry
-
   result = RestClient.post("#{BASE_GITHUB_URL}/login/oauth/access_token",
                           {:client_id => CLIENT_ID,
                            :client_secret => CLIENT_SECRET,
