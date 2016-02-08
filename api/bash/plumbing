@@ -1,0 +1,28 @@
+# building block, not intended for use by end-user
+# $1 = endpoint, e.g. users/defunkt
+# any remaining args = curl options
+
+# Usage: callAPI "repos/$1/statuses/$2" -d "$3"
+callAPI()
+{
+  local AUTH="Authorization: token $GH_TOKEN"
+  local DOMAIN='https://api.github.com/'
+  local REQUEST_URL="$DOMAIN$1"
+  shift
+
+  curl -i -H "$AUTH" "$@" "$REQUEST_URL"
+}
+
+# Usage: github_get repo/$1/statues/$2
+# Purpose: Make a curl -s Silent -G Get request
+github_get()
+{
+  local request_route=$@
+
+  if [ -n "$GH_TOKEN" ]
+  then
+    curl -s -G "https://api.github.com/$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json" -H "Authorization: token $GH_TOKEN"
+  else
+    curl -s -G "https://api.github.com/$request_route" -H "User-Agent: github/platform-samples" -H "Accept: application/vnd.github.full+json"
+  fi
+}
