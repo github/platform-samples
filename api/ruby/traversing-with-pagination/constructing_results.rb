@@ -8,7 +8,7 @@ results = client.search_code('addClass user:mozilla')
 total_count = results.total_count
 
 last_response = client.last_response
-number_of_pages = last_response.rels[:last].href.match(/page=(\d+)$/)[1]
+number_of_pages = last_response.rels[:last].href.match(/page=(\d+).*$/)[1]
 
 puts last_response.rels[:last].href
 puts "There are #{total_count} results, on #{number_of_pages} pages!"

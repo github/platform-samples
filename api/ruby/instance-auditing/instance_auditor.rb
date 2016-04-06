@@ -1,7 +1,8 @@
-# GitHub & GitHub Enterprise 2FA auditor
-# ======================================
+
+# GitHub & GitHub Enterprise Instance auditor
+# =======================================
 #
-# Usage: ruby 2fa_checker.rb <orgname>
+# Usage: ruby instance_audit.rb
 #
 # These environment variables must be set:
 # - GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges
@@ -9,8 +10,10 @@
 #                        (use https://api.github.com for GitHub.com auditing)
 #
 # Requires the Octokit Rubygem: https://github.com/octokit/octokit.rb
+# Requires the axlsx Rubygem:   https://github.com/randym/axlsx
 
 require 'octokit.rb'
+require 'axlsx'
 
 begin
   ACCESS_TOKEN = ENV.fetch("GITHUB_TOKEN")
@@ -29,18 +32,21 @@ Octokit.configure do |kit|
   kit.auto_paginate = true
 end
 
-if ARGV.length != 1
-  $stderr.puts "Pass a valid Organization name to audit."
-  exit 1
-end
-
-ORG = ARGV[0].to_s
-
 client = Octokit::Client.new
 
-users = client.organization_members(ORG, {:filter => "2fa_disabled"})
-
-puts "The following #{users.count} users do not have 2FA enabled:\n\n"
-users.each do |user|
-  puts "#{user[:login]}"
+Axlsx::Package.new do |p|
+  client.organizations.each do |org|
+    p.workbook.add_worksheet(:name => org[:login]) do |sheet|
+      sheet.add_row %w{Organization Team Repo User Access}
+      client.organization_teams(org[:login]).each do |team|
+        client.team_repos(team[:id]).each do |repo|
+          client.team_members(team[:id]).each do |user|
+            sheet.add_row [org[:login], team[:name], repo[:name], user[:login], team[:permission]]
+          end
+        end
+      end
+    end
+  end
+  p.use_shared_strings = true
+  p.serialize("#{Time.now.strftime "%Y-%m-%d"}-audit.xlsx")
 end
