@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+
+# set -x # for debugging
+
+. plumbing
+
+#### COLORS & FORMATTING
+
+_red=$(tput setaf 1)
+_green=$(tput setaf 2)
+_yellow=$(tput setaf 3)
+_blue=$(tput setaf 4)
+_magenta=$(tput setaf 5)
+_cyan=$(tput setaf 6)
+_white=$(tput setaf 7)
+
+_bold=$(tput bold)
+
+_reset=$(tput sgr0)
+
+_error=${_red}${_bold}
+_command=${_yellow}${_bold}
+_target=${_magenta}
+_em=${_blue}${_bold}
+
+
+#### INTERNAL METHODS & HELPERS
+
+dependency_test()
+{
+  for dep in curl jq ; do
+    command -v $dep &>/dev/null || { echo -e "\n${_error}Error:${_reset} I require the ${_command}$dep${_reset} command but it's not installed.\n"; exit 1; }
+  done
+}
+
+usage()
+{
+  echo -e "Usage: $0 [options] <argv>...\n"
+  echo "Options:"
+  echo " -f | --forks <user/repository>   Display list of forks for a  repository"
+  echo " -r | --repo  <user/repository>   Display a summary of a repository"
+  echo " -u | --user  <username>          Display summary of a user"
+  echo " -h | --help                      Help"
+  echo ""
+}
+
+set_user_context()
+{
+  context=$(echo "$1" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's#/$## ')
+}
+
+set_repo_context()
+{
+  context=$(echo "$1" | sed -e 's/^https*:\/*//' -e 's/github\.com\/*//' -e 's/\.*git$//' -e 's#/$##')
+}
+
+print_whitespace()
+{
+  for i in $(seq 1 $1); do
+      echo -n " "
+  done
+}
+
+print_header()
+{
+  local name_length=${#context}
+  local header_length=$(( name_length + 13 ))
+  
+  echo -e "\nDetails for ${_target}$context${_reset}:"
+  for i in $(seq 1 $header_length); do
+    echo -n "="
+  done
+  echo -e "\n"
+}
+
+
+#### FORMATTED REQUEST FUNCTIONS
+
+user_details()
+{
+  print_header 
+  api_request_result=$(github_get "users/$context")
+
+  local name_length=${#context}
+
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local location=$( echo $api_request_result | jq -r '.location' )
+  local email=$( echo $api_request_result | jq -r '.email' )
+  local bio=$( echo $api_request_result | jq -r '.bio' )
+  local public_repos=$( echo $api_request_result | jq -r '.public_repos' )
+  local public_gists=$( echo $api_request_result | jq -r '.public_gists' )
+  local followers=$( echo $api_request_result | jq -r '.followers' )
+  local following=$( echo $api_request_result | jq -r '.following' )
+  local user_since=$( echo $api_request_result | jq -r '.created_at' )
+
+  echo "     Name: $name"
+  echo " Location: $location"
+
+  if [ $email != "null" ]; then
+    echo "    Email: $email"
+  fi
+
+  if [ "$bio" != "null" ]; then
+    echo "      Bio: $bio"
+  fi
+
+  echo -e "\n ${_magenta}$context${_reset} has shared ${_em}$public_repos${_reset} public git repositories and ${_em}$public_gists${_reset} gists.\n"
+  print_whitespace $name_length
+
+  echo -e "  is followed by ${_em}$followers${_reset} GitHub users and follows ${_em}$following${_reset} users.\n"
+  print_whitespace $name_length
+
+  echo -e "  has been a happy GitHub user since ${_em}${user_since:0:10}${_reset}."
+}
+
+repo_details()
+{
+  print_header 
+  api_request_result=$(github_get "repos/$context")
+
+  local name_length=${#context}
+
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local owner=$( echo $api_request_result | jq -r '.owner.login' )
+  local description=$( echo $api_request_result | jq -r '.description' )
+  local forks_count=$( echo $api_request_result | jq -r '.forks_count' )
+  local stargazers_count=$( echo $api_request_result | jq -r '.stargazers_count' )
+  local open_issues_count=$( echo $api_request_result | jq -r '.open_issues_count' )
+  local created_at=$( echo $api_request_result | jq -r '.created_at' )
+  local updated_at=$( echo $api_request_result | jq -r '.updated_at' )
+  local parent_name=$( echo $api_request_result | jq -r '.parent.name' )
+  local parent_owner=$( echo $api_request_result | jq -r '.parent.owner.login' )
+  local clone_url=$( echo $api_request_result | jq -r '.clone_url' )
+  local homepage=$( echo $api_request_result | jq -r '.homepage' )
+
+  echo -e " ${_bold}${_white}$name${_reset} by $owner\n"
+  
+  if [ "$description" != "null" ]; then
+    echo " $description" | fmt
+  fi
+
+  if [ "$homepage" != "null" ]; then
+    echo " Homepage: $homepage"
+  fi
+
+  echo -e "\n ${_target}$context${_reset} has been forked ${_em}$forks_count${_reset} times and starred ${_em}$stargazers_count${_reset} times.\n"
+  print_whitespace $name_length
+
+  echo -e "  has ${_em}$open_issues_count${_reset} open issues.\n"
+  print_whitespace $name_length
+
+  echo -e "  was created on ${_em}${created_at:0:10}${_reset} and last updated on ${_em}${updated_at:0:10}${_reset}."
+
+  if [ $parent_name != "null" ]; then
+    echo -e "\n\n ${_target}$name${_reset} was forked from ${_yellow}$parent_name${_yellow} by ${_yellow}$parent_owner${_reset}"
+  fi
+
+  echo -e "\n Clone URL: $clone_url \n"
+}
+
+
+list_forks()
+{
+  print_header 
+  api_request_result=$(github_get "repos/$context")
+
+  local name=$( echo $api_request_result | jq -r '.name' )
+  local owner=$( echo $api_request_result | jq -r '.owner.login' )
+  local forks_count=$( echo $api_request_result | jq -r '.forks_count' )
+
+  echo -e "${_bold}$name${_white}${_reset} by $owner\n"
+  echo -e "\n${_target}$context${_reset} has been forked ${_em}$forks_count${_reset} times, including forks by these GitHub users:\n"
+
+  api_request_result=$(github_get "repos/$context/forks")
+
+  response=$( echo $api_request_result | jq -r '.[] | .owner.login' )
+  echo -e "${_blue}$response${_reset}"
+  echo ""
+}
+
+
+#### MAIN
+
+dependency_test
+
+# Print help if no params are passed.
+if [ -z $1 ]; then
+  usage
+  exit 1
+fi
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help )   usage
+                    exit ;;
+    -u | --user )   shift
+                    set_user_context "$1"
+                    user_details ;;
+    -r | --repo )   shift
+                    set_repo_context "$1"
+                    repo_details ;;
+    -f | --forks )  shift
+                    set_repo_context "$1"
+                    list_forks
+                    exit ;;
+    * )             usage
+                    exit 1
+  esac
+  shift
+done
