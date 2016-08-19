@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #
 # Pre-receive hook that will block any unsigned commits and tagswhen pushed to a GitHub Enterprise repository
