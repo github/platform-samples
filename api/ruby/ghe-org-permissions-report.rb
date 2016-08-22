@@ -36,7 +36,7 @@ ghe.orgs(ghe.user).each do |org|
   # We shouldn't try to get the org permissions if we're not an admin,
   # they'll be wrong or misleading
   if get_org_role(ghe, org.login, ghe.user.login) != 'admin'
-    puts "Skipping #{org.login} - not an organization admin"
+    STDERR.puts "Skipping #{org.login} - not an organization admin"
     next
   end
 
