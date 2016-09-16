@@ -1,0 +1,22 @@
+query {
+  viewer {
+    repositories(last: 30) {
+      edges {
+        node {
+          owner {
+            login
+          }
+          name
+          stargazers(first: 5) {
+            totalCount
+            edges {
+              node {
+                login
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
