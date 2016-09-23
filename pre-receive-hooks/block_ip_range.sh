@@ -17,11 +17,11 @@ function ip2dec {
 }
 
 # define lower IPv4 limit
-IP_LOW="0.0.0.0"
+IP_LOW="192.168.0.0"
 IP_LOW_DEC=$(ip2dec "${IP_LOW}")
 
 # define upper IPv4 limit
-IP_HIGH="255.255.255.255"
+IP_HIGH="192.168.255.255"
 IP_HIGH_DEC=$(ip2dec "${IP_HIGH}")
 
 # get IPv4 from pre-receive hook variable
