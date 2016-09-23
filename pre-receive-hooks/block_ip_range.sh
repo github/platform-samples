@@ -18,18 +18,18 @@ function ip2dec {
 
 # define lower IPv4 limit
 IP_LOW="0.0.0.0"
-IP_LOW_INT=$(ip2dec "${IP_LOW}")
+IP_LOW_DEC=$(ip2dec "${IP_LOW}")
 
 # define upper IPv4 limit
 IP_HIGH="255.255.255.255"
-IP_HIGH_INT=$(ip2dec "${IP_HIGH}")
+IP_HIGH_DEC=$(ip2dec "${IP_HIGH}")
 
 # get IPv4 from pre-receive hook variable
 IP_IN="${GITHUB_USER_IP}"
-IP_INT=$(ip2dec "${IP_IN}")
+IP_DEC=$(ip2dec "${IP_IN}")
 
 # reject push if `IP_IN` is between `IP_LOW` and IP_HIGH
-if [ "${IP_INT}" -ge "${IP_LOW_INT}" ] && [ "${IP_INT}" -le "${IP_HIGH_INT}" ]; then
+if [ "${IP_DEC}" -ge "${IP_LOW_DEC}" ] && [ "${IP_DEC}" -le "${IP_HIGH_DEC}" ]; then
   echo "Hello there! We have restricted pushes from your IP (${IP_IN}) address. Please see Dave in IT to discuss alternatives."
   exit 1
 fi
