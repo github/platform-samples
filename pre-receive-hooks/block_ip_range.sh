@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Pre-receive hook that will reject all pushes received from IP addresses
+# Pre-receive hook that will reject all pushes received from IPv4 addresses
 # between `IP_LOW` and `IP_HIGH`
 #
 # More details on pre-receive hooks and how to apply them can be found on
@@ -16,15 +16,15 @@ function ip2dec {
   echo "$((a * 256 ** 3 + b * 256 ** 2 + c * 256 + d))"
 }
 
-# define lower IP limit
+# define lower IPv4 limit
 IP_LOW="0.0.0.0"
 IP_LOW_INT=$(ip2dec "${IP_LOW}")
 
-# define upper IP limit
+# define upper IPv4 limit
 IP_HIGH="255.255.255.255"
 IP_HIGH_INT=$(ip2dec "${IP_HIGH}")
 
-# get IP from pre-receive hook variable
+# get IPv4 from pre-receive hook variable
 IP_IN="${GITHUB_USER_IP}"
 IP_INT=$(ip2dec "${IP_IN}")
 
