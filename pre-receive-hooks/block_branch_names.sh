@@ -13,7 +13,7 @@ zero_commit="0000000000000000000000000000000000000000"
 while read oldrev newrev refname; do
   # Prevent creation of new branches that don't match `^refs/heads/[a-z]+$`
   if [[ $oldrev == $zero_commit && ! $refname =~ ^refs/heads/[a-z]+$ ]]; then
-    echo "Blocking creation of new branch $refname because it must only contain lower-case alphabet characters."
+    echo "Blocking creation of new branch $refname because it must only contain lower-case alphabetical characters."
     exit 1
   fi
 done
