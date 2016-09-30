@@ -7,9 +7,6 @@
 # More details on pre-receive hooks and how to apply them can be found on
 # https://help.github.com/enterprise/admin/guides/developer-workflow/managing-pre-receive-hooks-on-the-github-enterprise-appliance/
 #
-# More details on GPG commit and tag signing can be found on
-# https://help.github.com/articles/signing-commits-using-gpg/
-#
 
 case $GITHUB_USER_LOGIN in
   foo|bar|foobar) echo "User $GITHUB_USER_LOGIN is allowed to push";;
