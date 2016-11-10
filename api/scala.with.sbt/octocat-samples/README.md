@@ -3,7 +3,7 @@
 ## Setup and Run
 
 - This is a `sbt` project. See http://www.scala-sbt.org/0.13/docs/Setup.html
-- Run `sbt` in a Terminal (at the root of this project: `/platform-samples/API/scala.wit.sbt/octokit`)
+- Run `sbt` in a Terminal (at the root of this project: `/platform-samples/API/scala.wit.sbt/octocat-samples`)
 - Type `run`, and you'll get this:
 ```shell
 > run
