@@ -14,7 +14,7 @@ import scala.util.parsing.json.JSON
   * {{{
   *   val gitHubCli = new github.Client(
   *     "http://github.at.home/api/v3",
-  *     sys.env("TOKEN_GHITHUB_ENTERPRISE")
+  *     sys.env("TOKEN_GITHUB_ENTERPRISE")
   *   ) with Organizations
   *
   * }}}

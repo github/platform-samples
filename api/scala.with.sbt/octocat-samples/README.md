@@ -63,7 +63,7 @@ This source code can work with :octocat:.com and :octocat: Enterprise
 ```scala
 val githubCliEnterprise = new github.Client(
   "http://github.at.home/api/v3",
-  sys.env("TOKEN_GHITHUB_ENTERPRISE")
+  sys.env("TOKEN_GITHUB_ENTERPRISE")
 )
 
 val githubCliDotCom = new github.Client(
@@ -108,7 +108,7 @@ You can add more than one feature:
 ```scala
 val gitHubCli = new github.Client(
   "http://github.at.home/api/v3",
-  sys.env("TOKEN_GHITHUB_ENTERPRISE")
+  sys.env("TOKEN_GITHUB_ENTERPRISE")
 ) with Organizations
   with Repositories
 ```
