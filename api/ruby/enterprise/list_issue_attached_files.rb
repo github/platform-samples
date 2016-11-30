@@ -22,9 +22,41 @@ Octokit.configure do |kit|
   kit.auto_paginate = true
 end
 
-pattern = /\[[^\]]*\]\(([^\)]*)\)/
+# Extract links to attached files using regexp
+pattern = /\[[^\]]*\]\((#{hostname}[^\)]*\/files\/[^\)]*)\)/
+
 Octokit.repositories.map{|repo| repo.full_name}.each do |r|
-  Octokit.issues(r, {state: :all}).select{|i| i.body.match(pattern)}.each{|mi| mi.body.scan(pattern).each{|s| puts "#{mi.html_url},#{s[0]}"}}
-  Octokit.issues_comments(r).select{|ic| ic.body.match(pattern)}.each{|mic| mic.body.scan(pattern).each{|s| puts "#{mic.html_url},#{s[0]}"}}
-  Octokit.pulls_comments(r).select{|prc| prc.body.match(pattern)}.each{|mprc| mprc.body.scan(pattern).each{|s| puts "#{mprc.html_url},#{s[0]}"}}
+  # Extract issues containing links to attached files
+  issues = Octokit.issues(r, {state: :all}).select do |i|
+    i.body.match(pattern)
+  end
+  issues.each do |issue|
+    # Extract the link pattern from issues' body
+    matched_links = issue.body.scan(pattern)
+    matched_links.each do |file|
+      puts "#{issue.html_url},#{file[0]}"
+    end
+  end
+
+  # Issue comments as well (including pull request comments)
+  issue_comments = Octokit.issues_comments(r).select do |ic|
+    ic.body.match(pattern)
+  end
+  issue_comments.each do |issue_comment|
+    matched_links = issue_comment.body.scan(pattern)
+    matched_links.each do |file|
+      puts "#{issue_comment.html_url},#{file[0]}"
+    end
+  end
+
+  # Pull request review comments as well
+  pr_comments = Octokit.pulls_comments(r).select do |prc|
+    prc.body.match(pattern)
+  end
+  pr_comments.each do |pr_comment|
+    matched_links = pr_comment.body.scan(pattern)
+    matched_links.each do |file|
+      puts "#{pr_comment.html_url},#{file[0]}"
+    end
+  end
 end
