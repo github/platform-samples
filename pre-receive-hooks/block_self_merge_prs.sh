@@ -11,7 +11,6 @@
 if [ "$GITHUB_VIA" = "merge api" && "$GITHUB_PULL_REQUEST_AUTHOR_LOGIN" = "$GITHUB_USER_LOGIN"]; then
     echo "Blocking merging of your own pull request."
     exit 1
-  fi
 fi
 
 exit 0
