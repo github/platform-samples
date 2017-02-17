@@ -3,12 +3,27 @@
 /**
  * groovy script to show all users that can access a given repository in a GitHub Enterprise instance
  *
- *
  * Run 'groovy PrintRepoAccess.groovy' to see the list of command line options
+ * 
+ * Example on how to list access rights for repos foo/bar and bar/foo on GitHub Enterprise instance https://foobar.com:
  *
- *  First run may take some time as required dependencies have to get downloaded, then it should be quite fast
+ * groovy PrintRepoAccess.groovy  -u https://foobar.com -t <access token> foo/bar bar/foo
  *
- *  If you do not have groovy yet, run 'brew install groovy'
+ * Example on how to list access rights for repos stored in <org-name>/<repo-name.git> in directory local:
+ * groovy PrintRepoAccess.groovy  -u https://foobar.com -t <access token> -l local
+ *
+ * Example that combines the two examples above but uses environmental variables instead of explicit parameters:
+ *
+ * export GITHUB_TOKEN="<personal access token>"
+ * export GITHUB_URL="https://foobar.com"
+ * groovy PrintRepoAccess.groovy -l local foo/bar bar/foo
+ *
+ * Apart from Groovy (and Java), you do not need to install any libraries on your system as the script will download them when you first start it
+ * The first run may take some time as required dependencies have to get downloaded, then it should be quite fast
+ *  
+ * If you do not have groovy yet, run 'brew install groovy' on a Mac, for Windows and Linux follow the instructions here:
+ * http://groovy-lang.org/install.html
+ *
  */
 
 @Grab(group='org.kohsuke', module='github-api', version='1.75')
