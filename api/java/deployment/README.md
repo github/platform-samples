@@ -2,7 +2,7 @@
 
 A sample implementation for using GitHub Deployment API.
 
-Ported [this](https://developer.github.com/guides/delivering-deployments/) by Java. Powerd by [Spark](http://sparkjava.com/).
+Ported [this](https://developer.github.com/guides/delivering-deployments/) by Java. Powered by [Spark](http://sparkjava.com/).
 
 ## Prerequisite
 - JDK8
