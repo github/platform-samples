@@ -4,21 +4,34 @@ require 'uri'
 require 'net/http'
 
 $github_api_token = ENV['GITHUB_API_TOKEN']
+$github_secret_token = ENV['SECRET_TOKEN']
 
 post '/payload' do
 
-  github_event = request.env['HTTP_X_GITHUB_EVENT']
+  # Only validate secret token if set 
+  if !$github_secret_token.nil?
+    payload_body = request.body.read
+    verify_signature(payload_body)
+  end
 
+  github_event = request.env['HTTP_X_GITHUB_EVENT']
   if github_event == "push"
+    request.body.rewind
     parsed = JSON.parse(request.body.read)
 
     # Get branch information
     branch_head = parsed['ref']
     branch_name = branch_head.chomp("refs/heads")
+    
+    # Get Repository owner
     repo_owner = parsed["repository"]["owner"]["name"]
 
     # Create URL to look up Pull Requests for this branch
+    # e.g. https://api.github.com/repos/baxterthehacker/public-repo/pulls{/number}
     pulls_url = parsed['repository']['pulls_url']
+    
+    # Pull off the {/number}" and search for all Pull Requests
+    # that include the branch
     puts pulls_url_filtered = pulls_url.split('{').first + "?head=#{repo_owner}:#{branch_name}"
     url =  URI(pulls_url_filtered)
     pulls = getPulls(url)
@@ -114,4 +127,9 @@ def getPulls(url)
   else
     JSON.parse(response.read_body)
   end
+end
+
+def verify_signature(payload_body)
+  signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), ENV['SECRET_TOKEN'], payload_body)
+  return halt 500, "Signatures didn't match!" unless Rack::Utils.secure_compare(signature, request.env['HTTP_X_HUB_SIGNATURE'])
 end
