@@ -34,7 +34,7 @@ post '/payload' do
     # that include the branch
     puts pulls_url_filtered = pulls_url.split('{').first + "?head=#{repo_owner}:#{branch_name}"
     url =  URI(pulls_url_filtered)
-    pulls = getPulls(url)
+    pulls = get(url)
 
     # parse pull requests
     if pulls.empty?
@@ -45,7 +45,7 @@ post '/payload' do
         # Get all Reviews for a Pull Request via API
         review_url_orig = pull_request["url"] + "/reviews"
         puts review_url = URI(review_url_orig)
-        reviews = getReviewList(review_url)
+        puts reviews = get(review_url)
 
         reviews.each do |review|
           puts review["state"]
@@ -91,37 +91,18 @@ def put(url)
   end
 end
 
-# https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
-def getReviewList(url)
+def get(url)
   http = Net::HTTP.new(url.host, url.port)
   http.use_ssl = true
   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
   request = Net::HTTP::Get.new(url)
   request["authorization"] = "token #{$github_api_token}"
+  # Use `application/vnd.github.v3+json` when Reviews is out of preview period
   request["accept"] = 'application/vnd.github.black-cat-preview+json'
   request["cache-control"] = 'no-cache'
 
   response = http.request(request)
-  if response.message != "OK"
-    []
-  else
-    JSON.parse(response.read_body)
-  end
-end
-
-def getPulls(url)
-  http = Net::HTTP.new(url.host, url.port)
-  http.use_ssl = true
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-  request = Net::HTTP::Get.new(url)
-  request["authorization"] = "token #{$github_api_token}"
-  request["accept"] = 'application/vnd.github.v3+json'
-  request["cache-control"] = 'no-cache'
-
-  puts response = http.request(request)
-  puts response.message
   if response.message != "OK"
     []
   else
