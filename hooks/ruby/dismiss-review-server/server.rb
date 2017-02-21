@@ -32,7 +32,7 @@ post '/payload' do
     
     # Pull off the {/number}" and search for all Pull Requests
     # that include the branch
-    puts pulls_url_filtered = pulls_url.split('{').first + "?head=#{repo_owner}:#{branch_name}"
+    pulls_url_filtered = pulls_url.split('{').first + "?head=#{repo_owner}:#{branch_name}"
     url =  URI(pulls_url_filtered)
     pulls = get(url)
 
@@ -44,17 +44,16 @@ post '/payload' do
 
         # Get all Reviews for a Pull Request via API
         review_url_orig = pull_request["url"] + "/reviews"
-        puts review_url = URI(review_url_orig)
-        puts reviews = get(review_url)
+        review_url = URI(review_url_orig)
+        reviews = get(review_url)
 
         reviews.each do |review|
-          puts review["state"]
-          review_id = review["id"]
 
-          # Dismiss all Reviews that 'Approved' via API
+          # Dismiss all Reviews in 'APPROVED' state via API
           if review["state"] == "APPROVED"
-            puts "INFO: found an approved"
-            puts dismiss_url = URI(review_url_orig + "/#{review_id}/dismissals")
+            puts "INFO: found an approved Review"
+            review_id = review["id"]
+            dismiss_url = URI(review_url_orig + "/#{review_id}/dismissals")
             put(dismiss_url)
           end
         end.empty? and begin
