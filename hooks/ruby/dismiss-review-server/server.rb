@@ -1,7 +1,6 @@
 require 'sinatra'
 require 'json'
-require 'uri'
-require 'net/http'
+require 'rest-client'
 
 $github_api_token = ENV['GITHUB_API_TOKEN']
 $github_secret_token = ENV['SECRET_TOKEN']
@@ -20,8 +19,8 @@ post '/payload' do
     parsed = JSON.parse(request.body.read)
 
     # Get branch information
-    branch_head = parsed['ref']
-    branch_name = branch_head.chomp("refs/heads")
+    branch_name = parsed['ref']
+    branch_name.slice!("refs/heads/")
     
     # Get Repository owner
     repo_owner = parsed["repository"]["owner"]["name"]
@@ -30,11 +29,10 @@ post '/payload' do
     # e.g. https://api.github.com/repos/baxterthehacker/public-repo/pulls{/number}
     pulls_url = parsed['repository']['pulls_url']
     
-    # Pull off the {/number}" and search for all Pull Requests
+    # Pull off the "{/number}" and search for all Pull Requests
     # that include the branch
     pulls_url_filtered = pulls_url.split('{').first + "?head=#{repo_owner}:#{branch_name}"
-    url =  URI(pulls_url_filtered)
-    pulls = get(url)
+    pulls = get(pulls_url_filtered)
 
     # parse pull requests
     if pulls.empty?
@@ -44,8 +42,7 @@ post '/payload' do
 
         # Get all Reviews for a Pull Request via API
         review_url_orig = pull_request["url"] + "/reviews"
-        review_url = URI(review_url_orig)
-        reviews = get(review_url)
+        reviews = get(review_url_orig)
 
         reviews.each do |review|
 
@@ -53,7 +50,7 @@ post '/payload' do
           if review["state"] == "APPROVED"
             puts "INFO: found an approved Review"
             review_id = review["id"]
-            dismiss_url = URI(review_url_orig + "/#{review_id}/dismissals")
+            dismiss_url = review_url_orig + "/#{review_id}/dismissals"
             put(dismiss_url)
           end
         end.empty? and begin
@@ -70,43 +67,27 @@ post '/payload' do
 end
 
 def put(url)
-  http = Net::HTTP.new(url.host, url.port)
-  http.use_ssl = true
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-  request = Net::HTTP::Put.new(url)
-  request["authorization"] = "token #{$github_api_token}"
-  request["accept"] = 'application/vnd.github.black-cat-preview+json'
-  request["content"] = '0'
-  request["content-type"] = 'application/json'
-  request["cache-control"] = 'no-cache'
-  request.body = "{\n\t\"message\":\"Auto-dismissing\"\n}"
-
-  response = http.request(request)
-  if response.message != "OK"
-    []
-  else
-    JSON.parse(response.read_body)
-  end
+  jdata = JSON.generate({ message: "Auto-dismissing"})
+  headers = {
+    params:
+      {
+        access_token: $github_api_token
+      },
+    accept: "application/vnd.github.black-cat-preview+json"
+  }
+  response = RestClient.put(url, jdata, headers)
+  JSON.parse(response.body)
 end
 
 def get(url)
-  http = Net::HTTP.new(url.host, url.port)
-  http.use_ssl = true
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-  request = Net::HTTP::Get.new(url)
-  request["authorization"] = "token #{$github_api_token}"
-  # Use `application/vnd.github.v3+json` when Reviews is out of preview period
-  request["accept"] = 'application/vnd.github.black-cat-preview+json'
-  request["cache-control"] = 'no-cache'
-
-  response = http.request(request)
-  if response.message != "OK"
-    []
-  else
-    JSON.parse(response.read_body)
-  end
+  headers = {
+    params: {
+      access_token:  $github_api_token
+    },
+    accept: "application/vnd.github.black-cat-preview+json"
+  }
+  response = RestClient.get(url, headers)
+  JSON.parse(response.body)
 end
 
 def verify_signature(payload_body)
