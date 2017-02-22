@@ -1,6 +1,6 @@
 # Dismiss Review Server
 
-A ruby server that listens for GitHub webhook `push` events, based on [the documentation](https://developer.github.com/webhooks/configuring/#writing-the-server), that will cancel any `APPROVED` [Pull Request Reviews](https://help.github.com/articles/about-pull-request-reviews/).
+A ruby server that listens for GitHub webhook `push` events, based on [the documentation](https://developer.github.com/webhooks/configuring/#writing-the-server), that will dismiss any `APPROVED` [Pull Request Reviews](https://help.github.com/articles/about-pull-request-reviews/).
 
 ## Configuration
 
