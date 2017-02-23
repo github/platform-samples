@@ -20,7 +20,10 @@ post '/payload' do
 
     # Get branch information
     branch_name = parsed['ref']
-    branch_name.slice!("refs/heads/")
+    removed_slice = branch_name.slice!("refs/heads/")
+    if removed_slice.nil?
+      return "Not a branch. Nothing to do."
+    end
     
     # Get Repository owner
     repo_owner = parsed["repository"]["owner"]["name"]
