@@ -10,11 +10,19 @@
 
 zero_commit="0000000000000000000000000000000000000000"
 
+# Ensure that [a-z] means only lower case ASCII characters => set LC_COLLATE to 'C'
+# See http://unix.stackexchange.com/questions/227070/why-does-a-z-match-lowercase-letters-in-bash
+# See https://www.gnu.org/software/bash/manual/bashref.html#Pattern-Matching
+LC_COLLATE='C'
+
 while read oldrev newrev refname; do
-  # Prevent creation of new branches that don't match `^refs/heads/[a-z]+$`
-  if [[ $oldrev == $zero_commit && ! $refname =~ ^refs/heads/[a-z]+$ ]]; then
-    echo "Blocking creation of new branch $refname because it must only contain lower-case alphabetical characters."
-    exit 1
+  # Only check new branches ($oldrev is zero commit), don't block tags
+  if [[ $oldrev == $zero_commit && $refname =~ ^refs/heads/ ]]; then
+    # Check if the branch name is lower case characters (ASCII only), '-', '_', "/" or numbers
+    if [[ ! $refname =~ ^refs/heads/[-a-z0-9_/]+$ ]]; then
+      echo "Blocking creation of new branch $refname because it must only contain lower-case alpha-numeric characters, '-', '_' or '/'."
+      exit 1
+    fi
   fi
 done
 exit 0
