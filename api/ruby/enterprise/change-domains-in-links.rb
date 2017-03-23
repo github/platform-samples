@@ -1,5 +1,7 @@
 # Script to update the domain name for links in issue & pr comments.
 require 'octokit'
+require 'optparse'
+require 'ostruct'
 
 ## Check for environment variables
 begin
@@ -20,11 +22,21 @@ Octokit.configure do |kit|
   kit.auto_paginate = true
 end
 
-unless ARGV.length == 2
+unless ARGV.length >= 2
   puts "Specify domain names to change using the following format:"
   puts "- change-domains.rb old_domain new_domain"
   exit 1
 end
+
+options = OpenStruct.new
+options.noop = false
+
+OptionParser.new do |parser|
+  parser.on("-n", "--noop", "Find the links, but don't update the content. \n\t\t\t\t\s\s\s\s\sPipe this to a CSV file for a report of all links that will be changed.") do |v|
+    options.noop = v
+  end
+end.parse!
+
 
 # Extract links to attached files using regexp
 # Looks for the raw markdown formatted image link formatted like this:
@@ -49,8 +61,10 @@ Octokit.repositories.map{|repo| repo.full_name}.each do |r|
       # Rewrite link with "media" subdomain to "/storage" on the new domain
       new_link = file[0].gsub("media.#{old_domain}", "#{new_domain}/storage")
       new_body = issue.body.gsub(file[0], new_link)
-      Octokit.update_issue(r, issue.number, :body => new_body)
-      puts "Updated Issue/PR: #{issue.html_url}"
+      unless options.noop == true
+        Octokit.update_issue(r, issue.number, :body => new_body)
+        puts "Updated Issue/PR: #{issue.html_url}"
+      end
     end
   end
 
@@ -68,8 +82,10 @@ Octokit.repositories.map{|repo| repo.full_name}.each do |r|
         # Rewrite link with "media" subdomain to "/storage" on the new domain
         new_link = file[0].gsub("media.#{old_domain}", "#{new_domain}/storage")
         new_comment = issue_comment.body.gsub(file[0], new_link)
-        Octokit.update_comment(r, issue_comment.id, new_comment)
-        puts "Updated Issue/PR Comment: #{issue_comment.html_url}"
+        unless options.noop == true
+          Octokit.update_comment(r, issue_comment.id, new_comment)
+          puts "Updated Issue/PR Comment: #{issue_comment.html_url}"
+        end
       end
     end
   end
