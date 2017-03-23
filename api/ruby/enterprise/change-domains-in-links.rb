@@ -15,7 +15,7 @@ end
 
 # Set up Octokit
 Octokit.configure do |kit|
-  kit.api_endpoint = "#{hostname}/api/v3"
+  kit.api_endpoint = "https://#{hostname}/api/v3"
   kit.access_token = access_token
   kit.auto_paginate = true
 end
@@ -29,10 +29,10 @@ end
 # Extract links to attached files using regexp
 # Looks for the raw markdown formatted image link formatted like this:
 # [image description](https://media.octodemo.com/user/267/files/e014c3e4-889c-11e6-8637-1f16c810cfe3)
-# example pattern = /\[[^\]]*\]\((https:\/\/[a-z]+.octodemo.com[^\)]*\/files\/[^\)]*)\)/
+# example pattern = /\[[^\]]*\]\((https:\/\/media.octodemo.com[^\)]*\/files\/[^\)]*)\)/
 old_domain    = ARGV[0]
 new_domain    = ARGV[1]
-media_pattern = /\[[^\]]*\]\((https:\/\/[a-z]+.#{old_domain}[^\)]*\/user\/\d*\/files\/[^\)]*)\)/
+media_pattern = /\[[^\]]*\]\((https:\/\/media.#{old_domain}[^\)]*\/user\/\d*\/files\/[^\)]*)\)/
 
 Octokit.repositories.map{|repo| repo.full_name}.each do |r|
   # Extract issues containing links to attached files
@@ -46,7 +46,8 @@ Octokit.repositories.map{|repo| repo.full_name}.each do |r|
     matched_links = issue.body.scan(media_pattern)
     matched_links.each do |file|
       puts "#{issue.html_url},#{file[0]}"
-      new_link = file[0].gsub(old_domain, new_domain)
+      # Rewrite link with "media" subdomain to "/storage" on the new domain
+      new_link = file[0].gsub("media.#{old_domain}", "#{new_domain}/storage")
       new_body = issue.body.gsub(file[0], new_link)
       Octokit.update_issue(r, issue.number, :body => new_body)
       puts "Updated Issue/PR: #{issue.html_url}"
@@ -64,7 +65,8 @@ Octokit.repositories.map{|repo| repo.full_name}.each do |r|
       matched_links = issue_comment.body.scan(media_pattern)
       matched_links.each do |file|
         puts "#{issue_comment.html_url},#{file[0]}"
-        new_link = file[0].gsub(old_domain, new_domain)
+        # Rewrite link with "media" subdomain to "/storage" on the new domain
+        new_link = file[0].gsub("media.#{old_domain}", "#{new_domain}/storage")
         new_comment = issue_comment.body.gsub(file[0], new_link)
         Octokit.update_comment(r, issue_comment.id, new_comment)
         puts "Updated Issue/PR Comment: #{issue_comment.html_url}"
