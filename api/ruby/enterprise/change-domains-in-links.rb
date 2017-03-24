@@ -32,7 +32,7 @@ options = OpenStruct.new
 options.noop = false
 
 OptionParser.new do |parser|
-  parser.on("-n", "--noop", "Find the links, but don't update the content. \n\t\t\t\t\s\s\s\s\sPipe this to a CSV file for a report of all links that will be changed.") do |v|
+  parser.on("-n", "--noop", "Find the links, but don't update the content.", "Pipe this to a CSV file for a report", "of all links that will be changed.") do |v|
     options.noop = v
   end
 end.parse!
