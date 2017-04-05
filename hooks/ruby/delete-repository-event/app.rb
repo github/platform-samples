@@ -32,10 +32,6 @@ end
 # When receiving a webhook for repository deletion (https://developer.github.com/v3/activity/events/types/#repositoryevent)
 #   create an issue in the `github_notification_repository` set by environment variable
 post '/delete-repository-event' do
-  logger.info github_api_token
-  logger.info github_host_url
-  logger.info github_notification_repository
-
   begin
     github_event = request.env['HTTP_X_GITHUB_EVENT']
     if github_event == "repository"
