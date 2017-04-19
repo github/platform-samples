@@ -2,8 +2,6 @@ require 'octokit'
 
 Octokit.auto_paginate = true
 
-Octokit.default_media_type = "application/vnd.github.moondragon+json"
-
 # !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
 # Instead, set and test environment variables, like below.
 client = Octokit::Client.new :access_token => ENV["OAUTH_ACCESS_TOKEN"]
