@@ -97,7 +97,7 @@ ghe.orgs(ghe.user).each do |org|
           'org-admin'
         elsif org_role == 'outside-collaborator'
           'org-collaborator'
-        elsif !best_team_permission.nil? && PERMISSION_LEVELS.index(perms) < best_team_permission
+        elsif best_team_permission.nil? || PERMISSION_LEVELS.index(perms) < best_team_permission
           'org-default-permission'
         else
           'team'
