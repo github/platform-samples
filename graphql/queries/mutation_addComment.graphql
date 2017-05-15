@@ -1,0 +1,27 @@
+mutation mutationName {
+  addComment(input: {
+    clientMutationId: "ValueThatCanBeReturnedToCaller"
+    # there appears to be no way at present to get the subject (issue) id with a subquery
+    # so you must perform a query first to retrieve it
+    subjectId: "MDU6SXNzdWUxNzc3MTgzMzk"
+    # change the body of the new comment to anything you want
+    body: "Comment added with the GitHub GraphQL API"
+  })
+  {
+    # fields to return from the mutation
+    clientMutationId commentEdge {
+      node {
+        databaseId issue {
+          number
+        }
+          author {
+          login
+        } repository {
+          name owner {
+            login
+          } 
+        }
+      }
+    }
+  }
+}
