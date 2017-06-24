@@ -5,15 +5,17 @@ require 'active_support/all'
 require 'octokit'
 
 begin
-  GITHUB_APP_ID = contents["app_id"]
+  GITHUB_APP_ID = ENV.fetch("GITHUB_APP_ID")
   path_to_pem = './private-key.pem'
   GITHUB_PRIVATE_KEY = File.read(path_to_pem)
 rescue KeyError
   $stderr.puts "To run this script, please set the following environment variables:"
   $stderr.puts "- GITHUB_APP_ID: GitHub App ID"
+  exit 1
 rescue Exception => e
-  $stderr.puts "To run this script, please copy you App's private key to this directory"
+  $stderr.puts "To run this script, please copy your App's private key to this directory"
   $stderr.puts " and rename it to `private_key.pem`"
+  exit 1
 end
 
 @client = nil
