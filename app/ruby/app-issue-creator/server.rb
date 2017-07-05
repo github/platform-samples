@@ -6,18 +6,13 @@ require 'octokit'
 
 begin
   GITHUB_APP_ID = ENV.fetch("GITHUB_APP_ID")
-  path_to_pem = './private-key.pem'
-  GITHUB_PRIVATE_KEY = File.read(path_to_pem)
+  GITHUB_PRIVATE_KEY = ENV.fetch("GITHUB_APP_PRIVATE_KEY")
 rescue KeyError
   $stderr.puts "To run this script, please set the following environment variables:"
   $stderr.puts "- GITHUB_APP_ID: GitHub App ID"
-  exit 1
-rescue Exception => e
-  $stderr.puts "To run this script, please copy your App's private key to this directory"
-  $stderr.puts " and rename it to `private_key.pem`"
+  $stderr.puts "- GITHUB_APP_PRIVATE_KEY: GitHub App Private Key"
   exit 1
 end
-
 @client = nil
 
 # Webhook listener
@@ -72,7 +67,7 @@ end
 def create_issues(repositories, sender_username)
   repositories.each do |repo|
     begin
-      @client.create_issue(repo, "#{sender_username} created new app!", "Added GitHub App")
+      @client.create_issue(repo, "#{sender_username} added new app!", "Added GitHub App")
     rescue
       puts "Issues is disabled for this repository"
     end
