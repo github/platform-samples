@@ -18,7 +18,7 @@ This is the sample project that walks through creating a GitHub App and configur
 
 Install the required Ruby Gems by entering `bundle install` on the command line. 
 
-Set environment variables `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`. For example, run the following to store the private key to an environment variable: `GITHUB_APP_PRIVATE_KEY="$(less private-key.pem)"`
+Set environment variables `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`. For example, run the following to store the private key to an environment variable: `export GITHUB_APP_PRIVATE_KEY="$(less private-key.pem)"`
 
 To start the server, type `ruby server.rb` on the command line.
 
