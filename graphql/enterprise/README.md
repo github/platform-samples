@@ -18,7 +18,7 @@ By default, this example will query against the GitHub Enterprise appliance it's
 
 
 #### Setup
-The example is already setup with all source files necessary to work with Pages on GitHub Enterprise. You can copy this folder as-is to your own instance, then [configure GitHub Pages to publish the master branch](https://help.github.com/enterprise/user/articles/configuring-a-publishing-source-for-github-pages/). A URL will be created for you automatically.
+The example in this folder contains all source files necessary to get GraphiQL working with Pages on GitHub Enterprise. Copy the `graphql/enterprise` directory from this repository into a new repository on your Enterprise server, then [configure GitHub Pages to publish the master branch](https://help.github.com/enterprise/user/articles/configuring-a-publishing-source-for-github-pages/). A URL will be created for you automatically.
 
 #### Development
 There is a basic build script included that will copy the minified react and graphiql dependencies into the `dist/` folder. For further development, you can use `npm` or `yarn` to work with the original source libraries.
