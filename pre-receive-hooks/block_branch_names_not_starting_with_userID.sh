@@ -9,11 +9,6 @@
 
 zero_commit="0000000000000000000000000000000000000000"
 
-# Ensure that [a-z] means only lower case ASCII characters => set LC_COLLATE to 'C'
-# See http://unix.stackexchange.com/questions/227070/why-does-a-z-match-lowercase-letters-in-bash
-# See https://www.gnu.org/software/bash/manual/bashref.html#Pattern-Matching
-LC_COLLATE='C'
-
 while read oldrev newrev refname; do
   # Only check new branches ($oldrev is zero commit), don't block tags
   if [[ $oldrev == $zero_commit && $refname =~ ^refs/heads/ ]]; then
