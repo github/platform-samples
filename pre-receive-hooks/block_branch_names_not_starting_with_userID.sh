@@ -21,8 +21,8 @@ while read oldrev newrev refname; do
     fi
   fi
 done
-# The following echos may be removed if you like . It's purely a cosmetic demo item
-# To show that it does not have to be just error messages passed back.
+# The following echoes may be removed if you like. They are a purely a cosmetic demo item
+# to show that it does not have to be just error messages passed back.
 echo "Hi $GITHUB_USER_LOGIN, allowing creation of new branch $refname"
 echo "because it does start with your username ($GITHUB_USER_LOGIN)"
 echo "as outlined in the branch naming policy guide - thank you!"
