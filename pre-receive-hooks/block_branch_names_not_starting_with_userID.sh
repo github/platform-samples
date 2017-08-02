@@ -18,7 +18,7 @@ LC_COLLATE='C'
 while read oldrev newrev refname; do
   # Only check new branches ($oldrev is zero commit), don't block tags
   if [[ $oldrev == $zero_commit && $refname =~ ^refs/heads/ ]]; then
-    # Check if the branch name is lower case characters (ASCII only), '-', '_', "/" or numbers
+    # Check if the branch name begins with the userID - NOTE THIS IS CASE SENSITIVE AT THE MOMENT
     if [[ ! $refname =~ ^refs/heads/$GITHUB_USER_LOGIN ]]; then
       echo "Hi, $GITHUB_USER_LOGIN Blocking creation of new branch $refname"
       echo "because it does not start with your username ($GITHUB_USER_LOGIN)"
