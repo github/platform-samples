@@ -9,7 +9,6 @@
 # organizations
 require 'octokit'
 
-Octokit.default_media_type = 'application/vnd.github.ironman-preview+json'
 ghe = Octokit::Client.new
 
 PERMISSION_LEVELS = [:admin, :push, :pull]
@@ -98,7 +97,7 @@ ghe.orgs(ghe.user).each do |org|
           'org-admin'
         elsif org_role == 'outside-collaborator'
           'org-collaborator'
-        elsif PERMISSION_LEVELS.index(perms) < best_team_permission
+        elsif best_team_permission.nil? || PERMISSION_LEVELS.index(perms) < best_team_permission
           'org-default-permission'
         else
           'team'
