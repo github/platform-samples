@@ -17,7 +17,7 @@ enable :logging
 github_api_token               = ENV['GITHUB_API_TOKEN']
 github_notification_repository = ENV['GITHUB_NOTIFICATION_REPOSITORY']
 github_host_fqdn               = ENV['GITHUB_HOST']
-github_api_endpoint            = "https://#{github_host_fqdn}/api/v3"
+github_api_endpoint            = "https://api.#{github_host_fqdn}"
 
 Octokit.configure do |c|
   c.api_endpoint = github_api_endpoint
@@ -44,8 +44,8 @@ post '/delete-repository-event' do
         full_name = parsed['repository']['full_name']
         purgatory_link = "https://#{github_host_fqdn}/stafftools/users/#{parsed['repository']['owner']['login']}/purgatory"
         client = Octokit::Client.new
-        client.create_issue(github_notification_repository, "Repository deleted: #{full_name}", "[Restore the repository](#{purgatory_link})\n```json\n#{JSON.pretty_generate(parsed)}\n```")
-
+        #client.create_issue(github_notification_repository, "Repository deleted: #{full_name}", "[Restore the repository](#{purgatory_link})\n```json\n#{JSON.pretty_generate(parsed)}\n```")
+        client.create_issue(github_notification_repository, "Repository deleted: #{full_name}", "[Restore the repository](#{purgatory_link})\n @chadlsmith Please review this isue\n```json\n#{JSON.pretty_generate(parsed)}\n```")
         return 201,"Repository deleted: #{full_name}, notification created in #{github_notification_repository}"
       end
     end
