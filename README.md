@@ -1,7 +1,6 @@
 # GitHub API Challenge
 
-
-This is simple web service that listens for repository events to know when a repository has been deleted. When the repository is deleted a new issue is created in the cls_notification repository that notifies chadlsmith of the deletion event. 
+This is simple web service that receives a wehook on repository event. When a webhook is triggered for a deleted repository, this web service will create a new issue in the **cls_notification** repository and that notifies chadlsmith that the issue has been created. 
 
 
 ### Prerequisites
@@ -19,7 +18,7 @@ Before running the sample, you will need to start the following services on your
 To start ngrok run the following command 
 
 ```
-<ngrok_download_dir> /ngrok http 4567
+<ngrok_download_dir>/ngrok http 4567
 ```
 
 When ngrok starts take note of the forwarding ip address it will be similar to:
@@ -29,7 +28,7 @@ Forwarding                    http://4554ee82.ngrok.io -> localhost:4567
 ```
 #### Clone repository
 
-To pull the most recent version of the sample run a git clone on the clsOrg/platform-samples repository 
+To pull the most recent version of the sample run a git clone on the **clsOrg/platform-samples repository** 
 ```
 git clone https://github.com/clsOrg/platform-samples.git
 ```
@@ -51,16 +50,16 @@ ruby <sample_install_dir>/platform-samples/hooks/ruby/delete-repository-event/ap
 
 ## Running the test
 
-* [Create a webhook with the following settings:](https://developer.github.com/webhooks/creating/)  
-  * Payload URL = Forwarding link from ngrok with a trailing /delete-repository-event
+* [Create a webhook with the following settings](https://developer.github.com/webhooks/creating/)  
+  * Payload URL = Forwarding link from ngrok with a trailing **/delete-repository-event**
     ```
     http://4554ee82.ngrok.io/delete-repository-event
     ```
   * Content Type = json 
   * Which events would you like to trigger this webhook = Let me select individual events
     * Repository
-* [Create a sample repository:](https://help.github.com/articles/create-a-repo/)  
-* [Delete the newly created repository:](https://help.github.com/articles/deleting-a-repository/)  
+* [Create a sample repository](https://help.github.com/articles/create-a-repo/)  
+* [Delete the newly created repository](https://help.github.com/articles/deleting-a-repository/)  
 
 ## Validating the test
 
@@ -88,7 +87,7 @@ If your issue was not created you can debug using the following steps:
 
 * Was the webhook created? 
   * You can verify the webhook ran by checking recent deliveries https://github.com/organizations/clsOrg/settings/hooks/15740340
-* Did ngrok recognize the webhook 
+* Did ngrok recognize the webhook? 
   * In the ngrok console you should see a new HTTP request 
     ```
      HTTP Requests
