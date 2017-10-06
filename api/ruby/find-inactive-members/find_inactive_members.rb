@@ -101,8 +101,8 @@ CSV.open("inactive_users.csv", "wb") do |csv|
       puts "#{member["login"]} is inactive"
       csv << [member["login"]]
       if ARGV[2] == "purge"
-        puts "removing the member"
-        # @client.remove_organization_member(ORGANIZATION, member["login"])
+        puts "removing #{member["login"]}"
+        @client.remove_organization_member(ORGANIZATION, member["login"])
       end
     end
   end
