@@ -41,6 +41,6 @@ ruby find_inactive_members.rb orgName YYYY-MM-DD purge
 
 Members are defined as inactive if:
 
-* They have not committed to a repository in the org since the `SINCE_DATE`
-* They have not opened an issue or PR that has had activity since the `SINCE_DATE`
-* They have not commented on an issue or PR since the `SINCE_DATE`
+* They have not committed to a repository in the org since the `YYYY-MM-DD`
+* They have not opened an issue or PR that has had activity since the `YYYY-MM-DD`
+* They have not commented on an issue or PR since the `YYYY-MM-DD`
