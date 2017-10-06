@@ -28,13 +28,13 @@ export OCTOKIT_ACCESS_TOKEN=00000000000000000000000
 ## Usage
 
 ```shell
-ruby member_audit.rb orgName YYYY-MM-DD
+ruby find_inactive_members.rb orgName YYYY-MM-DD
 ```
 
 or, to automatically remove inactive members
 
 ```shell
-ruby member_audit.rb orgName YYYY-MM-DD purge
+ruby find_inactive_members.rb orgName YYYY-MM-DD purge
 ```
 
 ## How Inactivity is Defined
