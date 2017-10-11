@@ -78,13 +78,21 @@ end
   end
 
   # get all issue comments after specified date and iterate
-  print "...comments"
+  print "...issue comments"
   @client.issues_comments(repo["full_name"], { :since => ARGV[1]}).each do |comment|
     # if commenter is a member of the org and not active, make active
     if t = @members.find {|member| member["login"] == comment["user"]["login"] && member["active"] == false }
       make_active(t["login"])
     end
+  end
 
+  # get all pull request comments comments after specified date and iterate
+  print "...issue comments"
+  @client.pull_requests_comments(repo["full_name"], { :since => ARGV[1]}).each do |comment|
+    # if commenter is a member of the org and not active, make active
+    if t = @members.find {|member| member["login"] == comment["user"]["login"] && member["active"] == false }
+      make_active(t["login"])
+    end
   end
 
   # print update to terminal
