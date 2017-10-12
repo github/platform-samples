@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 from pyramid.view import view_config, view_defaults
@@ -22,7 +24,7 @@ class PayloadView(object):
         """This method is a continuation of PayloadView process, triggered if
         header HTTP-X-Github-Event type is Push"""
         # {u'name': u'marioidival', u'email': u'marioidival@gmail.com'}
-        print self.payload['pusher']
+        print(self.payload['pusher'])
 
         # do busy work...
         return "nothing to push payload" # or simple {}
@@ -32,7 +34,7 @@ class PayloadView(object):
         """This method is a continuation of PayloadView process, triggered if
         header HTTP-X-Github-Event type is Pull Request"""
         # {u'name': u'marioidival', u'email': u'marioidival@gmail.com'}
-        print self.payload['pusher']
+        print(self.payload['pusher'])
 
         # do busy work...
         return "nothing to pull request payload" # or simple {}
