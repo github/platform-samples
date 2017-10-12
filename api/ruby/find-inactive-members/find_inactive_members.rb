@@ -87,7 +87,7 @@ end
   end
 
   # get all pull request comments comments after specified date and iterate
-  print "...issue comments"
+  print "...pr comments"
   @client.pull_requests_comments(repo["full_name"], { :since => ARGV[1]}).each do |comment|
     # if commenter is a member of the org and not active, make active
     if t = @members.find {|member| member["login"] == comment["user"]["login"] && member["active"] == false }
