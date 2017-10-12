@@ -1,0 +1,18 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    faraday (0.8.8)
+      multipart-post (~> 1.2.0)
+    multipart-post (1.2.0)
+    octokit (2.1.1)
+      sawyer (~> 0.3.0)
+    sawyer (0.3.0)
+      faraday (~> 0.8, < 0.10)
+      uri_template (~> 0.5.0)
+    uri_template (0.5.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  octokit (~> 2.0)

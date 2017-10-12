@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'sinatra'
 require 'rest_client'
 require 'json'
@@ -12,7 +13,7 @@ require 'json'
 CLIENT_ID = ENV['GH_BASIC_CLIENT_ID']
 CLIENT_SECRET = ENV['GH_BASIC_SECRET_ID']
 
-use Rack::Session::Cookie, :secret => rand.to_s()
+use Rack::Session::Pool, :cookie_only => false
 
 def authenticated?
   session[:access_token]

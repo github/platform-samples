@@ -10,8 +10,8 @@ module Example
     #  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
     # end
 
-    CLIENT_ID = ENV['GH_GRAPH_CLIENT_ID']
-    CLIENT_SECRET = ENV['GH_GRAPH_SECRET_ID']
+    CLIENT_ID = ENV['GITHUB_CLIENT_ID']
+    CLIENT_SECRET = ENV['GITHUB_CLIENT_SECRET']
 
     enable :sessions
 
@@ -28,11 +28,11 @@ module Example
       if !authenticated?
         authenticate!
       else
-        octokit_client = Octokit::Client.new(:login => github_user.login, :oauth_token => github_user.token)
+        octokit_client = Octokit::Client.new(:login => github_user.login, :access_token => github_user.token)
         repos = octokit_client.repositories
         language_obj = {}
         repos.each do |repo|
-          # sometimes language can be nil 
+          # sometimes language can be nil
           if repo.language
             if !language_obj[repo.language]
               language_obj[repo.language] = 1
@@ -46,16 +46,24 @@ module Example
         language_obj.each do |lang, count|
           languages.push :language => lang, :count => count
         end
-        
+
         language_byte_count = []
         repos.each do |repo|
           repo_name = repo.name
-          repo_langs = octokit_client.languages("#{github_user.login}/#{repo_name}")
-          repo_langs.each do |lang, count|
-            if !language_obj[lang]
-              language_obj[lang] = count
-            else
-              language_obj[lang] += count
+          repo_langs = []
+          begin
+            repo_url = "#{github_user.login}/#{repo_name}"
+            repo_langs = octokit_client.languages(repo_url)
+          rescue Octokit::NotFound
+            puts "Error retrieving languages for #{repo_url}"
+          end
+          if !repo_langs.empty?
+            repo_langs.each do |lang, count|
+              if !language_obj[lang]
+                language_obj[lang] = count
+              else
+                language_obj[lang] += count
+              end
             end
           end
         end

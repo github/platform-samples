@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require "httparty"
+
+query_file_name = ARGV[0]
+unless query_file_name
+  print "Please provide a file name from 'queries'."
+  exit
+end
+
+query_file_path = File.expand_path(File.join("queries", query_file_name))
+query = File.read(query_file_path)
+
+response = HTTParty.post("https://api.github.com/graphql",
+  :headers => {
+    "User-Agent"    => "github/graphql-samples",
+    "Authorization" => "token #{ENV["TOKEN"]}",
+    "Content-Type"  => "application/json"
+  },
+  :body => {:query => query}.to_json
+)
+
+puts "=== Results from #{File.basename(query_file_name)}"
+puts JSON.pretty_generate(response)
+puts
