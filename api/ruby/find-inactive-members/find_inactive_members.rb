@@ -1,8 +1,43 @@
-require "octokit"
 require "csv"
+require "octokit"
+
+def usage
+  output=<<-EOM
+  usage: ruby find_inactive_members.rb orgName YYYY-MM-DD purge(optional)"
+  To run this script, please set the following environment variables:
+    - GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges
+    - GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL
+                    (use https://api.github.com for GitHub.com auditing)
+  EOM
+  output
+end
+
+begin
+  ACCESS_TOKEN = ENV.fetch("GITHUB_TOKEN")
+  API_ENDPOINT = ENV.fetch("GITHUB_API_ENDPOINT", "https://api.github.com")
+rescue KeyError
+  puts usage
+end
+
+stack = Faraday::RackBuilder.new do |builder|
+  builder.use Octokit::Middleware::FollowRedirects
+  builder.use Octokit::Response::RaiseError
+  builder.use Octokit::Response::FeedParser
+  builder.response :logger
+  builder.adapter Faraday.default_adapter
+end
+
+Octokit.configure do |kit|
+  kit.api_endpoint = API_ENDPOINT
+  kit.access_token = ACCESS_TOKEN
+  kit.auto_paginate = true
+  # kit.middleware = stack
+end
+
+@client = Octokit::Client.new
 
 if ARGV.length > 3 || ARGV.length == 0
-  puts "usage: ruby find_inactive_members.rb orgName YYYY-MM-DD purge(optional)"
+  puts usage
   exit(1)
 end
 
@@ -13,10 +48,6 @@ if ARGV[2] == "purge"
     exit(1)
   end
 end
-
-# initialize octokit
-Octokit.auto_paginate = true
-@client = Octokit::Client.new
 
 # get all organization members and place into an array of hashes
 @members = []
