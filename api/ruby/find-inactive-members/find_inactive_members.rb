@@ -50,49 +50,44 @@ if ARGV[2] == "purge"
 end
 
 # get all organization members and place into an array of hashes
-@members = []
-@client.organization_members(ARGV[0]).each do |member|
-  hsh = {}
-  hsh["login"] = member["login"]
-  hsh["active"] = false
-  @members << hsh
+@members = @client.organization_members(ARGV[0]).collect do |m|
+  { 
+    login: m["login"],
+    active: false
+  }
 end
+
+puts "#{@members.length} members found."
 
 # get all repos in the organizaton and place into a hash
-@repos = []
-@client.organization_repositories(ARGV[0]).each do |repo|
-  hsh = {}
-  hsh["full_name"] = repo["full_name"]
-  @repos << hsh
+repos = @client.organization_repositories(ARGV[0]).collect do |repo|
+  repo["full_name"]
 end
 
-@total_repos = @repos.length
-@total_members = @members.length
-
-# print update to terminal
-puts "\n"
-puts "Analying activity for #{@total_members} members and #{@total_repos} repos in #{ARGV[0]}"
-
-@repos_completed = 0
+puts "#{repos.length} repositories found."
 
 # method to switch member status to active
 def make_active(login)
-  hsh = @members.find { |member| member["login"] == login }
-  hsh["active"] = true
+  hsh = @members.find { |member| member[:login] == login }
+  hsh[:active] = true
 end
 
-# for each repo
-@repos.each do |repo|
+# print update to terminal
+puts "Analyzing activity for #{@members.length} members and #{repos.length} repos for #{ARGV[0]}"
 
-  print "analyzing #{repo["full_name"]}"
+@repos_completed = 0
+
+# for each repo
+repos.each do |repo|
+  print "analyzing #{repo}"
 
   # get all commits after specified date and iterate
   print "...commits"
   begin
-    @client.commits_since(repo["full_name"], ARGV[1]).each do |commit|
+    @client.commits_since(repo, ARGV[1]).each do |commit|
       # if commmitter is a member of the org and not active, make active
-      if t = @members.find {|member| member["login"] == commit["author"]["login"] && member["active"] == false }
-        make_active(t["login"])
+      if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+        make_active(t[:login])
       end
     end
   rescue
@@ -101,49 +96,47 @@ end
 
   # get all issues after specified date and iterate
   print "...issues"
-  @client.list_issues(repo["full_name"], { :since => ARGV[1] }).each do |issue|
+  @client.list_issues(repo, { :since => ARGV[1] }).each do |issue|
     # if creator is a member of the org and not active, make active
-    if t = @members.find {|member| member["login"] == issue["user"]["login"] && member["active"] == false }
-      make_active(t["login"])
+    if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+      make_active(t[:login])
     end
   end
 
   # get all issue comments after specified date and iterate
-  print "...issue comments"
-  @client.issues_comments(repo["full_name"], { :since => ARGV[1]}).each do |comment|
+  print "...comments"
+  @client.issues_comments(repo, { :since => ARGV[1]}).each do |comment|
     # if commenter is a member of the org and not active, make active
-    if t = @members.find {|member| member["login"] == comment["user"]["login"] && member["active"] == false }
-      make_active(t["login"])
+    if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+      make_active(t[:login])
     end
   end
 
   # get all pull request comments comments after specified date and iterate
   print "...pr comments"
-  @client.pull_requests_comments(repo["full_name"], { :since => ARGV[1]}).each do |comment|
+  @client.pull_requests_comments(repo, { :since => ARGV[1]}).each do |comment|
     # if commenter is a member of the org and not active, make active
-    if t = @members.find {|member| member["login"] == comment["user"]["login"] && member["active"] == false }
-      make_active(t["login"])
+    if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+      make_active(t[:login])
     end
   end
 
   # print update to terminal
   @repos_completed += 1
-  print "...#{@repos_completed}/#{@total_repos} repos completed\n"
-
+  print "...#{@repos_completed}/#{repos.length} repos completed\n"
 end
 
 # open a new csv for output
 CSV.open("inactive_users.csv", "wb") do |csv|
   # iterate and print inactive members
   @members.each do |member|
-    if member["active"] == false
-      puts "#{member["login"]} is inactive"
-      csv << [member["login"]]
+    if member[:active] == false
+      puts "#{member[:login]} is inactive"
+      csv << [member[:login]]
       if ARGV[2] == "purge"
-        puts "removing #{member["login"]}"
-        @client.remove_organization_member(ORGANIZATION, member["login"])
+        puts "removing #{member[:login]}"
+        @client.remove_organization_member(ORGANIZATION, member[:login])
       end
     end
   end
-
 end
