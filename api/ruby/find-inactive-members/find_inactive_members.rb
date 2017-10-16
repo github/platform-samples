@@ -6,17 +6,10 @@ require 'optparse/date'
 def env_help
   output=<<-EOM
 Required Environment variables:
-  GITHUB_TOKEN: A valid personal access token with Organzation admin priviliges
-  GITHUB_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL (Defaults to https://api.github.com)
+  OCTOKIT_ACCESS_TOKEN: A valid personal access token with Organzation admin priviliges
+  OCTOKIT_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL (Defaults to https://api.github.com)
 EOM
   output
-end
-
-begin
-  ACCESS_TOKEN = ENV.fetch("GITHUB_TOKEN")
-  API_ENDPOINT = ENV.fetch("GITHUB_API_ENDPOINT", "https://api.github.com")
-rescue KeyError
-  puts env_help 
 end
 
 options = {}
@@ -57,8 +50,6 @@ stack = Faraday::RackBuilder.new do |builder|
 end
 
 Octokit.configure do |kit|
-  kit.api_endpoint = API_ENDPOINT
-  kit.access_token = ACCESS_TOKEN
   kit.auto_paginate = true
   # kit.middleware = stack
 end
