@@ -45,9 +45,8 @@ OptionParser.new do |opts|
 end.parse!
 
 raise(OptionParser::MissingArgument) if (
-  options[:organization].nil? and
-  options[:date].nil? and
-  options[:p].nil? )
+  options[:organization].nil? or
+  options[:date].nil?)
 
 stack = Faraday::RackBuilder.new do |builder|
   builder.use Octokit::Middleware::FollowRedirects
