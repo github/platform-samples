@@ -67,7 +67,7 @@ def info(message)
 end
 
 def check_scopes
-  puts @client.scopes.join ','
+  info "Scopes #{@client.scopes.join ','}\n"
 end
 
 def check_app
@@ -94,14 +94,14 @@ raise(OptionParser::MissingArgument) if (
   }
 end
 
-info "#{@members.length} members found."
+info "#{@members.length} members found.\n"
 
 # get all repos in the organizaton and place into a hash
 repos = @client.organization_repositories(options[:organization]).collect do |repo|
   repo["full_name"]
 end
 
-info "#{repos.length} repositories found."
+info "#{repos.length} repositories found.\n"
 
 # method to switch member status to active
 def make_active(login)
@@ -169,7 +169,7 @@ CSV.open("inactive_users.csv", "wb") do |csv|
   @members.each do |member|
     if member[:active] == false
       member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
-      info "#{member_detail} is inactive"
+      info "#{member_detail} is inactive\n"
       csv << [member_detail]
       if false # ARGV[2] == "purge"
         info "removing #{member[:login]}\n"
