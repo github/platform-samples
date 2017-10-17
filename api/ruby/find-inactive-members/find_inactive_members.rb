@@ -132,6 +132,7 @@ info "Analyzing activity for #{@members.length} members and #{repos.length} repo
 
 # for each repo
 repos.each do |repo|
+  info "rate limit remaining: #{@client.rate_limit.remaining}  "
   info "analyzing #{repo}"
 
   # get all commits after specified date and iterate
