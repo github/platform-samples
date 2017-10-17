@@ -86,8 +86,10 @@ raise(OptionParser::MissingArgument) if (
 
 # get all organization members and place into an array of hashes
 @members = @client.organization_members(options[:organization]).collect do |m|
+  email = @client.user(m[:login])[:email]
   { 
     login: m["login"],
+    email: email,
     active: false
   }
 end
@@ -166,8 +168,9 @@ CSV.open("inactive_users.csv", "wb") do |csv|
   # iterate and print inactive members
   @members.each do |member|
     if member[:active] == false
-      puts "#{member[:login]} is inactive"
-      csv << [member[:login]]
+      member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
+      info "#{member_detail} is inactive"
+      csv << [member_detail]
       if false # ARGV[2] == "purge"
         info "removing #{member[:login]}\n"
         @client.remove_organization_member(ORGANIZATION, member[:login])
