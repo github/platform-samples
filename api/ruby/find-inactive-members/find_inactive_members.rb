@@ -28,6 +28,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('-v', '--verbose', "More output to STDERR") do |v|
+    @debug = true
     options[:verbose] = v
   end
 
@@ -51,13 +52,17 @@ end
 
 Octokit.configure do |kit|
   kit.auto_paginate = true
-  # kit.middleware = stack
+  kit.middleware = stack if @debug
 end
 
 @client = Octokit::Client.new
 
 def debug(message)
-  print message
+  $stderr.print message
+end
+
+def info(message)
+  $stdout.print message
 end
 
 # get all organization members and place into an array of hashes
@@ -68,14 +73,14 @@ end
   }
 end
 
-puts "#{@members.length} members found."
+info "#{@members.length} members found."
 
 # get all repos in the organizaton and place into a hash
 repos = @client.organization_repositories(options[:organization]).collect do |repo|
   repo["full_name"]
 end
 
-puts "#{repos.length} repositories found."
+info "#{repos.length} repositories found."
 
 # method to switch member status to active
 def make_active(login)
@@ -84,16 +89,16 @@ def make_active(login)
 end
 
 # print update to terminal
-debug("Analyzing activity for #{@members.length} members and #{repos.length} repos for #{options[:organization]}\n")
+info "Analyzing activity for #{@members.length} members and #{repos.length} repos for #{options[:organization]}\n"
 
 @repos_completed = 0
 
 # for each repo
 repos.each do |repo|
-  debug("analyzing #{repo}")
+  info "analyzing #{repo}"
 
   # get all commits after specified date and iterate
-  debug("...commits")
+  info "...commits"
   begin
     @client.commits_since(repo, options[:date]).each do |commit|
       # if commmitter is a member of the org and not active, make active
@@ -102,11 +107,11 @@ repos.each do |repo|
       end
     end
   rescue
-    debug("...skipping blank repo")
+    info "...skipping blank repo"
   end
 
   # get all issues after specified date and iterate
-  debug("...issues")
+  info "...issues"
   @client.list_issues(repo, { :since => options[:date] }).each do |issue|
     # if creator is a member of the org and not active, make active
     if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
@@ -115,7 +120,7 @@ repos.each do |repo|
   end
 
   # get all issue comments after specified date and iterate
-  debug("...comments")
+  info "...comments"
   @client.issues_comments(repo, { :since => options[:date]}).each do |comment|
     # if commenter is a member of the org and not active, make active
     if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
@@ -124,7 +129,7 @@ repos.each do |repo|
   end
 
   # get all pull request comments comments after specified date and iterate
-  debug("...pr comments")
+  info "...pr comments"
   @client.pull_requests_comments(repo, { :since => options[:date]}).each do |comment|
     # if commenter is a member of the org and not active, make active
     if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
@@ -134,7 +139,7 @@ repos.each do |repo|
 
   # print update to terminal
   @repos_completed += 1
-  debug("...#{@repos_completed}/#{repos.length} repos completed\n")
+  info "...#{@repos_completed}/#{repos.length} repos completed\n"
 end
 
 # open a new csv for output
@@ -145,7 +150,7 @@ CSV.open("inactive_users.csv", "wb") do |csv|
       puts "#{member[:login]} is inactive"
       csv << [member[:login]]
       if false # ARGV[2] == "purge"
-        debug("removing #{member[:login]}\n")
+        info "removing #{member[:login]}\n"
         @client.remove_organization_member(ORGANIZATION, member[:login])
       end
     end
