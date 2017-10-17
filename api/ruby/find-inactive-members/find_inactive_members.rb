@@ -3,6 +3,8 @@ require "octokit"
 require 'optparse'
 require 'optparse/date'
 
+SCOPES=["read:org", "read:user", "repo", "user:email"]
+
 def env_help
   output=<<-EOM
 Required Environment variables:
@@ -67,7 +69,7 @@ def info(message)
 end
 
 def check_scopes
-  info "Scopes #{@client.scopes.join ','}\n"
+  info "Scopes: #{@client.scopes.join ','}\n"
 end
 
 def check_app
@@ -81,7 +83,7 @@ def get_auth_token(login, password, otp)
   res = temp_client.create_authorization(
     {
       :idempotent => true,
-      :scopes => ["read:org", "read:user", "repo", "user:email"],
+      :scopes => SCOPES,
       :headers => {'X-GitHub-OTP' => otp}
     })
   res[:token]
