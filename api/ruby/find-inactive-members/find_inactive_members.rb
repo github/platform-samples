@@ -71,10 +71,24 @@ def check_scopes
 end
 
 def check_app
-  info "Application client/secret? #{Octokit.client.application_authenticated?}"
+  info "Application client/secret? #{Octokit.client.application_authenticated?}\n"
+  info "Authentication Token? #{Octokit.client.token_authenticated?}\n"
+end
+
+# helper to get an auth token for the OAuth application and a user
+def get_auth_token(login, password, otp)
+  temp_client = Octokit::Client.new(login: login, password: password)
+  res = temp_client.create_authorization(
+    {
+      :idempotent => true,
+      :scopes => ["read:org", "read:user", "repo", "user:email"],
+      :headers => {'X-GitHub-OTP' => otp}
+    })
+  res[:token]
 end
 
 if options[:check]
+  check_app
   check_scopes
   exit 0
 end
