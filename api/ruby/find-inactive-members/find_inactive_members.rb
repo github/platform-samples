@@ -15,12 +15,17 @@ end
 options = {}
 OptionParser.new do |opts|
   opts.banner = "#{$0} - Find and output inactive members in an organization"
-  opts.on('-o', '--organization MANDATORY',String, "Organization to scan for inactive users") do |o|
-    options[:organization] = o
+
+  opts.on('-c', '--check', "Check connectivity and scope") do |c|
+    options[:check] = c
   end
 
   opts.on('-d', '--date MANDATORY',Date, "Date from which to start looking for activity") do |d|
     options[:date] = d.to_s
+  end
+
+  opts.on('-o', '--organization MANDATORY',String, "Organization to scan for inactive users") do |o|
+    options[:organization] = o
   end
 
   opts.on('-p', '--purge', "Purge the inactive members (WARNING - DESTRUCTIVE!)") do |p|
@@ -37,10 +42,6 @@ OptionParser.new do |opts|
     exit 0
   end
 end.parse!
-
-raise(OptionParser::MissingArgument) if (
-  options[:organization].nil? or
-  options[:date].nil?)
 
 stack = Faraday::RackBuilder.new do |builder|
   builder.use Octokit::Middleware::FollowRedirects
@@ -64,6 +65,24 @@ end
 def info(message)
   $stdout.print message
 end
+
+def check_scopes
+  puts @client.scopes.join ','
+end
+
+def check_app
+  info "Application client/secret? #{Octokit.client.application_authenticated?}"
+end
+
+if options[:check]
+  check_scopes
+  exit 0
+end
+
+raise(OptionParser::MissingArgument) if (
+  options[:organization].nil? or
+  options[:date].nil?
+)
 
 # get all organization members and place into an array of hashes
 @members = @client.organization_members(options[:organization]).collect do |m|
