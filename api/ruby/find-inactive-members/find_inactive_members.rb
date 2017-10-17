@@ -3,15 +3,182 @@ require "octokit"
 require 'optparse'
 require 'optparse/date'
 
-SCOPES=["read:org", "read:user", "repo", "user:email"]
 
-def env_help
-  output=<<-EOM
-Required Environment variables:
-  OCTOKIT_ACCESS_TOKEN: A valid personal access token with Organzation admin priviliges
-  OCTOKIT_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL (Defaults to https://api.github.com)
-EOM
-  output
+class InactiveMemberSearch
+  attr_accessor :organization, :members, :repositories, :date
+
+  SCOPES=["read:org", "read:user", "repo", "user:email"]
+
+  def initialize(options={})
+    @client = options[:client]
+    if options[:check]
+      check_app
+      check_scopes
+      exit 0
+    end
+
+    raise(OptionParser::MissingArgument) if (
+      options[:organization].nil? or
+      options[:date].nil?
+    )
+
+    @date = options[:date]
+    @organization = options[:organization]
+
+    organization_members
+    organization_repositories
+    member_activity
+  end
+
+  def check_app
+    info "Application client/secret? #{@client.application_authenticated?}\n"
+    info "Authentication Token? #{@client.token_authenticated?}\n"
+  end
+
+  def check_scopes
+    info "Scopes: #{@client.scopes.join ','}\n"
+  end
+
+  def env_help
+    output=<<-EOM
+  Required Environment variables:
+    OCTOKIT_ACCESS_TOKEN: A valid personal access token with Organzation admin priviliges
+    OCTOKIT_API_ENDPOINT: A valid GitHub/GitHub Enterprise API endpoint URL (Defaults to https://api.github.com)
+  EOM
+    output
+  end
+
+  # helper to get an auth token for the OAuth application and a user
+  def get_auth_token(login, password, otp)
+    temp_client = Octokit::Client.new(login: login, password: password)
+    res = temp_client.create_authorization(
+      {
+        :idempotent => true,
+        :scopes => SCOPES,
+        :headers => {'X-GitHub-OTP' => otp}
+      })
+    res[:token]
+  end
+private
+  def debug(message)
+    $stderr.print message
+  end
+
+  def info(message)
+    $stdout.print message
+  end
+
+  def organization_members
+  # get all organization members and place into an array of hashes
+    @members = @client.organization_members(@organization).collect do |m|
+      email = @client.user(m[:login])[:email]
+      {
+        login: m["login"],
+        email: email,
+        active: false
+      }
+    end
+    info "#{@members.length} members found.\n"
+  end
+
+  def organization_repositories
+    # get all repos in the organizaton and place into a hash
+    @repositories = @client.organization_repositories(@organization).collect do |repo|
+      repo["full_name"]
+    end
+    info "#{@repositories.length} repositories found.\n"
+  end
+
+  # method to switch member status to active
+  def make_active(login)
+    hsh = @members.find { |member| member[:login] == login }
+    hsh[:active] = true
+  end
+
+  def commit_activity(repository)
+    # get all commits after specified date and iterate
+    info "...commits"
+    begin
+      @client.commits_since(repo, @date).each do |commit|
+        # if commmitter is a member of the org and not active, make active
+        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
+      end
+    rescue
+      info "...skipping blank repo"
+    end
+  end
+
+  def issue_activity(repo, date=@date)
+    # get all issues after specified date and iterate
+    info "...issues"
+    @client.list_issues(repo, { :since => date }).each do |issue|
+      # if creator is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
+      end
+    end
+  end
+
+  def issue_comment_activity(repo, date=@date)
+    # get all issue comments after specified date and iterate
+    info "...issue comments"
+    @client.issues_comments(repo, { :since => date}).each do |comment|
+      # if commenter is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
+      end
+    end
+  end
+
+  def pr_activity(repo, date=@date)
+    # get all pull request comments comments after specified date and iterate
+    info "...pr comments"
+    @client.pull_requests_comments(repo, { :since => date}).each do |comment|
+      # if commenter is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
+      end
+    end
+  end
+
+ def member_activity
+    @repos_completed = 0
+    # print update to terminal
+    info "Analyzing activity for #{@members.length} members and #{@repositories.length} repos for #{@organization}\n"
+
+    # for each repo
+    @repositories.each do |repo|
+      info "rate limit remaining: #{@client.rate_limit.remaining}  "
+      info "analyzing #{repo}"
+
+      commit_activity(repo)
+      issue_activity(repo)
+      issue_comment_activity(repo)
+      pr_activity(repo)
+
+      # print update to terminal
+      @repos_completed += 1
+      info "...#{@repos_completed}/#{@repositories.length} repos completed\n"
+    end
+
+    # open a new csv for output
+    CSV.open("inactive_users.csv", "wb") do |csv|
+      # iterate and print inactive members
+      @members.each do |member|
+        if member[:active] == false
+          member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
+          info "#{member_detail} is inactive\n"
+          csv << [member_detail]
+          if false # ARGV[2] == "purge"
+            info "removing #{member[:login]}\n"
+            @client.remove_organization_member(ORGANIZATION, member[:login])
+          end
+        end
+      end
+    end
+  end
 end
 
 options = {}
@@ -58,140 +225,6 @@ Octokit.configure do |kit|
   kit.middleware = stack if @debug
 end
 
-@client = Octokit::Client.new
+options[:client] = Octokit::Client.new
 
-def debug(message)
-  $stderr.print message
-end
-
-def info(message)
-  $stdout.print message
-end
-
-def check_scopes
-  info "Scopes: #{@client.scopes.join ','}\n"
-end
-
-def check_app
-  info "Application client/secret? #{Octokit.client.application_authenticated?}\n"
-  info "Authentication Token? #{Octokit.client.token_authenticated?}\n"
-end
-
-# helper to get an auth token for the OAuth application and a user
-def get_auth_token(login, password, otp)
-  temp_client = Octokit::Client.new(login: login, password: password)
-  res = temp_client.create_authorization(
-    {
-      :idempotent => true,
-      :scopes => SCOPES,
-      :headers => {'X-GitHub-OTP' => otp}
-    })
-  res[:token]
-end
-
-if options[:check]
-  check_app
-  check_scopes
-  exit 0
-end
-
-raise(OptionParser::MissingArgument) if (
-  options[:organization].nil? or
-  options[:date].nil?
-)
-
-# get all organization members and place into an array of hashes
-@members = @client.organization_members(options[:organization]).collect do |m|
-  email = @client.user(m[:login])[:email]
-  { 
-    login: m["login"],
-    email: email,
-    active: false
-  }
-end
-
-info "#{@members.length} members found.\n"
-
-# get all repos in the organizaton and place into a hash
-repos = @client.organization_repositories(options[:organization]).collect do |repo|
-  repo["full_name"]
-end
-
-info "#{repos.length} repositories found.\n"
-
-# method to switch member status to active
-def make_active(login)
-  hsh = @members.find { |member| member[:login] == login }
-  hsh[:active] = true
-end
-
-# print update to terminal
-info "Analyzing activity for #{@members.length} members and #{repos.length} repos for #{options[:organization]}\n"
-
-@repos_completed = 0
-
-# for each repo
-repos.each do |repo|
-  info "rate limit remaining: #{@client.rate_limit.remaining}  "
-  info "analyzing #{repo}"
-
-  # get all commits after specified date and iterate
-  info "...commits"
-  begin
-    @client.commits_since(repo, options[:date]).each do |commit|
-      # if commmitter is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
-    end
-  rescue
-    info "...skipping blank repo"
-  end
-
-  # get all issues after specified date and iterate
-  info "...issues"
-  @client.list_issues(repo, { :since => options[:date] }).each do |issue|
-    # if creator is a member of the org and not active, make active
-    if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
-      make_active(t[:login])
-    end
-  end
-
-  # get all issue comments after specified date and iterate
-  info "...comments"
-  @client.issues_comments(repo, { :since => options[:date]}).each do |comment|
-    # if commenter is a member of the org and not active, make active
-    if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-      make_active(t[:login])
-    end
-  end
-
-  # get all pull request comments comments after specified date and iterate
-  info "...pr comments"
-  @client.pull_requests_comments(repo, { :since => options[:date]}).each do |comment|
-    # if commenter is a member of the org and not active, make active
-    if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-      make_active(t[:login])
-    end
-  end
-
-  # print update to terminal
-  @repos_completed += 1
-  info "...#{@repos_completed}/#{repos.length} repos completed\n"
-end
-
-# open a new csv for output
-CSV.open("inactive_users.csv", "wb") do |csv|
-  # iterate and print inactive members
-  @members.each do |member|
-    if member[:active] == false
-      member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
-      info "#{member_detail} is inactive\n"
-      csv << [member_detail]
-      if false # ARGV[2] == "purge"
-        info "removing #{member[:login]}\n"
-        @client.remove_organization_member(ORGANIZATION, member[:login])
-      end
-    end
-  end
-end
+InactiveMemberSearch.new(options)
