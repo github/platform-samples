@@ -14,6 +14,7 @@ class InactiveMemberSearch
     if options[:check]
       check_app
       check_scopes
+      check_rate_limit
       exit 0
     end
 
@@ -37,6 +38,10 @@ class InactiveMemberSearch
 
   def check_scopes
     info "Scopes: #{@client.scopes.join ','}\n"
+  end
+
+  def check_rate_limit
+    info "Rate limit: #{client.rate_limit}\n"
   end
 
   def env_help
