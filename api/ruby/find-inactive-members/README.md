@@ -1,7 +1,16 @@
 # Find Inactive Organization Members
-> a utility to find, and optionally remove, inactive organization members
 
-This utility finds users inactive since a configured date, writes those users to a file `inactive_users.csv`, and optionally removes them from the organization
+```
+find_inactive_members.rb - Find and output inactive members in an organization
+    -c, --check                      Check connectivity and scope
+    -d, --date MANDATORY             Date from which to start looking for activity
+    -e, --email                      Fetch the user email (can make the script take longer
+    -o, --organization MANDATORY     Organization to scan for inactive users
+    -v, --verbose                    More output to STDERR
+    -h, --help                       Display this help
+```
+
+This utility finds users inactive since a configured date, writes those users to a file `inactive_users.csv`.
 
 ## Installation
 
@@ -20,27 +29,23 @@ gem install octokit
 
 ### Configure Octokit
 
+The `OCTOKIT_ACCESS_TOKEN` is required in order to see activities on private repositories. However the `OCTOKIT_API_ENDPOINT` isn't required if connecting to GitHub.com, but is required if connecting to a GitHub Enterprise instance.
+
 ```shell
-export OCTOKIT_API_ENDPOINT="https://github.example.com/api/v3" # Default: "https://api.github.com"
-export OCTOKIT_ACCESS_TOKEN=00000000000000000000000
+export OCTOKIT_ACCESS_TOKEN=00000000000000000000000     # Required if looking for activity in private repositories.
+export OCTOKIT_API_ENDPOINT="https://<your_github_enterprise_instance>/api/v3" # Not required if connecting to GitHub.com.
 ```
 
 ## Usage
 
-```shell
-ruby find_inactive_members.rb -o orgName -d YYYY-MM-DD
 ```
-
-or, to automatically remove inactive members
-
-```shell
-ruby find_inactive_members.rb -o orgName -d YYYY-MM-DD -p
+ruby find_active_members.rb [-cehv] -o ORGANIZATION -d DATE
 ```
 
 ## How Inactivity is Defined
 
-Members are defined as inactive if:
+Members are defined as inactive if they haven't, since the specified **DATE**,  in any repository in the specified **ORGANIZATION**:
 
-* They have not committed to the default branch of a repository in the org since the `YYYY-MM-DD`
-* They have not opened an issue or PR that has had activity since the `YYYY-MM-DD`
-* They have not commented on an issue or PR since the `YYYY-MM-DD`
+* Have not merged or pushed commits into the default branch
+* Have not opened an Issue or Pull Request
+* Have not commented on an Issue or Pull Request
