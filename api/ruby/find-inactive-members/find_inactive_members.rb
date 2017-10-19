@@ -3,7 +3,6 @@ require "octokit"
 require 'optparse'
 require 'optparse/date'
 
-
 class InactiveMemberSearch
   attr_accessor :organization, :members, :repositories, :date, :unrecognized_authors
 
@@ -129,46 +128,34 @@ private
 
   def issue_activity(repo, date=@date)
     # get all issues after specified date and iterate
-    info "...issues"
-    begin
-      @client.list_issues(repo, { :since => date }).each do |issue|
-        # if creator is a member of the org and not active, make active
-        if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
-          make_active(t[:login])
-        end
+    info "...Issues"
+    @client.list_issues(repo, { :since => date }).each do |issue|
+      # if creator is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
       end
-    rescue
-      info "... no issues to check"
     end
   end
 
   def issue_comment_activity(repo, date=@date)
     # get all issue comments after specified date and iterate
-    info "...issue comments"
-    begin
-      @client.issues_comments(repo, { :since => date}).each do |comment|
-        # if commenter is a member of the org and not active, make active
-        if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-          make_active(t[:login])
-        end
+    info "...Issue comments"
+    @client.issues_comments(repo, { :since => date}).each do |comment|
+      # if commenter is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
       end
-    rescue
-      info "...no issues comments to check"
     end
   end
 
   def pr_activity(repo, date=@date)
     # get all pull request comments comments after specified date and iterate
-    info "...pr comments"
-    begin
-      @client.pull_requests_comments(repo, { :since => date}).each do |comment|
-        # if commenter is a member of the org and not active, make active
-        if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-          make_active(t[:login])
-        end
+    info "...Pull Request comments"
+    @client.pull_requests_comments(repo, { :since => date}).each do |comment|
+      # if commenter is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+        make_active(t[:login])
       end
-    rescue
-      info "...no pr comments to check"
     end
   end
 
