@@ -25,6 +25,7 @@ class InactiveMemberSearch
 
     @date = options[:date]
     @organization = options[:organization]
+    @email = options[:email]
 
     organization_members
     organization_repositories
@@ -73,13 +74,17 @@ private
     $stdout.print message
   end
 
+  def member_email(login)
+    @email ? @client.user(login)[:email] : ""
+  end
+
   def organization_members
   # get all organization members and place into an array of hashes
     @members = @client.organization_members(@organization).collect do |m|
-      email = @client.user(m[:login])[:email]
+      email = 
       {
         login: m["login"],
-        email: email,
+        email: member_email(m[:login]),
         active: false
       }
     end
@@ -204,6 +209,10 @@ OptionParser.new do |opts|
 
   opts.on('-d', '--date MANDATORY',Date, "Date from which to start looking for activity") do |d|
     options[:date] = d.to_s
+  end
+
+  opts.on('-e', '--email', "Fetch the user email (can make the script take longer") do |e|
+    options[:email] = e
   end
 
   opts.on('-o', '--organization MANDATORY',String, "Organization to scan for inactive users") do |o|
