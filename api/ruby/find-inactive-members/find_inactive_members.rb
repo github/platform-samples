@@ -107,7 +107,7 @@ private
     hsh[:active] = true
   end
 
-  def commit_activity(repository)
+  def commit_activity(repo)
     # get all commits after specified date and iterate
     info "...commits"
     @client.commits_since(repo, @date).each do |commit|
