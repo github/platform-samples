@@ -176,10 +176,6 @@ private
           member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
           info "#{member_detail} is inactive\n"
           csv << [member_detail]
-          if false # ARGV[2] == "purge"
-            info "removing #{member[:login]}\n"
-            @client.remove_organization_member(ORGANIZATION, member[:login])
-          end
         end
       end
     end
@@ -200,10 +196,6 @@ OptionParser.new do |opts|
 
   opts.on('-o', '--organization MANDATORY',String, "Organization to scan for inactive users") do |o|
     options[:organization] = o
-  end
-
-  opts.on('-p', '--purge', "Purge the inactive members (WARNING - DESTRUCTIVE!)") do |p|
-    options[:purge] = p
   end
 
   opts.on('-v', '--verbose', "More output to STDERR") do |v|
