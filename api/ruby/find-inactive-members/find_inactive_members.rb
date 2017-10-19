@@ -5,7 +5,7 @@ require 'optparse/date'
 
 
 class InactiveMemberSearch
-  attr_accessor :organization, :members, :repositories, :date
+  attr_accessor :organization, :members, :repositories, :date, :unrecognized_authors
 
   SCOPES=["read:org", "read:user", "repo", "user:email"]
 
@@ -26,6 +26,7 @@ class InactiveMemberSearch
     @date = options[:date]
     @organization = options[:organization]
     @email = options[:email]
+    @unrecognized_authors = []
 
     organization_members
     organization_repositories
@@ -101,6 +102,10 @@ private
     info "#{@repositories.length} repositories discovered\n"
   end
 
+  def add_unrecognized_author(author)
+    @unrecognized_authors << author
+  end
+
   # method to switch member status to active
   def make_active(login)
     hsh = @members.find { |member| member[:login] == login }
@@ -112,6 +117,10 @@ private
     info "...commits"
     @client.commits_since(repo, @date).each do |commit|
       # if commmitter is a member of the org and not active, make active
+      if commit["author"].nil?
+        add_unrecognized_author(commit[:commit][:author])
+        next
+      end
       if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
         make_active(t[:login])
       end
@@ -188,10 +197,18 @@ private
       # iterate and print inactive members
       @members.each do |member|
         if member[:active] == false
-          member_detail = "#{member[:login]} <#{member[:email] unless member[:email].nil?}>"
+          member_detail = "#{member[:login]},#{member[:email] unless member[:email].nil?}"
           info "#{member_detail} is inactive\n"
           csv << [member_detail]
         end
+      end
+    end
+
+    CSV.open("unrecognized_authors.csv", "wb") do |csv|
+      @unrecognized_authors.each do |author|
+        author_detail = "#{author[:name]},#{author[:email]}"
+        info "#{author_detail} is unrecognized\n"
+        csv << [author_detail]
       end
     end
   end
