@@ -80,6 +80,7 @@ private
 
   def organization_members
   # get all organization members and place into an array of hashes
+    info "Finding #{@organization} members "
     @members = @client.organization_members(@organization).collect do |m|
       email = 
       {
@@ -92,11 +93,12 @@ private
   end
 
   def organization_repositories
+    info "Gathering a list of repositories..."
     # get all repos in the organizaton and place into a hash
     @repositories = @client.organization_repositories(@organization).collect do |repo|
       repo["full_name"]
     end
-    info "#{@repositories.length} repositories found.\n"
+    info "#{@repositories.length} repositories discovered\n"
   end
 
   # method to switch member status to active
