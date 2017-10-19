@@ -110,15 +110,11 @@ private
   def commit_activity(repository)
     # get all commits after specified date and iterate
     info "...commits"
-    begin
-      @client.commits_since(repo, @date).each do |commit|
-        # if commmitter is a member of the org and not active, make active
-        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
-          make_active(t[:login])
-        end
+    @client.commits_since(repo, @date).each do |commit|
+      # if commmitter is a member of the org and not active, make active
+      if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+        make_active(t[:login])
       end
-    rescue
-      info "...skipping blank repo"
     end
   end
 
