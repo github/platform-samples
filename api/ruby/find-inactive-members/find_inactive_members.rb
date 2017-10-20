@@ -114,15 +114,19 @@ private
   def commit_activity(repo)
     # get all commits after specified date and iterate
     info "...commits"
-    @client.commits_since(repo, @date).each do |commit|
-      # if commmitter is a member of the org and not active, make active
-      if commit["author"].nil?
-        add_unrecognized_author(commit[:commit][:author])
-        next
+    begin
+      @client.commits_since(repo, @date).each do |commit|
+        # if commmitter is a member of the org and not active, make active
+        if commit["author"].nil?
+          add_unrecognized_author(commit[:commit][:author])
+          next
+        end
+        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
       end
-      if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
+    rescue Octokit::Conflict
+      info "...no commits"
     end
   end
 
