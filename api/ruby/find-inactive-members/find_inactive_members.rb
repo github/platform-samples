@@ -42,7 +42,7 @@ class InactiveMemberSearch
   end
 
   def check_rate_limit
-    info "Rate limit: #{client.rate_limit}\n"
+    info "Rate limit: #{@client.rate_limit.remaining}/#{@client.rate_limit.limit}\n"
   end
 
   def env_help
