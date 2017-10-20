@@ -134,6 +134,10 @@ private
     # get all issues after specified date and iterate
     info "...Issues"
     @client.list_issues(repo, { :since => date }).each do |issue|
+      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+      if comment["user"].nil?
+        next
+      end
       # if creator is a member of the org and not active, make active
       if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
         make_active(t[:login])
@@ -145,6 +149,10 @@ private
     # get all issue comments after specified date and iterate
     info "...Issue comments"
     @client.issues_comments(repo, { :since => date }).each do |comment|
+      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+      if comment["user"].nil?
+        next
+      end
       # if commenter is a member of the org and not active, make active
       if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
         make_active(t[:login])
