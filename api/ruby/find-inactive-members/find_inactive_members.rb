@@ -135,7 +135,7 @@ private
     info "...Issues"
     @client.list_issues(repo, { :since => date }).each do |issue|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if comment["user"].nil?
+      if issue["user"].nil?
         next
       end
       # if creator is a member of the org and not active, make active
