@@ -2,9 +2,12 @@ require "yaml"
 require "graphql/client"
 require "graphql/client/http"
 require "github/configuration"
+require "github/helpers"
 require "audit_issues/issue_fetcher"
 
 class AuditIssues
+  include GitHub::Helpers
+
   attr_reader :source, :target
 
   def initialize(source:, target:)
@@ -15,77 +18,43 @@ class AuditIssues
   def audit
     source_issues = IssueFetcher.call(**source)
     target_issues = IssueFetcher.call(**target)
-    erroneous_issues = []
-    source_issues.each do |issue|
-      if matched_issue = find_by_number(target_issues, issue["number"])
-        unless issue["title"] == matched_issue["title"]
-          if matched_issue = find_by_title(target_issues, issue["title"])
-            erroneous_issues.push({
-              number: issue["number"],
-              renumbered: matched_issue["number"],
-              issue: issue,
-              reason: "Possibly renumbered to #{matched_issue["number"]}"
-            })
-          else
-            erroneous_issues.push({
-              number: issue["number"],
-              issue: issue,
-              reason: "No matching issue found"
-            })
-          end
-        end
-      elsif matched_issue = find_by_title(target_issues, issue["title"])
-        erroneous_issues.push({
-          number: issue["number"],
-          renumbered: matched_issue["number"],
-          issue: issue,
-          reason: "Possibly renumbered to #{matched_issue["number"]}"
-        })
-      else
-        erroneous_issues.push({
-          number: issue["number"],
-          issue: issue,
-          reason: "No matching issue found"
-        })
-      end
-    end
-    erroneous_issues
+    compare_issues(source_issues, target_issues)
   end
 
   private
 
-  def extract_repo_info(target, str)
-    orgname, reponame = str.split("/")
-    client_config = GitHub::Configuration.new(target: target)
+  def compare_issues(source_issues, target_issues)
+    source_issues.map do |issue|
+      next if matching_issue_exists?(issue, target_issues)
+      if matched_issue = find_by_title(target_issues, issue["title"])
+        renumbered_issue(issue, matched_issue)
+      else
+        unmatched_issue(issue)
+      end
+    end.compact
+  end
+
+  def renumbered_issue(issue, matched_issue)
     {
-      orgname: orgname,
-      reponame: reponame,
-      client: build_github_client(client_config)
+      number: issue["number"],
+      renumbered: matched_issue["number"],
+      issue: issue,
+      candidate_issue: matched_issue,
+      reason: "Possibly renumbered to #{matched_issue["number"]}"
     }
   end
 
-  def build_github_client(config)
-    # Configure GraphQL endpoint using the basic HTTP network adapter.
-    http = GraphQL::Client::HTTP.new(config.graphql_endpoint) do
+  def unmatched_issue(issue)
+    {
+      number: issue["number"],
+      issue: issue,
+      reason: "No matching issue found"
+    }
+  end
 
-      define_method :headers do |context|
-        { "Authorization": "Bearer #{config.personal_access_token}" }
-      end
-    end
-
-    # Fetch latest schema on init, this will make a network request
-    schema = GraphQL::Client.load_schema(http)
-
-    # However, it's smart to dump this to a JSON file and load from disk
-    #
-    # Run it from a script or rake task
-    #   GraphQL::Client.dump_schema(SWAPI::HTTP, "path/to/schema.json")
-    #
-    # Schema = GraphQL::Client.load_schema("path/to/schema.json")
-
-    GraphQL::Client.new(schema: schema, execute: http).tap do |client|
-      client.allow_dynamic_queries = true
-    end
+  def matching_issue_exists?(issue, target_issues)
+    return unless matched_issue = find_by_number(target_issues, issue["number"])
+    issue["title"] == matched_issue["title"]
   end
 
   def find_by_number(issues, issue_number)
