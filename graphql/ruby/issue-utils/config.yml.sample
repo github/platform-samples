@@ -1,0 +1,6 @@
+source:
+  graphql_endpoint: https://api.github.com/graphql
+  personal_access_token:
+target:
+  graphql_endpoint: https://github.example.com/api/graphql
+  personal_access_token:
