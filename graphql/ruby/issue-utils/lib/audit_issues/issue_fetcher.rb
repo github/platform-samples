@@ -26,10 +26,10 @@ class AuditIssues
     private
 
     def get_issues(model: "issues", after:nil)
-      client.query(issue_with_comments_query(model), variables: { orgname: orgname, reponame: reponame, issues_after: after }).original_hash
+      client.query(issues_query(model), variables: { orgname: orgname, reponame: reponame, issues_after: after }).original_hash
     end
 
-    def issue_with_comments_query(model)
+    def issues_query(model)
       client.parse <<-"GRAPHQL"
         query($orgname: String!, $reponame: String!, $issues_after: String) {
           organization(login: $orgname) {
