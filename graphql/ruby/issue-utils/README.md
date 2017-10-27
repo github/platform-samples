@@ -5,7 +5,9 @@ Some tools written in ruby to interact with GitHub Issues on their GraphQL platf
 
 ## Usage
 
-Copy `config.yml.sample` and enter your source and target API endpoints, as well as a personal access token for both deployments of GitHub.
+Copy `config.yml.sample` and enter your source and target API endpoints, as well as a personal access token for both deployments of GitHub. The perosnal access token will require the `repo` scope for the both the `source` and `target` instance.
+
+![image](https://user-images.githubusercontent.com/519171/32112413-40a33fa0-bb0b-11e7-8766-caa80e49269d.png)
 
 ```shell
 $ cd platform-samples/graphql/ruby/issue-utils
