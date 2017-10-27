@@ -77,3 +77,10 @@ CopyIssueComments.new(source: "myorg/myrepo", target: "acme/myrepo").copy!
 ```
 
 `source` and `target` are provided as a owner login and repository name combination. The coincide with the `source` and `target` designations in `config.yml`.
+
+You can also provide audit information from `AuditIssues` as mappings for copying issue comments. It will skill unmatched issues and use potentially renumbered issue numbers. If no mapping is provided for an issue number, then the original issue number will be used.
+
+```ruby
+mappings = AuditIssues.new(source: "myorg/myrepo", target: "acme/myrepo").audit
+CopyIssueComments.new(source: "myorg/myrepo", target: "acme/myrepo", mappings: mappings).copy!
+```
