@@ -39,7 +39,7 @@ export OCTOKIT_API_ENDPOINT="https://<your_github_enterprise_instance>/api/v3" #
 ## Usage
 
 ```
-ruby find_active_members.rb [-cehv] -o ORGANIZATION -d DATE
+ruby find_inactive_members.rb [-cehv] -o ORGANIZATION -d DATE
 ```
 
 ## How Inactivity is Defined
