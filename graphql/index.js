@@ -27,14 +27,14 @@ if (!process.argv.slice(2).length)
 function runQuery(file, token) {
     
     try {
-        var queryText = fs.readFileSync(process.argv[2], "utf8");
+        var queryText = fs.readFileSync(file, "utf8");
     }
     catch (e) {
         console.log("Problem opening query file: " + e.message);
         process.exit(1);
     }
 
-    //If there is a variables section, extract the values and add them to the query JSON object.  
+    //If there is a variables section, extract the values and add them to the query JSON object.
     queryObj.variables = variablesRegex.test(queryText) ? JSON.parse(queryText.match(variablesRegex)[0].split("variables ")[1]) : {}
     //Remove the variables section from the query text, whether it exists or not
     queryObj.query = queryText.replace(variablesRegex, '');
