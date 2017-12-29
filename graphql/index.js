@@ -49,7 +49,6 @@ function runQuery(file, token) {
         }
         , json: true
         , body: queryObj
-        //,body: testQuery
     }, function (error, response, body) {
         console.log(JSON.stringify(body, null, 2));
     });
