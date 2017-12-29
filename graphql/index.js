@@ -45,7 +45,7 @@ function runQuery(file, token) {
         , headers: {
             'authorization': 'bearer ' + token
             , 'content-type': 'application/json'
-            , 'user-agent': 'octoweenie'
+            , 'user-agent': 'platform-samples'
         }
         , json: true
         , body: queryObj
