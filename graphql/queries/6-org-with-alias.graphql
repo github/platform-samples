@@ -1,0 +1,37 @@
+{
+    orgGithub: organization(login: "github") {
+    ...orgFrag
+    members(first: 1) {
+        edges {
+            node {
+                login
+                location
+            }
+        }
+    }
+}
+    orgBidness: organization(login: "microsoft") {
+    ...orgFrag
+    members(first: 1) {
+        ...memFrag
+    }
+}
+}
+
+fragment memFrag on UserConnection {
+    edges {
+        node {
+            login
+            location
+
+        }
+    }
+}
+
+fragment orgFrag on Organization
+{
+    login
+    name
+}
+
+

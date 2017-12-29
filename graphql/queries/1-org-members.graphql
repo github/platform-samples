@@ -1,0 +1,14 @@
+query {
+    organization(login:"github") {
+        login
+        name
+        members(first:100) {
+            edges {
+                node {
+                    login
+                    location
+                }
+            }
+        }
+    }
+}
