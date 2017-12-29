@@ -18,12 +18,6 @@ program
 
 program.parse(process.argv);
 
-if (!process.argv.slice(2).length)
-{
-    console.log("Missing query file and/or token argument");
-    process.exitCode = 1;
-}
-
 function runQuery(file, token) {
     
     try {
