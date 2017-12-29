@@ -34,7 +34,7 @@ function runQuery(file, token) {
         process.exit(1);
     }
 
-    //If there is a variables section, extract the values and add them to the query JSON object.  Otherwise, add and empty object
+    //If there is a variables section, extract the values and add them to the query JSON object.  
     queryObj.variables = variablesRegex.test(queryText) ? JSON.parse(queryText.match(variablesRegex)[0].split("variables ")[1]) : {}
     //Remove the variables section from the query text, whether it exists or not
     queryObj.query = queryText.replace(variablesRegex, '');
