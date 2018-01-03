@@ -1,0 +1,15 @@
+query getRepoIssue($orgName: String!, $repoName: String!)
+{
+    repository(owner: $orgName, name: $repoName){
+        issues(last: 1){
+            edges{
+                node{
+                    number
+                    id
+                    body
+                }
+            }
+        }
+    }
+}
+
