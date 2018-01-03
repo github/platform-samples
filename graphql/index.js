@@ -14,18 +14,29 @@ program
         console.log("Running query: " + file);
         runQuery(file, token);
     })
-    .description('Execute specified GraphQL query');
+    .description('Execute specified GraphQL query.');
+
+program.on('--help', function(){
+    console.log('');
+    console.log('  Arguments:');
+    console.log('');
+    console.log('     file :  Path to file containing GraphQL');
+    console.log('     token: Properly scoped GitHub PAT');
+    console.log('');
+});
+
+//Commander doesn't seem to do anything when both required arguments are missing
+//So we'll check the old-fashioned way
+if(process.argv.length != 4)
+{
+    console.log('Usage: ./index.js ' + program.usage());
+    process.exitCode = 1
+}
 
 program.parse(process.argv);
 
-if (!process.argv.slice(2).length)
-{
-    console.log("Missing query file and/or token argument");
-    process.exitCode = 1;
-}
-
 function runQuery(file, token) {
-    
+
     try {
         var queryText = fs.readFileSync(file, "utf8");
     }

@@ -9,4 +9,4 @@ This repository holds query samples for the GitHub GraphQL API. It's an easy way
 1. Pick the name of one of the included queries in the `/queries` directory, such as `viewer.graphql`.
 1. Run `./index.js <query_file> <token>`
 
-To change variables values, just modify the variables in the `.graphql` file.
+To change variable values, modify the variables in the `.graphql` file.
