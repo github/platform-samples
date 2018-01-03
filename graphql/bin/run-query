@@ -11,7 +11,7 @@ program
     .usage('<file> <token>')
     .arguments('<file> <token>')
     .action(function(file, token){
-        console.log("Running query: " + file);
+        //console.log("Running query: " + file);
         runQuery(file, token);
     })
     .description('Execute specified GraphQL query.');
