@@ -1,0 +1,18 @@
+query getExistingRepoBranches($orgName: String!, $repoName: String!) {
+  organization(login: $orgName) {
+    repository(name: $repoName) {
+      id
+      name
+      refs(refPrefix: "refs/heads/", first: 10) {
+        edges {
+          node {
+            branchName:name
+          }
+        }
+        pageInfo {
+          endCursor #use this value to paginate through repos with more than 100 branches
+        }
+      }
+    }
+  }
+}
