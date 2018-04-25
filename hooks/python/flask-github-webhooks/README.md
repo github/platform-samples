@@ -3,7 +3,7 @@ GitHub Webhooks Test
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This is a simple WSGI application written in Flask to allow you to register and run your own Git hooks. Python is a
-favorite programming language of many, so this will be familiar to work with
+favorite programming language of many, so this might be familiar to work with.
 
 
 Install
