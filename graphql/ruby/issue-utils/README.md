@@ -1,4 +1,4 @@
-# Issue Utils
+# Issue utils
 
 Some tools written in ruby to interact with GitHub Issues on their GraphQL platform.
 
@@ -24,7 +24,7 @@ $ bin/console
 
 Once in the interactive console, you can use the issue utilities.
 
-### Audit Issues
+### Audit issues
 
 Compare issues and pull requests across two deployments of GitHub using issue number and title.
 
@@ -70,7 +70,7 @@ An example hash of an issue that potentially imported with a different number:
 }
 ```
 
-### Copy Issue Comments
+### Copy issue comments
 
 Copy the issue comments from a source repository onto existing issues in a target repository.
 
