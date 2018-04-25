@@ -22,7 +22,7 @@ In order to use this pipeline, you will need the following plugins:
 ![jenkins-config-gh-pull-1](https://user-images.githubusercontent.com/865381/39254113-5d8fde58-4877-11e8-81f5-fb037ae06266.png)
 ![jenkins-setup-gh-pull-2](https://user-images.githubusercontent.com/865381/39254114-5dacc112-4877-11e8-9a0b-f1a8643de7c0.png)
 
-### Creating the Pipeline
+### Creating the pipeline
 1. Log in to Jenkins and click _New Item_
 2. Give it a name and select _Pipeline_ as the type
 ![jira-github-validation](https://user-images.githubusercontent.com/865381/37780888-0e1d3c88-2dc6-11e8-8cd8-4b3efc55a1f1.png)
@@ -35,7 +35,7 @@ In order to use this pipeline, you will need the following plugins:
 ![jenkins-github-integration-pr-trigger](https://user-images.githubusercontent.com/865381/37780979-38469c84-2dc6-11e8-98b2-19c06b77fcf4.png)
 
 
-### Example Pipeline
+### Example pipeline
 This pipeline functions by taking the _issue ID_ from the pull request body, performing a lookup in Jira, then setting the status of the build in GitHub based on the _transition_ in Jira.
 
 ```groovy
@@ -94,7 +94,7 @@ node {
 }
 ```
 
-### Visual Status
+### Visual status
 1. Create a new file with a commit message. The Jira plugin will automatically comment on the ticket if you use the `JIRA-[number] #comment <comment>` format
 ![jenkins-jira-commit](https://user-images.githubusercontent.com/865381/37779241-544b8bc8-2dc2-11e8-8dd6-aaca12556ed0.png)
 
