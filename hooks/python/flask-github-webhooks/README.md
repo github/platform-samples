@@ -76,8 +76,7 @@ import sys
 import json
 import requests
 
-# Authentication for the user who is filing the issue
-## Username/API_KEY
+# Authentication for the user who is filing the issue. Username/API_KEY
 USERNAME = '<api_username>'
 API_KEY = '<github-api-key>'
 
