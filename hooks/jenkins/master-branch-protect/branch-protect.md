@@ -4,20 +4,20 @@
      - [Upgrading Jenkins in Docker](#upgrading-jenkins-in-docker)
   * [Installing Jenkins on RedHat/CentOS 7](#installing-jenkins-on-redhatcentos-7)
   * [Installing Jenkins on Ubuntu/Debian](#installing-jenkins-on-ubuntudebian)
-  * [Additional Installation Options](#additional-installation-options)
-  * [Obtaining the Initial Password](#obtaining-the-initial-password)
+  * [Additional installation options](#additional-installation-options)
+  * [Obtaining the initial password](#obtaining-the-initial-password)
      - [Docker](#docker)
      - [Linux](#linux)
-  * [Completing the Setup](#completing-the-setup)
-- [Installing Plugins](#installing-plugins)
+  * [Completing the setup](#completing-the-setup)
+- [Installing plugins](#installing-plugins)
 - [Styling Jenkins](#styling-jenkins)
-- [Creating the Webhook](#creating-the-webhook)
-- [Creating the Pipeline](#creating-the-pipeline)
-  * [Git Credentials in Jenkins](#git-credentials-in-jenkins)
-  * [Defining Our Actions](#defining-our-actions)
-  * [Defining the Payload](#defining-the-payload)
-  * [Tying it all Together](#tying-it-all-together)
-- [Adding the Pipeline to Jenkins as a Webhook Listener](#adding-the-pipeline-to-jenkins-as-a-webhook-listener)
+- [Creating the webhook](#creating-the-webhook)
+- [Creating the pipeline](#creating-the-pipeline)
+  * [Git credentials in Jenkins](#git-credentials-in-jenkins)
+  * [Defining our actions](#defining-our-actions)
+  * [Defining the payload](#defining-the-payload)
+  * [Tying it all together](#tying-it-all-together)
+- [Adding the pipeline to Jenkins as a webhook listener](#adding-the-pipeline-to-jenkins-as-a-webhook-listener)
 
 # Overview
 The purpose of this guide is to address a particular scenario, wherein repositories are created but no branches are protected. In this example we will utilize `Jenkins` to process _webhooks_ that GitHub sends each time a branch is created. Once the webhook is received, Jenkins will analyse the payload and make an API call back to GitHub to:
@@ -516,7 +516,7 @@ Build Token | [_uuid_ from Creating the Webhook](#creating-the-webhook)
 
 ![create jenkins pipeline](https://user-images.githubusercontent.com/865381/39252653-1c318d56-4874-11e8-90d6-2ba21b5fa20f.gif)
 
-## Triggering the Build
+## Triggering the build
 Once you have the pipeline created, simply create a new repository and initialize it with some content. The creation of that first branch will trigger the webhook and execute the pipeline.
 
 1. Login to GitHub
@@ -525,7 +525,7 @@ Once you have the pipeline created, simply create a new repository and initializ
 
 ![create repository](https://user-images.githubusercontent.com/865381/39252675-2c087d84-4874-11e8-9fc7-3bf6d950caf0.gif)
 
-## The Completed Workflow
+## The completed workflow
 Once the pipeline has been triggered and completes, view the console output to see the payload and actions taken.
 
 <details>
