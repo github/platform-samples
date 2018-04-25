@@ -1,4 +1,4 @@
-GitHub Webhooks Test
+GitHub webhooks test
 ====================
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -47,7 +47,7 @@ You can configure what the application does by copying the sample config file
 | hooks_path | Configures a path to import the hooks. If not set, it'll import the hooks from the default location (/.../python-github-webhooks/hooks) |
 
 
-Adding Hooks
+Adding hooks
 ============
 
 This application uses the following precedence for executing hooks:
@@ -76,7 +76,8 @@ import sys
 import json
 import requests
 
-# Authentication for the user who is filing the issue. Username/API_KEY
+# Authentication for the user who is filing the issue
+## Username/API_KEY
 USERNAME = '<api_username>'
 API_KEY = '<github-api-key>'
 
