@@ -1,4 +1,4 @@
-## Jira Issue Validator
+## Jira issue validator
 In order to use this pipeline, you will need the following plugins:
 
 - [Pipeline](https://plugins.jenkins.io/workflow-aggregator): This plugin allows us to store our `Jenkins` _jobs_ as code, and moves away from the common understanding of Jenkins `builds` to an `Agile` and `DevOps` model
@@ -9,14 +9,14 @@ In order to use this pipeline, you will need the following plugins:
 - [GitHub Integration](https://plugins.jenkins.io/github-pullrequest): Provides the ability to customize pull request builds
 - [Pipeline: GitHub](https://plugins.jenkins.io/pipeline-github): Allows using GitHub steps within a _Jenkinsfile_
 - [GitHub](https://plugins.jenkins.io/github): Provides integration with GitHub
-- [JIRA Pipeline Steps](https://plugins.jenkins.io/jira-steps): Allows using JIRA steps within a _Jenkinsfile_
-- [JIRA](https://plugins.jenkins.io/jira): Enables integration with JIRA
+- [Jira Pipeline Steps](https://plugins.jenkins.io/jira-steps): Allows using Jira steps within a _Jenkinsfile_
+- [Jira](https://plugins.jenkins.io/jira): Enables integration with Jira
 
 ### Configuring Jenkins
 
 1. Log in to Jenkins and click _Manage Jenkins_
 2. Click _Configure System_
-3. In the **JIRA Steps** section, provide the required information for connecting to your JIRA server
+3. In the **Jira Steps** section, provide the required information for connecting to your Jira server
 ![jenkins-setup-jira](https://user-images.githubusercontent.com/865381/39254110-587316e2-4877-11e8-93f0-9050a7144ea2.png)
 4. In the **GitHub Pull Request Builder** section, fill out the connection information
 ![jenkins-config-gh-pull-1](https://user-images.githubusercontent.com/865381/39254113-5d8fde58-4877-11e8-81f5-fb037ae06266.png)
@@ -36,7 +36,7 @@ In order to use this pipeline, you will need the following plugins:
 
 
 ### Example Pipeline
-This pipeline functions by taking the _issue ID_ from the pull request body, performing a lookup in JIRA, then setting the status of the build in GitHub based on the _transition_ in JIRA.
+This pipeline functions by taking the _issue ID_ from the pull request body, performing a lookup in Jira, then setting the status of the build in GitHub based on the _transition_ in Jira.
 
 ```groovy
 node {
@@ -95,7 +95,7 @@ node {
 ```
 
 ### Visual Status
-1. Create a new file with a commit message. The JIRA plugin will automatically comment on the ticket if you use the `JIRA-[number] #comment <comment>` format
+1. Create a new file with a commit message. The Jira plugin will automatically comment on the ticket if you use the `JIRA-[number] #comment <comment>` format
 ![jenkins-jira-commit](https://user-images.githubusercontent.com/865381/37779241-544b8bc8-2dc2-11e8-8dd6-aaca12556ed0.png)
 
 2. Create a new pull request, and be sure that `JIRA-[number]` is the first word in the _body_
