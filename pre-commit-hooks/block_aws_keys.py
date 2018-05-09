@@ -26,7 +26,7 @@ def get_aws_secrets_from_env():
     """
     Extract AWS secrets from environment variables.
     @:return keys:
-    @:rtype keys: list
+    @:rtype keys: set
     """
     keys = set()
     for env_var in ('AWS_SECRET_ACCESS_KEY', 'AWS_SECURITY_TOKEN', 'AWS_SESSION_TOKEN'):
