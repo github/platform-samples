@@ -173,14 +173,16 @@
 
         const hostnames = location.hostname.split('.')
 
-        if (hostnames[0] === "pages") {
-          // subdomain isolation enabled, so remove the first part of the URL
-          hostnames.shift()
-          const apiHost = location.protocol + '//' + hostnames.join('.')
-        } else {
-          // no subdomain isolation
-          const apiHost = location.protocol + '//' + location.hostname
-        }
+        const apiHost = function () {
+         if (hostnames[0] === "pages") {
+           // subdomain isolation enabled, so remove the first part of the URL
+           hostnames.shift()
+           return location.protocol + '//' + hostnames.join('.')
+         } else {
+           // no subdomain isolation
+           return location.protocol + '//' + location.hostname
+         }
+       }()
 
         return fetch(apiHost + '/api/graphql', {
           method: 'post',
