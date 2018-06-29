@@ -6,22 +6,13 @@ require 'octokit'
 require 'jwt'
 require 'time' # This is necessary to get the ISO 8601 representation of a Time object
 
+set :port, 3000
+
 #
 #
-# This is a boilerplate server for your own GitHub App. You can read more about GitHub Apps here:
-# https://developer.github.com/apps/
+# This is a customized server for the GitHub App you can build by following
+# https://developer.github.com/build-your-first-github-app.
 #
-# On its own, this app does absolutely nothing, except that it can be installed.
-# It's up to you to add fun functionality!
-# You can check out one example in advanced_server.rb.
-#
-# This code is a Sinatra app, for two reasons.
-# First, because the app will require a landing page for installation.
-# Second, in anticipation that you will want to receive events over a webhook from GitHub, and respond to those
-# in some way. Of course, not all apps need to receive and process events! Feel free to rip out the event handling
-# code if you don't need it.
-#
-# Have fun! Please reach out to us if you have any questions, or just to show off what you've built!
 #
 
 class GHAapp < Sinatra::Application
@@ -42,6 +33,7 @@ class GHAapp < Sinatra::Application
 # but it is something easier to configure at runtime.
   APP_IDENTIFIER = ENV['GITHUB_APP_IDENTIFIER']
 
+# You need to authenticate to the REST API to do much of anything
 
 ########## Configure Sinatra
 #
@@ -80,9 +72,10 @@ class GHAapp < Sinatra::Application
 
     # Create the Octokit client, using the JWT as the auth token.
     # Notice that this client will _not_ have sufficient permissions to do many interesting things!
-    # We might, for particular endpoints, need to generate an installation token (using the JWT), and instantiate
-    # a new client object. But we'll cross that bridge when/if we get there!
+    # The helper methods below include one that generates an installation token (using the JWT) and
+    # instantiates a new client object.
     @client ||= Octokit::Client.new(bearer_token: jwt)
+
   end
 
 
@@ -118,13 +111,15 @@ class GHAapp < Sinatra::Application
     # Determine what kind of event this is, and take action as appropriate
     # TODO we assume that GitHub will always provide an X-GITHUB-EVENT header in this case, which is a reasonable
     #      assumption, however we should probably be more careful!
-    logger.debug "---- recevied event #{request.env['HTTP_X_GITHUB_EVENT']}"
+    logger.debug "---- received event #{request.env['HTTP_X_GITHUB_EVENT']}"
     logger.debug "----         action #{payload['action']}" unless payload['action'].nil?
 
     case request.env['HTTP_X_GITHUB_EVENT']
-    when :the_event_that_i_care_about
-      # Add code here to handle the event that you care about!
-      handle_the_event_that_i_care_about(payload)
+    when 'issues'
+      authenticate_installation(payload)
+      if payload['action'] === 'opened'
+        handle_issue_opened_event(payload)
+      end
     end
 
     'ok'  # we have to return _something_ ;)
@@ -139,11 +134,18 @@ class GHAapp < Sinatra::Application
 
   helpers do
 
-    # This is our handler for the event that you care about! Of course, you'll want to change the name to reflect
-    # the actual event name! But this is where you will add code to process the event.
-    def handle_the_event_that_i_care_about(payload)
-      logger.debug 'Handling the event that we care about!'
-      true
+    # Authenticate each installation of the app in order to run API operations
+    def authenticate_installation(payload)
+      installation_id = payload['installation']['id']
+      installation_token = @client.create_app_installation_access_token(installation_id)[:token]
+      @bot_client = Octokit::Client.new(bearer_token: installation_token)
+    end
+
+    # When an issue is opened, add a label
+    def handle_issue_opened_event(payload)
+      repo = payload['repository']['full_name']
+      issue_number = payload['issue']['number']
+      @bot_client.add_labels_to_an_issue(repo, issue_number, ['needs-response'])
     end
 
   end

@@ -14,6 +14,6 @@ Both commands will run the server at `localhost:4567`.
 
 ## History
 
-The original author is @DEGoodmanWilson, and the original location is https://github.com/DEGoodmanWilson/app-boilerplate.
+The original author is @DEGoodmanWilson, and the original source is https://github.com/DEGoodmanWilson/app-boilerplate.
 
 The @github/product-docs-ecosystem team ported the code here and added `advanced_server.rb` while editing the guide before publishing it.
