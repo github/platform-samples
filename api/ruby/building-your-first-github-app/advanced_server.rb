@@ -86,7 +86,7 @@ class GHAapp < Sinatra::Application
 # This is the webhook endpoint that GH will call with events, and hence where we will do our event handling
 #
 
-  post '/event_handler' do
+  post '/' do
     request.body.rewind
     payload_raw = request.body.read # We need the raw text of the body to check the webhook signature
     begin
