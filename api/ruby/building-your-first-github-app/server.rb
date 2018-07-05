@@ -120,7 +120,7 @@ class GHAapp < Sinatra::Application
     # Determine what kind of event this is, and take action as appropriate
     # TODO we assume that GitHub will always provide an X-GITHUB-EVENT header in this case, which is a reasonable
     #      assumption, however we should probably be more careful!
-    logger.debug "---- recevied event #{request.env['HTTP_X_GITHUB_EVENT']}"
+    logger.debug "---- received event #{request.env['HTTP_X_GITHUB_EVENT']}"
     logger.debug "----         action #{payload['action']}" unless payload['action'].nil?
 
     case request.env['HTTP_X_GITHUB_EVENT']
