@@ -1,7 +1,5 @@
 #!/bin/bash
-################
-# collision.sh #
-################
+
 #########################################
 # Collision detection script to verify  #
 # That all Repos in an Org do NOT exist #
