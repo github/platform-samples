@@ -12,13 +12,12 @@
 # Legend:
 # This script is used to migrate repos from one organization
 # to a master organization. This is done in org consolidations.
-# It will transfer ownership to the new org. It can be ran in debug
-# mode to show what repos will be migrated. It can also set
+# It will transfer ownership to the new org. It can also set
 # teams access in master org when the transfer is complete.
-# You Just need to set the teams ids in the script
+# You just need to set the teams ids in the script
 # To run the script:
 #
-# - Update vareiables section in script
+# - Update variables section in script
 # - chmod +x script.sh
 # - export GITHUB_TOKEN=YourGitHubTokenWithAccess 
 # - ./script.sh UsersOrg
@@ -35,10 +34,10 @@ DEBUG=1                             # Debug Flag 0=execute 1=report
 ########
 # VARS #
 ########
-ORIG_ORG=$1                         # Name of the users GitHub Organization
-UPDATE_TEAMS=1                      # UPdate Teams access 0=skip 1=execute
+ORIG_ORG=$1                         # Name of the Original GitHub Organization
+UPDATE_TEAMS=1                      # Update Teams access 0=skip 1=execute
 MASTER_ORG=''                       # Name of the master Organization
-GITHUB_TOKEN=''                     # Token to authenticate into GitHub
+#GITHUB_TOKEN=''                     # Token to authenticate into GitHub
 GITHUB_URL="https://api.github.com" # URL to GitHub
 READ_TEAM=''                        # ID of the GitHub team with read access
 WRITE_TEAM=''                       # Team to add with write access to the repos
@@ -129,7 +128,8 @@ GetTeamIds()
       # Get the team id
       get_team_id()
       {
-         echo ${TEAM_RESPONSE} | base64 --decode --ignore-garbage | jq -r ${1}
+         echo ${TEAM_RESPONSE} | base64 --decode | jq -r ${1}
+         #echo ${TEAM_RESPONSE} | base64 --decode --ignore-garbage | jq -r ${1} # Need ignore garbae on windows machines
       }
 
       # Get the id of the team
@@ -146,6 +146,7 @@ UpdateTeamPermission()
 {
    # need to add the teams permissions to the repo
    REPO_TO_UPDATE_PERMS=$1
+   # https://developer.github.com/v3/teams/#edit-team
    # PUT /teams/:team_id/repos/:owner/:repo
 
    ###################################
@@ -232,7 +233,8 @@ GetOrigOrgRepos()
       # Pull the name of the repo out
       get_orig_repo_name()
       {
-         echo ${orig_repo} | base64 --decode --ignore-garbage | jq -r ${1}
+         echo ${orig_repo} | base64 --decode | jq -r ${1}
+         #echo ${orig_repo} | base64 --decode --ignore-garbage | jq -r ${1} # Need ignore garbage on windows machines
       }
 
       # Get the name of the repo
@@ -355,7 +357,7 @@ Header()
    if [ $UPDATE_TEAMS -eq 1 ]; then
       echo "Updating Repositories teams when migrating"
    else
-      echo "No teams will be set during the migration process"
+      echo "No teams will be assigned during the migration process"
    fi
    echo ""
 }
