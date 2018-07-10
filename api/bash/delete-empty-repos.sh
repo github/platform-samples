@@ -12,7 +12,8 @@
 #/ DESCRIPTION:
 #/ For a GitHub Enterprise Instance, lists every empty repository in format
 #/ <organization>:<repository> separated by new lines. Deleting them if passed
-#/ the option [--execute=true].
+#/ the option [--execute=true]. "Empty" means any repository with a zero size
+#/ attribute, i.e. initialized only or those with no content at all.
 #/   - Example Output: List all empty repositories
 #/     <organization>:<repository1>
 #/     <organization>:<repository2>
