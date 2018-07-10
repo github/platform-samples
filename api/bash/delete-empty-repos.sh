@@ -4,6 +4,8 @@
 #/ delete-empty-repos - For a GitHub Enterprise Instance, lists every empty repository
 #/ in format <organization>:<repository> and deletes them if option is passed.
 #/
+#/ AUTHOR: @IAmHughes
+#/
 #/ SYNOPSIS:
 #/ delete-empty-repos.sh [--org=MyOrganization] [--execute=TRUE]
 #/
@@ -31,6 +33,8 @@
 #/ your instance of GitHub Enterprise.
 #/  - _i.e._: https://MyGitHubEnterprise.com/api/v3
 #/
+#/ Finally, you will need to ensure you have installed jq: https://stedolan.github.io/jq/
+#/
 #/ OPTIONS:
 #/ --org
 #/ -o
@@ -54,19 +58,18 @@
 #/ API DOCUMENTATION:
 #/ All documentation can be found at https://developer.github.com/v3/
 
+##########
+# HEADER #
+##########
+
 echo ""
-echo "#######################################"
-echo "#     ____                            #"
-echo "#    |  _ \ ___ _ __   ___            #"
-echo "#    | |_) / _ \ '_ \ / _ \           #"
-echo "#    |  _ <  __/ |_) | (_) |          #"
-echo "#    |_|_\_\___| .__/ \___/           #"
-echo "#   |  _ \ ___ |_| _ _ __   ___ _ __  #"
-echo "#   | |_) / _ \/ _| | '_ \ / _ \ '__| #"
-echo "#   |  _ <  __/ (_| | |_) |  __/ |    #"
-echo "#   |_| \_\___|\__,_| .__/ \___|_|    #"
-echo "#                   |_|               #"
-echo "#######################################"
+echo "############################################"
+echo "############################################"
+echo "###                                      ###"
+echo "### Delete Empty Repos from Organization ###"
+echo "###                                      ###"
+echo "############################################"
+echo "############################################"
 echo ""
 
 ########
