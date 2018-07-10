@@ -109,7 +109,7 @@ done
 if [[ -z ${GITHUB_TOKEN} ]]; then
   echo "ERROR: GITHUB_TOKEN was not found in your environment. You must export "
   echo "this token prior to running the script."
-  echo "  Ex: EXPORT GITHUB_TOKEN=abc123def456"
+  echo "  Ex: export GITHUB_TOKEN=abc123def456"
   echo ""
   echo "Exiting script with no changes."
   echo ""
