@@ -3,14 +3,16 @@
 #/ NAME:
 #/ update-user-and-team-dn-for-ldap - For a GitHub Enterprise Instance using LDAP,
 #/ reads in a `users.txt` files and `teams.txt` files to change the distinguished
-#/ name (DN) of each user and team to your new LDAP provider's DN.
+#/ name (DN) of each user and team to your new LDAP provider's DN. See PRE-REQUISITES
+#/ below for more information on creating and formatting those files.
 #/
 #/ AUTHOR: @IAmHughes
 #/
 #/ DESCRIPTION:
 #/ For a GitHub Enterprise Instance using LDAP, reads in a `users.txt` files and
 #/ `teams.txt` files to change the distinguished name (DN) of each user and team to
-#/ your new LDAP provider's DN.
+#/ your new LDAP provider's DN. See PRE-REQUISITES below for more information on
+#/ creating and formatting those files.
 #/
 #/ PRE-REQUISITES:
 #/ Before running this script, you must create a Personal Access Token (PAT)
