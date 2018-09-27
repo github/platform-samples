@@ -61,7 +61,7 @@ while read oldrev newrev refname; do
   # ----------------------------------------------------------------------------
   for sha1 in ${span}; do
     # Use extended regex to search for a match
-    match=`git diff-tree -r -p --no-color --diff-filter=d ${sha1} | grep -nE "(${regex})"`
+    match=`git diff-tree -r -p --no-color --no-commit-id --diff-filter=d ${sha1} | grep -nE "(${regex})"`
 
     # Verify its not empty
     if [ "${match}" != "" ]; then
