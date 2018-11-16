@@ -79,6 +79,7 @@ echo ""
 API_ROOT="https://<your-domain>/api/v3"
 EXECUTE="FALSE"
 EMPTY_REPO_COUNTER=0
+ERROR_COUNT=0 # Total errors found
 
 ##################################
 # Parse options/flags passed in. #
@@ -154,72 +155,106 @@ echo "Getting a list of the repositories within "${ORG_NAME}
 REPO_RESPONSE="$(curl --request GET \
 --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
 -s \
+--write-out response=%{http_code} \
 --header "authorization: Bearer ${GITHUB_TOKEN}" \
 --header "content-type: application/json")"
 
-##########################################################################
-# Loop through every organization's repo to get repository name and size #
-##########################################################################
-echo "Generating list of empty repositories."
-echo ""
-echo "-------------------"
-echo "| Empty Repo List |"
-echo "| Org : Repo Name |"
-echo "-------------------"
+REPO_RESPONSE_CODE=$(echo "${REPO_RESPONSE}" | grep 'response=' | sed 's/response=\(.*\)/\1/')
 
-for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
-do
-  #####################################
-  # Get the info from the json object #
-  #####################################
-  get_repo_info()
-  {
-    echo ${repo} | base64 --decode | jq -r ${1}
-  }
+########################
+# Check for any errors #
+########################
+if [ $REPO_RESPONSE_CODE != 200 ]; then
+  echo ""
+  echo "ERROR: Failed to get the list of repositories within ${ORG_NAME}"
+  echo "${REPO_RESPONSE}"
+  echo ""
+  ((ERROR_COUNT++))
+else
+  ##########################################################################
+  # Loop through every organization's repo to get repository name and size #
+  ##########################################################################
+  echo "Generating list of empty repositories."
+  echo ""
+  echo "-------------------"
+  echo "| Empty Repo List |"
+  echo "| Org : Repo Name |"
+  echo "-------------------"
 
-  # Get the info from the JSON object
-  REPO_NAME=$(get_repo_info '.name')
-  REPO_SIZE=$(get_repo_info '.size')
+  for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
+  do
+    #####################################
+    # Get the info from the json object #
+    #####################################
+    get_repo_info()
+    {
+      echo ${repo} | base64 --decode | jq -r ${1}
+    }
 
-  # If repository has data, size will not be zero, therefore skip.
-  if [[ ${REPO_SIZE} -ne 0 ]]; then
-    continue;
-  fi
+    # Get the info from the JSON object
+    REPO_NAME=$(get_repo_info '.name')
+    REPO_SIZE=$(get_repo_info '.size')
 
-  ################################################
-  # If we are NOT deleting repository, list them #
-  ################################################
-  if [[ ${EXECUTE} = "FALSE" ]]; then
-    echo "${ORG_NAME}:${REPO_NAME}"
+    # If repository has data, size will not be zero, therefore skip.
+    if [[ ${REPO_SIZE} -ne 0 ]]; then
+      continue;
+    fi
 
-    # Increment counter
-    EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
-
-  #################################################
-  # EXECUTE is TRUE, we are deleting repositories #
-  #################################################
-  elif [[ ${EXECUTE} = "TRUE" ]]; then
-      echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
-
-      ############################
-      # Call API to delete repos #
-      ############################
-      curl --request DELETE \
-         -s \
-         --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
-         --header "authorization: Bearer ${GITHUB_TOKEN}"
-
-      echo "${REPO_NAME} was deleted from ${ORG_NAME} successfully."
+    ################################################
+    # If we are NOT deleting repository, list them #
+    ################################################
+    if [[ ${EXECUTE} = "FALSE" ]]; then
+      echo "${ORG_NAME}:${REPO_NAME}"
 
       # Increment counter
       EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
-  fi
 
-done
+    #################################################
+    # EXECUTE is TRUE, we are deleting repositories #
+    #################################################
+    elif [[ ${EXECUTE} = "TRUE" ]]; then
+        echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
+
+        ############################
+        # Call API to delete repos #
+        ############################
+        DELETE_RESPONSE="$(curl --request DELETE \
+          -s \
+          --write-out response=%{http_code} \
+          --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
+          --header "authorization: Bearer ${GITHUB_TOKEN}")"
+
+        DELETE_RESPONSE_CODE=$(echo "${DELETE_RESPONSE}" | grep 'response=' | sed 's/response=\(.*\)/\1/')
+
+        ########################
+        # Check for any errors #
+        ########################
+        if [ $DELETE_RESPONSE_CODE != 204 ]; then
+          echo ""
+          echo "ERROR: Failed to delete ${REPO_NAME} from ${ORG_NAME}!"
+          echo "${DELETE_RESPONSE}"
+          echo ""
+          ((ERROR_COUNT++))
+        else
+          echo "${REPO_NAME} was deleted from ${ORG_NAME} successfully."
+        fi
+
+        # Increment counter
+        EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
+    fi
+
+  done
+fi
 
 ##################
 # Exit Messaging #
 ##################
+if [[ $ERROR_COUNT -gt 0 ]]; then
+  echo "-----------------------------------------------------"
+  echo "the script has completed, there were errors"
+  exit $ERROR_COUNT
+fi
+
 if [[ ${EXECUTE} = "TRUE" ]]; then
   echo ""
   echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
