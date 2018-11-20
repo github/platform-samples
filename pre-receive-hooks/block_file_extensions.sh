@@ -38,7 +38,7 @@ while read oldrev newrev refname; do
     for FILE  in `git log -1 --name-only --pretty=format:'' $COMMIT`;
     do
       case $FILE in
-      *.zip|*.gz|*.tgz )
+      *.zip|*.gz|*.tgz|*.rb )
         echo "Hello there! We have restricted committing that filetype. Please see Dave in IT to discuss alternatives."
         exit 1
         ;;
