@@ -20,7 +20,7 @@ TOKEN=USER:TOKEN
 # We set the address of the GHE Instance here
 GHE_URL=https://GHE-INSTANCE
 
-GITHUB_USER_EMAIL=`curl -s -k -u ${TOKEN} ${GHE URL}/api/v3/users/${GITHUB_USER_LOGIN} | grep email | sed 's/  \"email\"\: \"//' | sed 's/\",//'`
+GITHUB_USER_EMAIL=`curl -s -k -u ${TOKEN} ${GHE_URL}/api/v3/users/${GITHUB_USER_LOGIN} | grep email | sed 's/  \"email\"\: \"//' | sed 's/\",//'`
 
 if echo "${GITHUB_USER_EMAIL}" | grep "null,"
 then

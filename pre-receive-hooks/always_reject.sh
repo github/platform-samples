@@ -8,5 +8,7 @@
 # https://help.github.com/enterprise/admin/guides/developer-workflow/managing-pre-receive-hooks-on-the-github-enterprise-appliance/
 #
 
-echo "error: rejecting all pushes"
+echo "You are attempting to push to the ${GITHUB_REPO_NAME} repository which has been made read-only"
+echo "Access denied, push blocked. Please contact the repository administrator."
+
 exit 1
