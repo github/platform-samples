@@ -22,7 +22,12 @@ In order to configure our Jenkins instance to receive `webhooks` and process the
 - [Credentials Binding](https://plugins.jenkins.io/credentials-binding): Allows credentials to be bound to environment variables for use from miscellaneous build steps.
 - [Credentials](https://plugins.jenkins.io/credentials): This plugin allows you to store credentials in Jenkins.
 
-### Getting Jenkins set up
+### Setting up the repo
+
+This example pipeline will read the workflow settings from a YAML file in the `.github` directory of the repository where the pipeline lives, _not_ the repository where the code for your project lives. This particular example is a standalone Jenkins pipeline that will be triggered by multiple projects/orgs.
+
+<details><summary>Sample .github/jira-workflow.yml</summary>
+
 ```yaml
 # The list of Jira projects that we care about 
 # will be keys under 'project'
@@ -42,11 +47,173 @@ project:
       - sample-api
       - sample-ui
 ```
+</details>
+
+### Getting Jenkins set up
+Before getting started with the pipeline you'll need to setup a few things.
+
+1. Create a `username`/`password` credential which uses your GitHub token
+2. Create a `username`/`password` credential which has access to Jira
+3. Create a Jira configuration in `Settings`
+
+
+This demonstration will make use of the [Declarative Pipeline](https://jenkins.io/doc/book/pipeline/syntax) syntax for Jenkins, and not the less structured _advanced scripting_ syntax. So, in getting started we'll note a few things. 
+
+First, because we're dynamically generating parallel steps, we'll need to declare our variables _outside_ the pipeline so we don't hit errors when assigning values to them.
 
 ```groovy
-/*
+def settings
+def projectInfo
+def githubUrl = "https://api.github.com/"
+// This is an array we'll use for dynamic parallization
+def repos = [:]
+```
 
-*/
+Once you've declared them, some with values you won't change and some with no values (we'll set them dynamically), let's enable some debug output so we can test our pipeline and adjust it for the things we need. **This step is optional, but will help you extend this example.**
+
+```groovy
+node {
+  echo sh(returnStdout: true, script: 'env')
+}
+```
+
+Now we can begin the pipeline itself
+
+```groovy
+pipeline {
+```
+
+#### Setting up the triggers
+The *Generic Webhook Trigger* plugin makes use of a token to differentiate pipelines. You can generate a generic token for this pipeline by running `uuidgen` at the command line on a Unix system, or `[Guid]::NewGuid().ToString()` in PowerShell. 
+
+##### Bash
+```bash
+Shenmue:~ primetheus$ uuidgen
+6955F09B-EF96-467F-82EB-A35997A0C141
+```
+##### Powershell
+```powershell
+PS /Users/primetheus> [Guid]::NewGuid().ToString()
+b92bd80d-375d-4d85-8ba5-0c923e482262
+```
+
+Once you have generated your unique ID, add the token to the pipeline as a trigger. We'll capture a few variables about the webhook we'll receive as well, and use them later in the pipeline
+
+```groovy
+  triggers {
+    GenericTrigger(
+      genericVariables: [
+        [key: 'event', value: '$.webhookEvent'],
+        [key: 'version', value: '$.version'],
+        [key: 'projectId', value: '$.version.projectId'],
+        [key: 'name', value: '$.version.name'],
+        [key: 'description', value: '$.version.description']
+      ],
+
+      causeString: 'Triggered on $ref',
+      // This token is arbitrary, but is used to trigger this pipeline.
+      // Without a token, ALL pipelines that use the Generic Webhook Trigger
+      // plugin will trigger 
+      token: 'b92bd80d-375d-4d85-8ba5-0c923e482262',
+      printContributedVariables: true,
+      printPostContent: true,
+      silentResponse: false,
+      regexpFilterText: '',
+      regexpFilterExpression: ''
+    )
+  }
+```
+
+#### Creating our stages
+Once we have the triggers created, let's begin creating our [Stages](https://jenkins.io/doc/book/pipeline/syntax/#stages) for the pipeline.
+
+First, open the `Stages` section
+
+```groovy
+stages {
+```
+
+Then let's read our YAML file from the repo
+
+```groovy
+    stage('Get our settings') {
+      steps {
+        script {
+          try {
+            settings = readYaml(file: '.github/jira-workflow.yml')
+          } catch(err) {
+            echo "Please create .github/jira-workflow.yml"
+            throw err
+          }
+        }
+      }
+    }
+```
+
+Once we've read the settings file (or aborted because one doesn't exist), we'll lookup the project info from Jira. The webhook will send us a Project ID, which won't really help us as humans to map, so we'll look this up once we get the payload.
+
+```groovy
+    stage('Get project info') {
+      steps {
+        script {
+          projectInfo = jiraGetProject(idOrKey: projectId, site: 'Jira')
+        }
+      }
+    }
+```
+
+Now we're going to apply the mapping to our repositories, and if we have multiple repos we'll generate parallel steps for each one.
+
+```groovy
+    stage('Create Release Branches') {
+      when {
+        expression { event == 'jira:version_created' }
+      }
+      steps {
+        script {
+          withCredentials([usernamePassword(credentialsId: '<github_credentials_id>', 
+                              passwordVariable: 'githubToken', 
+                              usernameVariable: 'githubUser')]) {
+            settings.project.each { p ->
+              if (p.name.toString() == projectInfo.data.name.toString()) {
+                p.repos.each { repo ->
+                  repos[repo] = {
+                    node {
+                      httpRequest(
+                        contentType: 'APPLICATION_JSON',
+                        consoleLogResponseBody: true,
+                        customHeaders: [[maskValue: true, name: 'Authorization', value: "token ${githubToken}"]],
+                        httpMode: 'GET',
+                        outputFile: "${p.org}_${repo}_master_refs.json",
+                        url: "${githubUrl}/repos/${p.org}/${repo}/git/refs/heads/master")
+                      masterRefs = readJSON(file: "${p.org}_${repo}_master_refs.json")
+                      payload = """{
+                        "ref": "refs/heads/${name}",
+                        "sha": "${masterRefs['object']['sha']}"
+                      }"""
+                      httpRequest(
+                        contentType: 'APPLICATION_JSON',
+                        consoleLogResponseBody: true,
+                        customHeaders: [[maskValue: true, name: 'Authorization', value: "token ${githubToken}"]],
+                        httpMode: 'POST',
+                        ignoreSslErrors: false,
+                        requestBody: payload,
+                        responseHandle: 'NONE',
+                        url: "${githubUrl}/repos/${p.org}/${repo}/git/refs")
+                    }
+                  }
+                }
+                parallel repos
+              }
+            }
+          }
+        }
+      }
+```
+
+<details><summary>Sample Pipeline</summary>
+
+```groovy
 // Define variables that we'll set values to later on
 // We only need to define the vars we'll use across stages
 def settings
@@ -56,12 +223,10 @@ def repos = [:]
 def githubUrl = "https://github.example.com/api/v3"
 //def githubUrl = "https://api.github.com/"
 
-/*
 node {
   // useful debugging info 
   echo sh(returnStdout: true, script: 'env')
 }
-*/
 
 pipeline {
   // This can run on any agent... we can lock it down to a 
@@ -238,3 +403,5 @@ pipeline {
   }
 }
 ```
+
+</details>
