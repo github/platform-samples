@@ -29,52 +29,8 @@ import "html/template"
 var clientId = os.Getenv("GH_BASIC_CLIENT_ID")
 var clientSecret = os.Getenv("GH_BASIC_SECRET_ID")
 
-var indexPage = template.Must(template.New("indexPage").Parse(`
-<!DOCTYPE html>
-<meta charset="utf-8">
-<html>
-  <head>
-
-  </head>
-	<body>
-		<p>Well, hello there!</p>
-			<p>We're going to now talk to the GitHub API. Ready? <a href="https://github.com/login/oauth/authorize?scope=user:email&client_id={{.ClientId}}">Click here</a> to begin!</a></p>
-			<p>If that link doesn't work, remember to provide your own <a href="http://developer.github.com/v3/oauth/#web-application-flow">Client ID</a>!</p>
-	</body>
-</html>
-`))
-
-var basicPage = template.Must(template.New("basicPage").Parse(`
-<!DOCTYPE html>
-<meta charset="utf-8">
-<html>
-  <head>
-
-  </head>
-  <body>
-    <p>Hello, {{.User.Login}}</p>
-    <p>
-			{{if not .User.Email}}
-				It looks like you don't have a public email. That's cool.
-			{{else}}
-				It looks like your public email address is {{.User.Email}}.
-			{{end}}
-    </p>
-    <p>
-      {{if not .Emails}}
-				Also, you're a bit secretive about your private email addresses.
-			{{else}}
-				With your permission, we were also able to dig up your private email addresses:
-      	{{range .Emails}}
-					<p>{{.Email}} (verified: {{.Verified}})</p>
-					{{end}}
-			{{end}}
-    </p>
-  </body>
-</html>
-`))
-
-//!-template
+var indexPage = template.Must(template.New("index.tmpl").ParseFiles("views/index.tmpl"))
+var basicPage = template.Must(template.New("basic.tmpl").ParseFiles("views/basic.tmpl"))
 
 type IndexPageData struct {
 	ClientId string
