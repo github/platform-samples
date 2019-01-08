@@ -92,6 +92,8 @@ type Access struct {
 
 var indexPageData = IndexPageData{clientId}
 
+var background = context.Background()
+
 func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/callback", basic)
@@ -137,13 +139,13 @@ func basic(w http.ResponseWriter, r *http.Request) {
 
 	client := getGitHubClient(access.AccessToken)
 
-	user, _, err := client.Users.Get(context.Background(), "")
+	user, _, err := client.Users.Get(background, "")
 	if err != nil {
 		log.Println("Could not list user details: ", err)
 		return
 	}
 
-	emails, _, err := client.Users.ListEmails(context.Background(), nil)
+	emails, _, err := client.Users.ListEmails(background, nil)
 	if err != nil {
 		log.Println("Could not list user emails: ", err)
 		return
@@ -159,7 +161,7 @@ func basic(w http.ResponseWriter, r *http.Request) {
 
 // Authenticates GitHub Client with provided OAuth access token
 func getGitHubClient(accessToken string) *github.Client {
-	ctx := context.Background()
+	ctx := background
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: accessToken},
 	)
