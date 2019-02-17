@@ -1,0 +1,18 @@
+query ($orgLogin:String!) {
+    organization(login: $orgLogin) {
+        login
+        name
+        members(first:100) {
+            edges {
+                node {
+                    login
+                    location
+                }
+            }
+        }
+    }
+}
+
+variables {
+    "orgLogin": "bidnessforb"
+}
