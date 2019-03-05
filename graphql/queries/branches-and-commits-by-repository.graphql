@@ -1,0 +1,36 @@
+query getCommitsByBranchByRepo($org:String!, $repo:String!) {
+  organization(login:$org) {
+    name
+    repository(name:$repo) {
+      name
+      refs(refPrefix: "refs/heads/", first: 10) {
+        nodes {
+          id
+          name
+          target {
+            ... on Commit {
+              history(first: 100) {
+                nodes {
+                  messageHeadline
+                  committedDate
+                  author {
+                    name
+                    email
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+}
