@@ -9,6 +9,8 @@ while read -r oldrev newrev refname; do
   else
     test "${GITHUB_VIA}" == 'pull request merge button' && continue
     test "${GITHUB_VIA}" == 'pull request merge api' && continue
+    
+    test 0 -eq "$(git rev-list --count ${DEFAULT_BRANCH}...${newref})" && continue
 
     echo "Changes to the default branch must be made by Pull Request. Direct pushes, edits, or merges are not allowed."
     exit 1
