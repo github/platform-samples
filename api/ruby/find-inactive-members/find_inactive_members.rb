@@ -127,6 +127,9 @@ private
       end
     rescue Octokit::Conflict
       info "...no commits"
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when the `commits_since` range is out of bounds of commits.
+      info "...no commits"
     end
   end
 
