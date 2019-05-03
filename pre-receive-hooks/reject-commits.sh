@@ -9,7 +9,7 @@
 # Usage: Add the commits you want to reject in the
 #        "<list commit hashes here>" below.
 #
-# [1] https://help.github.com/en/enterprise/2.16/user/articles/working-with-pre-receive-hooks
+# [1] https://help.github.com/en/enterprise/user/articles/working-with-pre-receive-hooks
 #
 set -e
 
