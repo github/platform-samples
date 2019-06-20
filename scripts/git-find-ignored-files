@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# Find all files present in the index and working tree ignored by .gitignore.
+#
+# Usage:
+# git-find-ignored-files [-s | --sort-by-size] [--help]
+#
+# Author: Patrick Lühne, https://www.luehne.de/
+#
+
+function print_help
+{
+	grep "^# Usage" < "$0" | cut -c 3-
+}
+
+if [[ $# -gt 1 ]]
+then
+	print_help
+	exit 1
+fi
+
+case "$1" in
+	-h|--help)
+		print_help
+		exit 0
+		;;
+	-s|--sort-by-size)
+		;;
+	*)
+		if [[ $# -gt 0 ]]
+		then
+			(>&2 echo "error: unknown option “$1”")
+			print_help
+			exit 1
+		fi
+		;;
+esac
+
+# Find all ignored files
+files=$(git ls-files --ignored --exclude-standard)
+
+# Stop if no ignored files were found
+if [[ -z $files ]]
+then
+	(>&2 echo "info: no ignored files in working tree or index")
+	exit 0
+fi
+
+# Compute the file sizes of all these files
+file_sizes=$(echo "$files" | tr '\n' '\0' | xargs -0 du -sh)
+
+# Obtain the origins why these files are ignored
+gitignore_origins=$(echo "$files" | git check-ignore --verbose --stdin --no-index)
+
+# Merge the two lists into one
+command="join -1 2 -2 2 -t $'\t' -o 1.1,1.2,2.1 <(echo \"$file_sizes\") <(echo \"$gitignore_origins\")"
+
+if [[ $1 =~ ^-s|--sort-by-size$ ]]
+then
+	command="$command | sort -h"
+fi
+
+eval "$command"

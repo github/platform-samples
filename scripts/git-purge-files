@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+#
+# Purge files from Git repositories.
+#
+# Attention:
+#     You want to run this script on a case sensitive file-system (e.g.
+#     ext4 on Linux). Otherwise the resulting Git repository will not
+#     contain changes that modify the casing of file paths.
+#
+# Usage:
+#     git-purge-files [path-regex1] [path-regex2] ...
+#
+# Examples:
+#    Remove the file "test.bin" from all directories:
+#    git-purge-path "/test.bin$"
+#
+#    Remove all "*.bin" files from all directories:
+#    git-purge-path "\.bin$"
+#
+#    Remove all files in the "/foo" directory:
+#    git-purge-path "^/foo/$"
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+use strict;
+use warnings;
+
+my $path_regex = join( "|", @ARGV );
+
+open( my $pipe_in, "git fast-export --progress=10000 --no-data --all --signed-tags=warn-strip --tag-of-filtered-object=rewrite |" ) or die $!;
+open( my $pipe_out, "| git fast-import --force --quiet" ) or die $!;
+
+LOOP: while ( my $cmd = <$pipe_in> ) {
+    my $data = "";
+    if ( $cmd =~ /^data ([0-9]+)$/ ) {
+        # skip data blocks
+        my $skip_bytes = $1;
+        read($pipe_in, $data, $skip_bytes);
+    }
+    elsif ( $cmd =~ /^M [0-9]{6} [0-9a-f]{40} (.+)$/ ) {
+        my $pathname = $1;
+        next LOOP if ("/" . $pathname) =~ /$path_regex/o
+    }
+    print {$pipe_out} $cmd . $data;
+}
