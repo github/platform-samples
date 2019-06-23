@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Append a trailer with the commit hash to every commit message.
+# This can be useful if you rewrite the history later on and you want
+# to preserve the original commit hashes.
+#
+# Attention: Since the commit message is part of the commit hash
+# calculation, this script changes the commit hashes too.
+#
+# Usage:
+# git-append-commit-trailer [<options>]
+#
+# Options:
+#   -f, --force   git filter-branch refuses to start with an existing
+#                 temporary directory or when there are already refs
+#                 starting with refs/original/, unless forced.
+#                 See `man git-filter-branch`
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+filter=$(cat <<'EOF'
+	perl -se '
+	my $last;
+	my $found = 0;
+	while (my $line = <>) {
+  		print "$line";
+  		$found = 1 if ($line =~ m/^Original-commit: [a-f0-9]{40}$/);
+		$last = "$line";
+	}
+
+	# Add newline if there is non in the last line
+	print "\n" if (!($last =~ /\x0a$/));
+
+	# Add newline if there is no previous trailer
+	print "\n" if (!($last =~ /^\S+: /));
+
+	# Add commit hash if there was no other before
+	print "Original-commit: $hash\n" if (! $found);
+' -- -hash=$GIT_COMMIT
+EOF
+)
+
+git filter-branch $1 --msg-filter "$filter" --tag-name-filter cat -- --all
