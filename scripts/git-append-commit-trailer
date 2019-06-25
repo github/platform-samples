@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 #
 # Append a trailer with the commit hash to every commit message.
-# This can be useful if you rewrite the history later on and you want
-# to preserve the original commit hashes.
+#
+# # Why would you do this?
+#
+# Git commit hashes change when you rewrite history. If you release your
+# software with the exact build hash (you should, it eases debugging!),
+# then all released hashes won't be in your repository anymore. If you
+# add the original hashes to the commit messages, then you can find them
+# even after a history rewrite.
+#
+# Another use case for the original hashes is if you keep the original
+# repository as archive for reference (e.g. because your industry
+# requires you to keep *exactly* every state of the repositiry). The
+# hash in the commit message will help you to find the corresponding
+# commit in the original repository if necessary.
 #
 # Attention: Since the commit message is part of the commit hash
 # calculation, this script changes the commit hashes too.
@@ -15,6 +27,16 @@
 #                 temporary directory or when there are already refs
 #                 starting with refs/original/, unless forced.
 #                 See `man git-filter-branch`
+#
+# Example:
+#   Purge the file `foo.dat` from the repository:
+#
+#   Step 1: Run `git-append-commit-trailer`
+#   Step 2: git-purge-files foo.dat
+#
+#   Result: The file `foo.dat` was purged from the history and every
+#           commit message has a link (original commit hash) to the
+#           original version.
 #
 # Author: Lars Schneider, https://github.com/larsxschneider
 #
