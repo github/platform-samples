@@ -12,7 +12,7 @@
 #
 # Another use case for the original hashes is if you keep the original
 # repository as archive for reference (e.g. because your industry
-# requires you to keep *exactly* every state of the repositiry). The
+# requires you to keep *exactly* every state of the repository). The
 # hash in the commit message will help you to find the corresponding
 # commit in the original repository if necessary.
 #
@@ -51,7 +51,7 @@ filter=$(cat <<'EOF'
 		$last = "$line";
 	}
 
-	# Add newline if there is non in the last line
+	# Add newline if there is none in the last line
 	print "\n" if (!($last =~ /\x0a$/));
 
 	# Add newline if there is no previous trailer
