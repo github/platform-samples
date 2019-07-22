@@ -55,6 +55,6 @@ ruby find_inactive_members.rb [-bcehv] -o ORGANIZATION -d DATE
 
 Members are defined as inactive if they haven't, since the specified **DATE**,  in any repository in the specified **ORGANIZATION**:
 
-* Have not merged or pushed commits into the default branch
+* Have not merged or pushed commits into the default branch (all branches with '-b')
 * Have not opened an Issue or Pull Request
 * Have not commented on an Issue or Pull Request
