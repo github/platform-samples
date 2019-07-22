@@ -3,7 +3,7 @@
 ```
 find_inactive_members.rb - Find and output inactive members in an organization
     -c, --check                      Check connectivity and scope
-    -d, --date MANDATORY             Date from which to start looking for activity
+    -d, --date MANDATORY             Date from which to start looking for activity. The format is DD-MM-YYYY
     -e, --email                      Fetch the user email (can make the script take longer
     -o, --organization MANDATORY     Organization to scan for inactive users
     -v, --verbose                    More output to STDERR
@@ -14,6 +14,10 @@ find_inactive_members.rb - Find and output inactive members in an organization
 This utility finds users inactive since a configured date, writes those users to a file `inactive_users.csv`.
 
 ## Installation
+
+### Generate a token
+
+[Generate new GitHub token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) with scopes `repo` and `admin:org`
 
 ### Clone this repository
 
@@ -39,11 +43,11 @@ export OCTOKIT_API_ENDPOINT="https://<your_github_enterprise_instance>/api/v3" #
 
 ## Usage
 
-1. [Generate new GitHub token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) with scopes `repo` and `admin:org`
-2. Clone this repository `git clone git@github.com:github/platform-samples.git`
-3. Navigate to the right directory and set the environment: `export OCTOKIT_ACCESS_TOKEN=[paste token here]` (`OCTOKIT_API_ENDPOINT` is only necessary for GitHub Enterprise Server)
-4. Run the report script: `ruby find_inactive_members.rb [-bcehv] -o ORGANIZATION -d DATE`
-    * The DATE format is DD-MM-YYYY
+
+```
+ruby find_inactive_members.rb [-bcehv] -o ORGANIZATION -d DATE
+```
+
 
 
 
