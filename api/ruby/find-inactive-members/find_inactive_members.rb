@@ -25,7 +25,7 @@ class InactiveMemberSearch
     @date = options[:date]
     @organization = options[:organization]
     @email = options[:email]
-		@branches = options[:branches]
+    @branches = options[:branches]
     @unrecognized_authors = []
 
     organization_members
