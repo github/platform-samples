@@ -1,0 +1,51 @@
+# In order for this to work, you need to add a Header: "Accept" : "application/vnd.github.audit-log-preview+json"
+# When querying an enterprise instance via GraphQL, the endpoint will follow the syntax: “https://<HOST>/api/graphql" - ex;"GRAPHQL_ENDPOINT": “https://34.208.232.154/api/graphql"
+
+query {
+  organization(login: "se-saml") {
+    auditLog(first: 50) {
+      edges {
+        node {
+          ... on RepositoryAuditEntryData {
+            repository {
+              name
+            }
+          }
+          ... on OrganizationAuditEntryData {
+            organization {
+              name
+            }
+          }
+
+          ... on TeamAuditEntryData {
+            teamName
+          }
+
+          ... on BusinessAuditEntryData {
+            businessUrl
+          }
+
+          ... on OauthApplicationAuditEntryData {
+            oauthApplicationName
+          }
+
+          ... on AuditEntry {
+            actorResourcePath
+            action
+            actorIp
+            actorLogin
+            createdAt
+            actorLocation {
+              countryCode
+              country
+              regionCode
+              region
+              city
+            }
+          }
+        }
+        cursor
+      }
+    }
+  }
+}
