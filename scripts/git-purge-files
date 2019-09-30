@@ -6,6 +6,7 @@
 use 5.010;
 use strict;
 use warnings;
+use version;
 use Getopt::Std;
 use File::Temp qw/ tempdir /;
 
@@ -78,13 +79,15 @@ our($opt_h, $opt_d, $opt_c);
 getopts("hdc") or usage();
 usage if $opt_h;
 
-# TODO: Git 2.23 will likely have a "--reencode=no" option that we want add here
-my $export_opts = "--all --no-data --progress=1000 --signed-tags=warn-strip --tag-of-filtered-object=rewrite --use-done-feature";
-my $import_opts = "--done --force --quiet";
+my ($git_version) = `git --version` =~ /([0-9]+([.][0-9]+)+)/;
 
-if (not $opt_d) {
-    $export_opts .= " --full-tree";
-}
+my $export_opts = "--all --no-data --progress=1000 --signed-tags=warn-strip --tag-of-filtered-object=rewrite --use-done-feature";
+$export_opts .= " --reencode=no" if (version->parse($git_version) ge version->parse('2.23.0'));
+$export_opts .= " --full-tree" if (not $opt_d);
+
+print $export_opts;
+
+my $import_opts = "--done --force --quiet";
 
 if ($opt_c) {
     say "Checking 'git fast-export | git fast-import' pipeline... ";
