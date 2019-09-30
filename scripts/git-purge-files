@@ -29,7 +29,7 @@ DESCRIPTION
 
 OPTIONS
        <path-regex>...
-           A list of regular expression that defines what files should
+           A list of regular expressions that defines what files should
            be purged from the history. Use a `/` to anchor a path to the
            root of the repository.
 
