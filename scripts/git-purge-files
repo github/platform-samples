@@ -39,6 +39,10 @@ OPTIONS
            modifications to the data stream. Afterwards the input
            repository is compared against the output repository.
 
+           For large repositories we recommend to run this script in
+           checking mode (-c) mode first in order to determine if it can
+           run in the much faster diff mode (-d) mode.
+
            ATTENTION: Although we run a check here, the repository
                       under test is rewritten and potentially modified!
 
