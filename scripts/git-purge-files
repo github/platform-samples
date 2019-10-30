@@ -6,7 +6,6 @@
 use 5.010;
 use strict;
 use warnings;
-use version;
 use Getopt::Std;
 use File::Temp qw/ tempdir /;
 
@@ -30,7 +29,7 @@ DESCRIPTION
 
 OPTIONS
        <path-regex>...
-           A list of regular expressions that defines what files should
+           A list of regular expression that defines what files should
            be purged from the history. Use a `/` to anchor a path to the
            root of the repository.
 
@@ -39,10 +38,6 @@ OPTIONS
            `git fast-export | git fast-import` command without any
            modifications to the data stream. Afterwards the input
            repository is compared against the output repository.
-
-           For large repositories we recommend to run this script in
-           checking mode (-c) mode first in order to determine if it can
-           run in the much faster diff mode (-d) mode.
 
            ATTENTION: Although we run a check here, the repository
                       under test is rewritten and potentially modified!
@@ -79,15 +74,13 @@ our($opt_h, $opt_d, $opt_c);
 getopts("hdc") or usage();
 usage if $opt_h;
 
-my ($git_version) = `git --version` =~ /([0-9]+([.][0-9]+)+)/;
-
+# TODO: Git 2.23 will likely have a "--reencode=no" option that we want add here
 my $export_opts = "--all --no-data --progress=1000 --signed-tags=warn-strip --tag-of-filtered-object=rewrite --use-done-feature";
-$export_opts .= " --reencode=no" if (version->parse($git_version) ge version->parse('2.23.0'));
-$export_opts .= " --full-tree" if (not $opt_d);
-
-print $export_opts;
-
 my $import_opts = "--done --force --quiet";
+
+if (not $opt_d) {
+    $export_opts .= " --full-tree";
+}
 
 if ($opt_c) {
     say "Checking 'git fast-export | git fast-import' pipeline... ";

@@ -1,3 +1,12 @@
 access_token
 .DS_Store
 .bundle
+*.md
+*.lock
+*.ru
+*.rb
+api/ruby/building-your-first-github-app/advanced_server.rb
+api/ruby/building-your-first-github-app/config.ru
+api/ruby/building-your-first-github-app/Gemfile
+api/ruby/building-your-first-github-app/Gemfile.lock
+api/ruby/building-your-first-github-app/server.rb

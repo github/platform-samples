@@ -10,4 +10,4 @@ To run the code, make sure you have [Bundler](http://gembundler.com/) installed;
 
 * For the completed project, enter `ruby advanced_server.rb` on the command line.
 
-Both commands will run the server at `localhost:3000`.
+Both commands will run the server at `localhost:4567`.

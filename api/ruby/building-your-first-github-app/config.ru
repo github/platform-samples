@@ -1,2 +1,0 @@
-require "./server"
-run GHAapp
