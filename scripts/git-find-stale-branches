@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Find unmerged branches that haven't been modified for more than a year.
+#
+# # Why would you do this?
+#
+# Although branches are cheap in Git, they can clutter the repository in
+# large quantities. Unmerged branches also might introduce large files
+# that are unnecessarily kept in the repository. If those branches get
+# deleted, than Git can cleanup those files automatically.
+#
+# Usage:
+# git-find-stale-branches
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+[[ $(git rev-parse --is-bare-repository) == true ]] || remote=--remote
+
+git branch --list --no-merged $(git symbolic-ref --short HEAD) $remote \
+	--sort=committerdate \
+	--format='%(refname:short) (%(committerdate:relative))' \
+| grep '([[:digit:]]* year.* ago)'

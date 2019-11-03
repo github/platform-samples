@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Print directories with the number of files underneath them.
+#
+# A directory with a lot of files could indicates a 3rd party component.
+# These are usually good candidates for purging to make Git repositories
+# smaller (see `git-purge-files`).
+#
+# The script must be called from the root of the Git repository.
+#
+# Usage:
+# git-find-dirs-many-files [file count threshold]
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+if [ -z "$1" ]; then
+    FILE_COUNT=100
+else
+    FILE_COUNT=$1
+fi
+
+IFS=$'\n';
+DIRS=$(find . -type d -not -path "./.git/*" -exec bash -c 'COUNT=$(find "$0" -type f | wc -l); echo "$COUNT $0"' {} \; | sort -nr)
+
+for DIR in $DIRS; do
+    if [ $(($(echo $DIR | sed 's/\..*//'))) -le $FILE_COUNT ]; then
+        break
+    fi
+    echo $DIR
+done

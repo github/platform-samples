@@ -1,0 +1,17 @@
+{
+  "name": "graphql",
+  "version": "1.0.0",
+  "description": "Simple command line utility for running GraphQL queries",
+  "main": "index.js",
+  "bin": {
+    "run-query": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "bryancross@github.com",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.12.2"
+  }
+}

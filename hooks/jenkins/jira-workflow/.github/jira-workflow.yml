@@ -1,0 +1,7 @@
+project:
+  - name: GitHub-Demo
+    org: GitHub-Demo
+    repos: 
+      - sample-core
+      - sample-api
+      - sample-ui
