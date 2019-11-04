@@ -19,7 +19,7 @@ query listSSOUserIdentities ($enterpriseName:String!) {
           }
           pageInfo {
             hasNextPage
-	          endCursor
+	    endCursor
           }
         }
       }
