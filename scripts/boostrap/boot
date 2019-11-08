@@ -1,0 +1,180 @@
+#!/usr/bin/perl
+#
+# Bootstrap a repository. See here for more info:
+# https://github.com/github/platform-samples/tree/master/scripts/bootstrap/create-bootstrap
+#
+
+use 5.010;
+use strict;
+use warnings;
+use File::Basename;
+use MIME::Base64;
+
+my $min_git_version=2.16.0;
+my $min_git_lfs_version=2.3.4;
+
+sub error_exit {
+	my($msg) = shift;
+	$msg = 'Bootstrapping repository failed.' if !$msg;
+	print STDERR "ERROR: $msg\n";
+	exit 1;
+}
+
+sub run {
+	my($cmd, $err_msg) = @_;
+	system($cmd) == 0 or error_exit($err_msg);
+}
+
+# Set a local config for the repository
+sub config {
+	my($keyvalue) = shift;
+	run('git config --local ' . $keyvalue);
+}
+
+sub header {
+	my($str) = shift;
+	print "\n##############################################################\n";
+	print "     " . $str;
+	print "\n##############################################################\n";
+}
+
+my $start = time;
+
+header('Checking Git and Git LFS...');
+
+#
+# Upgrade Git
+#
+# TODO: Currently we upgrade Git only Windows. In the future we could check if
+#       Git is installed via Homebrew on MacOS and upgrade it there too.
+if ($^O eq 'MSWin32') {
+	system('git update-git-for-windows --gui');
+}
+
+#
+# Check versions
+#
+my ($git_version) = `git --version` =~ /([0-9]+([.][0-9]+)+)/;
+if (version->parse($git_version) lt version->parse($min_git_version)) {
+	error_exit("Git version $git_version on this system is outdated. Please upgrade to the latest version!");
+}
+print "Git version:     $git_version\n";
+
+my ($git_lfs_version) = `git lfs version` =~ /([0-9]+([.][0-9]+)+)/;
+if (!$git_lfs_version) {
+	error_exit("Git LFS seems not to be installed on this system.\nPlease follow install instructions on https://git-lfs.github.com/");
+}
+if (version->parse($git_lfs_version) lt version->parse($min_git_lfs_version)) {
+	error_exit("Git LFS version $git_version on this system is outdated. Please upgrade to the latest version!");
+}
+print "Git LFS version: $git_lfs_version\n";
+
+if (system('git config user.name >/dev/null') != 0) {
+	print "\nIt looks like your name was not configured in Git yet.\n";
+	print "Please enter your name: ";
+	chomp(my $username = <STDIN>);
+	system('git config --global user.name ' . $username);
+}
+if (system('git config user.email >/dev/null') != 0) {
+	# TODO: We could check for the correct email format here
+	print "\nIt looks like your email was not configured in Git yet.\n";
+	print "Please enter your email address: ";
+	chomp(my $email = <STDIN>);
+	system('git config --global user.email ' . $email);
+} else {
+	print "\nGit user:  " . `git config --null user.name` . "\n";
+	print "Git email: " . `git config --null user.email` . "\n";
+}
+
+header('Bootstrapping repository...');
+
+#
+# Configure the repo
+#
+chdir dirname(__FILE__);
+
+if (`git rev-parse --abbrev-ref HEAD` !~ /bootstrap/) {
+	error_exit("Please run '$0' from the bootstrap branch");
+}
+
+# Ensure we are starting from a clean state in case the script is failed
+# in a previous run.
+run('git reset --hard HEAD --quiet');
+run('git clean --force -fdx');
+
+# Ensure Git LFS is initialized in the repo
+run('git lfs install --local >/dev/null', 'Initializing Git LFS failed.');
+
+# Enable file system cache on Windows (no effect on OS X/Linux)
+# see https://groups.google.com/forum/#!topic/git-for-windows/9WrSosaa4A8
+config('core.fscache true');
+
+# If the Git LFS locking feature is used, then Git LFS will set lockable files
+# to "readonly" by default. This is implemented with a Git LFS "post-checkout"
+# hook. Git LFS can skip this hook if no file is locked. However, Git LFS needs
+# to traverse the entire tree to find all ".gitattributes" and check for locked
+# files. In a large tree (e.g. >20k directories, >300k files) this can take a
+# while. Instruct Git LFS to not set lockable files to "readonly". This skips
+# the "post-checkout" entirely and speeds up Git LFS for large repositories.
+config('lfs.setlockablereadonly false');
+
+# Enable long path support for Windows (no effect on OS X/Linux)
+# Git uses the proper API to create long paths on Windows. However, many
+# Windows applications use an outdated API that only support paths up to a
+# length of 260 characters. As a result these applications would not be able to
+# work with the longer paths properly. Keep that in mind if you run into path
+# trouble!
+# see https://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx
+config('core.longpaths true');
+
+if (system('git config core.untrackedCache >/dev/null 2>&1') == 1 &&
+	system('git update-index --test-untracked-cache') == 0) {
+	# Enable untracked cache if the file system supports it
+	# see https://news.ycombinator.com/item?id=11388479
+	config('core.untrackedCache true');
+	config('feature.manyFiles true');
+}
+
+config('protocol.version 2');
+
+# Download Submodule content in parallel
+# see https://git-scm.com/docs/git-config#Documentation/git-config.txt-submodulefetchJobs
+config('submodule.fetchJobs 0');
+
+# Speed up "git status" and by suppressing unnecessary terminal output
+# see https://github.com/git/git/commit/fd9b544a2991ad74d73ad1bc0af4d24f91a6802b
+config('status.aheadBehind false');
+
+#
+# Prepare the repo
+#
+
+if (-e 'pack/lfs-objects-1.tar.gz') {
+	# Get the LFS "pack files"
+	run('git lfs pull --include="pack/lfs-objects-*.tar.gz"', 'Downloading Git LFS pack files failed.');
+	print "\n";
+
+	my $error_lfs = 'Extracting Git LFS pack files failed.';
+	my $progress = 0;
+	open(my $pipe, 'tar -xzvf pack/lfs-objects-* 2>&1 |') or error_exit($error_lfs);
+	while (my $line = <$pipe> ) {
+		$progress++;
+		print "\rExtracting LFS objects: $progress/lfs_pack_count";
+	}
+	close($pipe) or error_exit($error_lfs);
+	print "\n";
+}
+
+# Check out default branch
+run('git checkout --force default_branch');
+
+if (-e '.gitmodules') {
+	run('git submodule update --init --recursive --reference .git');
+}
+
+# Cleanup now obsolete Git LFS pack files
+run('git -c lfs.fetchrecentcommitsdays=0 -c lfs.fetchrecentrefsdays=0 -c lfs.fetchrecentremoterefs=false -c lfs.pruneoffsetdays=0 lfs prune >/dev/null');
+
+header('Hurray! Your Git repository is ready for you!');
+my $duration = time - $start;
+print "Bootstrap time: $duration s\n";
