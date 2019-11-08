@@ -1,8 +1,8 @@
 require "csv"
 require "octokit"
-require 'optparse'
-require 'optparse/date'
-require 'json'
+require "optparse"
+require "optparse/date"
+require "json"
 
 class InactiveMemberSearch
   attr_accessor :organization, :members, :repositories, :date, :unrecognized_authors
@@ -81,13 +81,16 @@ private
 
   def organization_members
     # get all organization members and place into an array of hashes
-    @members = load_file("data/members.json")
-    if @members != nil
-      return
+    members = load_file("data/members.json")
+    if members == nil
+      info "Collecting organization members from API\n"
+      members = @client.organization_members(@organization)
+      info "Organization members collected, saving data...\n"
+      save_file("data/members.json", members.map(&:to_h))
     end
-    
+
     info "Finding #{@organization} members "
-    @members = @client.organization_members(@organization).collect do |m|
+    @members = members.collect do |m|
       email = 
       {
         login: m["login"],
@@ -95,23 +98,23 @@ private
         active: false
       }
     end
+    
     info "#{@members.length} members found.\n"
-    save_file("data/members.json", @members)
   end
 
   def organization_repositories
-    @repositories = load_file("data/repositories.json")
-    if @repositories != nil
-      return
+    repositories = load_file("data/repositories.json")
+    if repositories == nil
+      repositories = @client.organization_repositories(@organization)
+      save_file("data/repositories.json", repositories.map(&:to_h))
     end
 
     info "Gathering a list of repositories..."
     # get all repos in the organizaton and place into a hash
-    @repositories = @client.organization_repositories(@organization).collect do |repo|
+    @repositories = repositories.collect do |repo|
       repo["full_name"]
     end
     info "#{@repositories.length} repositories discovered\n"
-    save_file("data/repositories.json", @repositories)
   end
 
   def add_unrecognized_author(author)
@@ -129,10 +132,12 @@ private
     info "...commits"
     begin
       file_name = "data/activities/" + sanitize_filename(repo) + "-commits_since.json"
-      commits_since = load_file(file_name)
+      commits_since = load_file(file_name, :symbolize_names => true)
       if commits_since == nil
         commits_since = @client.commits_since(repo, @date)
-        save_file(file_name, commits_since)
+        save_file(file_name, commits_since.map(&:to_h))
+      else
+        commits_since = commits_since.map(&:to_h)
       end
       commits_since.each do |commit|
         # if commmitter is a member of the org and not active, make active
@@ -156,10 +161,10 @@ private
     # get all issues after specified date and iterate
     info "...Issues"
     file_name = "data/activities/" + sanitize_filename(repo) + "-list_issues.json"
-    list_issues = load_file(file_name)
+    list_issues = load_file(file_name, :symbolize_names => true)
     if list_issues == nil
       list_issues = @client.list_issues(repo, { :since => date })
-      save_file(file_name, list_issues)
+      save_file(file_name, list_issues.map(&:to_h))
     end
     list_issues.each do |issue|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
@@ -177,10 +182,10 @@ private
     # get all issue comments after specified date and iterate
     info "...Issue comments"
     file_name = "data/activities/" + sanitize_filename(repo) + "-issues_comments.json"
-    issues_comments = load_file(file_name)
+    issues_comments = load_file(file_name, :symbolize_names => true)
     if issues_comments == nil
       issues_comments = @client.issues_comments(repo, { :since => date })
-      save_file(file_name, issues_comments)
+      save_file(file_name, issues_comments.map(&:to_h))
     end
     issues_comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
@@ -198,10 +203,10 @@ private
     # get all pull request comments comments after specified date and iterate
     info "...Pull Request comments"
     file_name = "data/activities/" + sanitize_filename(repo) + "-pull_requests_comments.json"
-    pull_requests_comments = load_file(file_name)
+    pull_requests_comments = load_file(file_name, :symbolize_names => true)
     if pull_requests_comments == nil
       pull_requests_comments = @client.pull_requests_comments(repo, { :since => date })
-      save_file(file_name, pull_requests_comments)
+      save_file(file_name, pull_requests_comments.map(&:to_h))
     end
     pull_requests_comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
@@ -256,13 +261,15 @@ private
     end
   end
 
-  def load_file(filename)
+  def load_file(filename, parseOptions = {})
     begin
-      info "Trying to load #{filename}.\n"
-      data = JSON.parse(File.read(filename), object_class: OpenStruct)
-      info "File #{filename} has been loaded.\n"
+      # info "Trying to load #{filename}.\n"
+      data = JSON.parse(File.read(filename), parseOptions)
+      # info "File #{filename} has been loaded.\n"
       return data
-    rescue
+    rescue => exception
+      # info "Cannot load #{filename}\n"
+      # info "#{exception}\n"
       return nil
     end
   end
@@ -270,7 +277,7 @@ private
   def save_file(filename, data)
     info "Saving data to #{filename}\n"
     File.open(filename, 'w') do |f|
-      f.write(data.to_json)
+      f.write(JSON.generate(data))
     end
     info "File saved to #{filename}\n"
   end
@@ -334,6 +341,12 @@ end
 Octokit.configure do |kit|
   kit.auto_paginate = true
   kit.middleware = stack if @debug
+  kit.connection_options = {
+    request: {
+      open_timeout: 10,
+      timeout: 10,
+    }
+  }
 end
 
 options[:client] = Octokit::Client.new
