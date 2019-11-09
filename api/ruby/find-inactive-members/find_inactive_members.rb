@@ -3,6 +3,7 @@ require "octokit"
 require "optparse"
 require "optparse/date"
 require "json"
+require "fileutils"
 
 class InactiveMemberSearch
   attr_accessor :organization, :members, :repositories, :date, :unrecognized_authors
@@ -22,6 +23,11 @@ class InactiveMemberSearch
       options[:organization].nil? or
       options[:date].nil?
     )
+
+    if options[:checkpoint]
+      @checkpoint = true
+      FileUtils.mkdir_p "data/activities"
+    end
 
     @date = options[:date]
     @organization = options[:organization]
@@ -260,6 +266,9 @@ private
   end
 
   def load_file(filename, parseOptions = {})
+    if @checkpoint != true
+      return nil
+    end
     begin
       # info "Trying to load #{filename}.\n"
       data = JSON.parse(File.read(filename), parseOptions)
@@ -273,6 +282,9 @@ private
   end
 
   def save_file(filename, data)
+    if @checkpoint != true
+      return
+    end
     info "Saving data to #{filename}\n"
     File.open(filename, 'w') do |f|
       f.write(JSON.generate(data))
@@ -320,6 +332,10 @@ OptionParser.new do |opts|
   opts.on('-v', '--verbose', "More output to STDERR") do |v|
     @debug = true
     options[:verbose] = v
+  end
+
+  opts.on('--checkpoint', "Enable file checkpoint, to be able to continue from failed request") do |c|
+    options[:checkpoint] = c
   end
 
   opts.on('-h', '--help', "Display this help") do |h|
