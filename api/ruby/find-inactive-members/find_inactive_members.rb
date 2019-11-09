@@ -134,18 +134,16 @@ private
       file_name = "data/activities/" + sanitize_filename(repo) + "-commits_since.json"
       commits_since = load_file(file_name, :symbolize_names => true)
       if commits_since == nil
-        commits_since = @client.commits_since(repo, @date)
-        save_file(file_name, commits_since.map(&:to_h))
-      else
-        commits_since = commits_since.map(&:to_h)
+        commits_since = @client.commits_since(repo, @date).map(&:to_h)
+        save_file(file_name, commits_since)
       end
       commits_since.each do |commit|
         # if commmitter is a member of the org and not active, make active
-        if commit["author"].nil?
+        if commit[:author].nil?
           add_unrecognized_author(commit[:commit][:author])
           next
         end
-        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+        if t = @members.find {|member| member[:login] == commit[:author][:login] && member[:active] == false }
           make_active(t[:login])
         end
       end
@@ -163,16 +161,16 @@ private
     file_name = "data/activities/" + sanitize_filename(repo) + "-list_issues.json"
     list_issues = load_file(file_name, :symbolize_names => true)
     if list_issues == nil
-      list_issues = @client.list_issues(repo, { :since => date })
-      save_file(file_name, list_issues.map(&:to_h))
+      list_issues = @client.list_issues(repo, { :since => date }).map(&:to_h)
+      save_file(file_name, list_issues)
     end
     list_issues.each do |issue|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if issue["user"].nil?
+      if issue[:user].nil?
         next
       end
       # if creator is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+      if t = @members.find {|member| member[:login] == issue[:user][:login] && member[:active] == false }
         make_active(t[:login])
       end
     end
@@ -184,16 +182,16 @@ private
     file_name = "data/activities/" + sanitize_filename(repo) + "-issues_comments.json"
     issues_comments = load_file(file_name, :symbolize_names => true)
     if issues_comments == nil
-      issues_comments = @client.issues_comments(repo, { :since => date })
-      save_file(file_name, issues_comments.map(&:to_h))
+      issues_comments = @client.issues_comments(repo, { :since => date }).map(&:to_h)
+      save_file(file_name, issues_comments)
     end
     issues_comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if comment["user"].nil?
+      if comment[:user].nil?
         next
       end
       # if commenter is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+      if t = @members.find {|member| member[:login] == comment[:user][:login] && member[:active] == false }
         make_active(t[:login])
       end
     end
@@ -205,16 +203,16 @@ private
     file_name = "data/activities/" + sanitize_filename(repo) + "-pull_requests_comments.json"
     pull_requests_comments = load_file(file_name, :symbolize_names => true)
     if pull_requests_comments == nil
-      pull_requests_comments = @client.pull_requests_comments(repo, { :since => date })
-      save_file(file_name, pull_requests_comments.map(&:to_h))
+      pull_requests_comments = @client.pull_requests_comments(repo, { :since => date }).map(&:to_h)
+      save_file(file_name, pull_requests_comments)
     end
     pull_requests_comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if comment["user"].nil?
+      if comment[:user].nil?
         next
       end
       # if commenter is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+      if t = @members.find {|member| member[:login] == comment[:user][:login] && member[:active] == false }
         make_active(t[:login])
       end
     end
