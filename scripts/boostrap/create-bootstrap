@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+#
+# The `create-bootstrap` script searches a repository for smallish LFS files,
+# combines them into larger LFS files, and adds them to a new orphan branch
+# called `bootstrap`. In addition, the script adds a `boot` script to the
+# orphan branch which splits the larger LFS files up, again.
+#
+# In order to leverage the Git LFS pack files, the Git user needs to get the
+# `bootstrap` branch and run the `boot` script.
+#
+# Usage:
+#   1. Clone your repository with the smallish LFS files
+#   2. `cd` into the repository
+#   3. Run this script
+#
+set -e
+
+base_dir=$(cd "${0%/*}" && pwd)
+# force=1;
+
+function header {
+	echo ""
+	echo "##############################################################"
+	echo "  $1"
+	echo "##############################################################"
+}
+
+function error {
+	echo "ERROR: $1"
+	exit 1
+}
+
+if [ ! -d .git ]; then
+	error "Looks like you are not in the root directory of a Git repository."
+fi
+
+if [ -z "$force" ] && git rev-parse --verify origin/bootstrap >/dev/null 2>&1; then
+	error "Branch 'bootstrap' exists already. Please delete it!"
+fi
+
+default_branch=$(git rev-parse --abbrev-ref HEAD)
+remote_url=$(git config --get remote.origin.url)
+repo_name=${remote_url##*/}
+repo_name=${repo_name%.git}
+
+header "Ensure relevant Git LFS objects are present..."
+git pull
+git lfs pull
+git submodule foreach --recursive git lfs pull
+git \
+	-c lfs.fetchrecentcommitsdays=0 \
+	-c lfs.fetchrecentrefsdays=0 \
+	-c lfs.fetchrecentremoterefs=false \
+	-c lfs.pruneoffsetdays=0 \
+	lfs prune
+git submodule foreach --recursive git \
+	-c lfs.fetchrecentcommitsdays=0 \
+	-c lfs.fetchrecentrefsdays=0 \
+	-c lfs.fetchrecentremoterefs=false \
+	-c lfs.pruneoffsetdays=0 \
+	lfs prune
+
+header "1/4 Creating 'bootstrap' branch..."
+git checkout --orphan bootstrap
+git reset
+git clean -fdx --force --quiet
+
+header "2/4 Creating Git LFS pack files..."
+
+# Copy LFS files of the submodule into the parent repo to make them
+# part of the LFS packfile
+if [ -e ./.git/modules ]; then
+	find ./.git/modules -type d -path '*/lfs' -exec cp -rf {} .git/ \;
+fi
+
+# Find all LFS files smaller than 256MB and put them into tar files no
+# larger than 256MB. Finally, print the number of total files added to
+# the archives.
+rm -rf pack
+mkdir pack
+lfs_pack_count=$(
+	find ./.git/lfs/objects -type f |
+	perl -ne '
+		my $path = $_;
+		chomp($path);
+		my $size = -s $path;
+		if ($batch_size + $size > 256*1024*1024 || !$batch_id) {
+			$batch_id++;
+			$batch_size = 0;
+		}
+		if ($path && $size < 256*1024*1024) {
+			$total_count++;
+			$batch_size += $size;
+			$tar = "pack/lfs-objects-$batch_id.tar";
+			`tar -rf $tar $path`;
+		}
+		print $total_count if eof();
+	'
+)
+# Compress those tar files
+gzip pack/*
+git lfs track 'pack/lfs-objects-*.tar.gz'
+git add pack/lfs-objects-*.tar.gz 2>/dev/null || true
+
+# Boot entry point for Linux/MacOS (bash)
+cp "$base_dir/boot" boot
+perl -pi -e "s/default_branch/$default_branch/" boot
+perl -pi -e "s/lfs_pack_count/$lfs_pack_count/" boot
+
+# Boot entry point for Windows (cmd.exe)
+cp "$base_dir/boot.bat" boot.bat
+
+cat << EOF > README.md
+
+## Bootstrap Branch
+
+This branch is not related to the rest of the repository content.
+The purpose of this branch is to bootstrap the repository quickly
+using Git LFS pack files and setting useful defaults.
+
+Bootstrap the repository with the following commands.
+
+### Windows (cmd.exe)
+\`\`\`
+$ git clone $remote_url --branch bootstrap && $repo_name\\boot.bat
+\`\`\`
+
+### Linux/MacOS (bash):
+\`\`\`
+$ git clone $remote_url --branch bootstrap && ./$repo_name/boot
+\`\`\`
+
+EOF
+
+# Note: We intentionally do not add the `.gitattributes` file here.
+#       This ensures the Git LFS pack files are not downloaded during
+#       the initial clone and only with the `boot` script.
+git add README.md boot boot.bat
+
+header "3/4 Uploading 'bootstrap' branch..."
+git -c user.email="bootstrap@github.com" \
+	-c user.name="Bootstrap Creator" \
+	commit --quiet --message="Initial commit"
+git push --force --set-upstream origin bootstrap
+
+header "4/4 Done"
+cat README.md
