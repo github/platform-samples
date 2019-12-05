@@ -1,0 +1,24 @@
+query ($organization: String!) {
+  organization(login: $organization) {
+    samlIdentityProvider {
+      ssoUrl
+      externalIdentities(first: 100) {
+        edges {
+          node {
+            user {
+              login
+              email
+            }
+            scimIdentity {
+              username
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+variables {
+  "organization": "github"
+}
