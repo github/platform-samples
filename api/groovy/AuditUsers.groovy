@@ -17,6 +17,7 @@ import org.kohsuke.github.GitHub
 import groovyx.net.http.RESTClient
 import static groovyx.net.http.ContentType.*
 import groovy.json.JsonOutput
+import org.kohsuke.github.GHMyself.RepositoryListFilter
 
 
 // parsing command line args
@@ -26,6 +27,7 @@ cli.u(longOpt: 'url', 'GitHub Enterprise URL (or use GITHUB_URL env variable), e
 cli.p(longOpt: 'printPublicRepos', 'Print publicly available repositories at the end of the report', required: false  , args: 0 )
 cli.h(longOpt: 'help', 'Print this usage info', required: false  , args: 0 )
 cli.c(longOpt: 'csv', 'CSV file with users in the format produced by stafftools/reports (show access for all contained users)', required: false, args: 1)
+cli.e(longOpt: 'extendedpermissions', 'Print extended permissions (ALL, OWNER, PUBLIC, PRIVATE, MEMBER) why a repository can be accessed by that user, needs 4 times more API calls', required: false, args: 0)
 
 OptionAccessor opt = cli.parse(args)
 
@@ -46,11 +48,11 @@ RESTClient restSiteAdmin = getGithubApi(url , token)
 
 // printing header
 
-println "user,repo,owner,private,read,write,admin,url"
+println "user,accesstype,repo,owner,private,read,write,admin,url"
 
 // iterate over all supplied users
 opt.arguments().each {
-  printAccessRightsForUser(it, restSiteAdmin)
+  printAccessRightsForUser(it, restSiteAdmin, opt.e)
 }
 
 if (opt.c) {
@@ -66,14 +68,14 @@ if (opt.c) {
     } else {
       // only display access rights for non-suspended users
       if (line[5] == "false")
-        printAccessRightsForUser(line[2], restSiteAdmin)
+        printAccessRightsForUser(line[2], restSiteAdmin, opt.e)
     }
   }
 }
 
 // END MAIN
 
-def printAccessRightsForUser(user, restSiteAdmin) {
+def printAccessRightsForUser(user, restSiteAdmin, extendedPermissions) {
 	//println "Showing repositories accessible for user ${user} ... "
 	try {
 		// get temporary access token for given user
@@ -86,11 +88,18 @@ def printAccessRightsForUser(user, restSiteAdmin) {
 		userToken = resp.data.token
 
 		try {
-			// list all accessible repositories in organizations and personal repositories of this user
-			userRepos = GitHub.connectToEnterprise("${url}/api/v3", userToken).getMyself().listAllRepositories()
+      gitHubUser = GitHub.connectToEnterprise("${url}/api/v3", userToken).getMyself()
 
-			// further fields available on http://github-api.kohsuke.org/apidocs/org/kohsuke/github/GHRepository.html#method_summary
-			userRepos.each { println "${user},${it.name},${it.ownerName},${it.private},${it.hasPullAccess()},${it.hasPushAccess()},${it.hasAdminAccess()},${it.getHtmlUrl()}" }
+      Set repositories = []
+
+      if (!extendedPermissions) {
+        printRepoAccess(gitHubUser, RepositoryListFilter.ALL, repositories)
+      } else {
+        printRepoAccess(gitHubUser, RepositoryListFilter.OWNER, repositories)
+        printRepoAccess(gitHubUser, RepositoryListFilter.MEMBER, repositories)
+        printRepoAccess(gitHubUser, RepositoryListFilter.PRIVATE, repositories)
+        printRepoAccess(gitHubUser, RepositoryListFilter.PUBLIC, repositories)
+      }
 		}
 		finally {
 			// delete the personal access token again even if we ran into an exception
@@ -117,6 +126,19 @@ def RESTClient getGithubApi(url, token) {
 		headers['Authorization'] = "token ${token}"
 		it
 	}
+}
+
+def printRepoAccess(gitHubUser, repoTypeFilter, alreadyProcessedRepos) {
+  // list all accessible repositories in organizations and personal repositories of this user
+  userRepos = gitHubUser.listRepositories(100, repoTypeFilter)
+
+  // further fields available on http://github-api.kohsuke.org/apidocs/org/kohsuke/github/GHRepository.html#method_summary
+  userRepos.each {
+      if (!alreadyProcessedRepos.contains(it.htmlUrl)) {
+        println "${gitHubUser.login},${repoTypeFilter},${it.name},${it.ownerName},${it.private},${it.hasPullAccess()},${it.hasPushAccess()},${it.hasAdminAccess()},${it.htmlUrl}"
+        alreadyProcessedRepos.add(it.htmlUrl)
+      }
+    }
 }
 
 def printErr (msg) {
