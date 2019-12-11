@@ -18,7 +18,7 @@ This utility finds users inactive since a configured date, writes those users to
 
 ```shell
 git clone https://github.com/github/platform-samples.git
-cd api/ruby/find-inactive-members
+cd platform-samples/api/ruby/find-inactive-members
 ```
 
 ### Install dependencies
