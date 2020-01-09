@@ -82,7 +82,7 @@ private
   # get all organization members and place into an array of hashes
     info "Finding #{@organization} members "
     @members = @client.organization_members(@organization).collect do |m|
-      email = 
+      email =
       {
         login: m["login"],
         email: member_email(m[:login]),
@@ -136,30 +136,40 @@ private
   def issue_activity(repo, date=@date)
     # get all issues after specified date and iterate
     info "...Issues"
-    @client.list_issues(repo, { :since => date }).each do |issue|
-      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if issue["user"].nil?
-        next
+    begin
+      @client.list_issues(repo, { :since => date }).each do |issue|
+        # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+        if issue["user"].nil?
+          next
+        end
+        # if creator is a member of the org and not active, make active
+        if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
       end
-      # if creator is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when repo is a private fork for security advisories
+      info "...no access to issues in this repo ..."
     end
   end
 
   def issue_comment_activity(repo, date=@date)
     # get all issue comments after specified date and iterate
     info "...Issue comments"
-    @client.issues_comments(repo, { :since => date }).each do |comment|
-      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if comment["user"].nil?
-        next
+    begin
+      @client.issues_comments(repo, { :since => date }).each do |comment|
+        # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+        if comment["user"].nil?
+          next
+        end
+        # if commenter is a member of the org and not active, make active
+        if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
       end
-      # if commenter is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when repo is a private fork for security advisories
+      info "...no access to issue comments in this repo ..."
     end
   end
 
