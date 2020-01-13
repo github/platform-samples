@@ -62,15 +62,15 @@ OPTIONS
 EXAMPLES
        o   Remove the file "test.bin" from all directories:
 
-               \$ git-purge-path "/test.bin$"
+               \$ git-purge-files "/test.bin$"
 
        o   Remove all "*.bin" files from all directories:
 
-               \$ git-purge-path "\.bin$"
+               \$ git-purge-files "\.bin$"
 
        o   Remove all files in the "/foo" directory:
 
-               \$ git-purge-path "^/foo/$"
+               \$ git-purge-files "^/foo/$"
 END
     exit(1);
 }
