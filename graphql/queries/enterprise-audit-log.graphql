@@ -1,3 +1,5 @@
+# This graphql queries for audit logs at the enterprise level
+
 # Make sure that you set the request to `POST` with URL `https://api.github.com/graphql`
 # Set `Headers` where `Content-Type` is `application/json` and `Accept` is `application/vnd.github.audit-log-preview+json`
 
