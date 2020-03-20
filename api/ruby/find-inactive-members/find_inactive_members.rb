@@ -117,7 +117,7 @@ private
     info "...commits"
     begin
     	# Get all the branches so we can loop through them
-			if @branches
+    	if @branches
 	      @client.branches(repo).each do |branch|
 					info "... branch = " + branch["name"]
 		      @client.commits_since(repo, @date, {:sha => branch["name"]}).each do |commit|
