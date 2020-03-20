@@ -9,9 +9,9 @@ GEM
     octokit (4.6.2)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (2.0.5)
-    rack (1.6.5)
+    rack (1.6.13)
     rack-protection (1.5.5)
-      rack (1.6.11)
+      rack
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
