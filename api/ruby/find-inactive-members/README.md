@@ -44,8 +44,8 @@ ruby find_inactive_members.rb [-cehv] -o ORGANIZATION -d DATE
 
 ## How Inactivity is Defined
 
-Members are defined as inactive if they haven't, since the specified **DATE**,  in any repository in the specified **ORGANIZATION**:
+Members are defined as inactive if they **have not performed** any of the following actions in any repository in the specified **ORGANIZATION** since the specified **DATE**: 
 
-* Have not merged or pushed commits into the default branch
-* Have not opened an Issue or Pull Request
-* Have not commented on an Issue or Pull Request
+- Merged or pushed commits into the default branch
+- Opened an Issue or Pull Request
+- Commented on an Issue or Pull Request
