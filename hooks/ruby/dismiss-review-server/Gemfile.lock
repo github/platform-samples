@@ -10,7 +10,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     netrc (0.11.0)
-    rack (1.6.5)
+    rack (1.6.13)
     rack-protection (1.5.3)
       rack
     rest-client (2.0.1)
