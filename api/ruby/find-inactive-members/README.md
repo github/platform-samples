@@ -23,7 +23,7 @@ This utility finds users inactive since a configured date, writes those users to
 
 ```shell
 git clone https://github.com/github/platform-samples.git
-cd api/ruby/find-inactive-members
+cd platform-samples/api/ruby/find-inactive-members
 ```
 
 ### Install dependencies
@@ -34,7 +34,7 @@ gem install octokit
 
 ### Configure Octokit
 
-The `OCTOKIT_ACCESS_TOKEN` is required in order to see activities on private repositories. However the `OCTOKIT_API_ENDPOINT` isn't required if connecting to GitHub.com, but is required if connecting to a GitHub Enterprise Server instance.
+The `OCTOKIT_ACCESS_TOKEN` is required in order to see activities on private repositories. Also note that GitHub.com has an rate limit of 60 unauthenticated requests per hour, which this tool can easily exceed. Access tokens can be generated at https://github.com/settings/tokens. The `OCTOKIT_API_ENDPOINT` isn't required if connecting to GitHub.com, but is required if connecting to a GitHub Enterprise instance.
 
 ```shell
 export OCTOKIT_ACCESS_TOKEN=00000000000000000000000     # Required if looking for activity in private repositories.
@@ -53,8 +53,8 @@ ruby find_inactive_members.rb [-bcehv] -o ORGANIZATION -d DATE
 
 ## How Inactivity is Defined
 
-Members are defined as inactive if they haven't, since the specified **DATE**,  in any repository in the specified **ORGANIZATION**:
+Members are defined as inactive if they **have not performed** any of the following actions in any repository in the specified **ORGANIZATION** since the specified **DATE**: 
 
-* Have not merged or pushed commits into the default branch (all branches with '-b')
-* Have not opened an Issue or Pull Request
-* Have not commented on an Issue or Pull Request
+- Merged or pushed commits into the default branch
+- Opened an Issue or Pull Request
+- Commented on an Issue or Pull Request

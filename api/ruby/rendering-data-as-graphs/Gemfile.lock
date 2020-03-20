@@ -18,8 +18,8 @@ GEM
     octokit (4.7.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (3.0.0)
-    rack (1.6.8)
-    rack-protection (1.5.3)
+    rack (1.6.13)
+    rack-protection (1.5.5)
       rack
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
