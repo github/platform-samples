@@ -3,16 +3,21 @@
 ```
 find_inactive_members.rb - Find and output inactive members in an organization
     -c, --check                      Check connectivity and scope
-    -d, --date MANDATORY             Date from which to start looking for activity
+    -d, --date MANDATORY             Date from which to start looking for activity. The format is DD-MM-YYYY
     -e, --email                      Fetch the user email (can make the script take longer
     -o, --organization MANDATORY     Organization to scan for inactive users
     -v, --verbose                    More output to STDERR
+    -b, --branches                   Iterate through all branches instead of only checking the default branch
     -h, --help                       Display this help
 ```
 
 This utility finds users inactive since a configured date, writes those users to a file `inactive_users.csv`.
 
 ## Installation
+
+### Generate a token
+
+[Generate new GitHub token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) with scopes `repo` and `admin:org`
 
 ### Clone this repository
 
@@ -38,9 +43,13 @@ export OCTOKIT_API_ENDPOINT="https://<your_github_enterprise_instance>/api/v3" #
 
 ## Usage
 
+
 ```
-ruby find_inactive_members.rb [-cehv] -o ORGANIZATION -d DATE
+ruby find_inactive_members.rb [-bcehv] -o ORGANIZATION -d DATE
 ```
+
+
+
 
 ## How Inactivity is Defined
 

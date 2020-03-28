@@ -25,6 +25,7 @@ class InactiveMemberSearch
     @date = options[:date]
     @organization = options[:organization]
     @email = options[:email]
+    @branches = options[:branches]
     @unrecognized_authors = []
 
     organization_members
@@ -115,16 +116,33 @@ private
     # get all commits after specified date and iterate
     info "...commits"
     begin
-      @client.commits_since(repo, @date).each do |commit|
-        # if commmitter is a member of the org and not active, make active
-        if commit["author"].nil?
-          add_unrecognized_author(commit[:commit][:author])
-          next
-        end
-        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
-          make_active(t[:login])
-        end
-      end
+    	# Get all the branches so we can loop through them
+    	if @branches
+	      @client.branches(repo).each do |branch|
+					info "... branch = " + branch["name"]
+		      @client.commits_since(repo, @date, {:sha => branch["name"]}).each do |commit|
+		        # if commmitter is a member of the org and not active, make active
+		        if commit["author"].nil?
+		          add_unrecognized_author(commit[:commit][:author])
+		          next
+		        end
+		        if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+		          make_active(t[:login])
+		        end
+		      end
+				end
+			else
+				@client.commits_since(repo, @date).each do |commit|
+					# if commmitter is a member of the org and not active, make active
+					if commit["author"].nil?
+						add_unrecognized_author(commit[:commit][:author])
+						next
+					end
+					if t = @members.find {|member| member[:login] == commit["author"]["login"] && member[:active] == false }
+						make_active(t[:login])
+					end
+				end
+			end
     rescue Octokit::Conflict
       info "...no commits"
     rescue Octokit::NotFound
@@ -260,6 +278,10 @@ OptionParser.new do |opts|
     @debug = true
     options[:verbose] = v
   end
+
+	opts.on('-b', '--branches', "Iterate through all branches instead of default") do |b|
+		options[:branches] = b
+	end
 
   opts.on('-h', '--help', "Display this help") do |h|
     puts opts
