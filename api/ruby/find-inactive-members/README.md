@@ -44,7 +44,7 @@ ruby find_inactive_members.rb [-cehv] -o ORGANIZATION -d DATE
 
 ## Examples
 ```
-ruby find_inactive_members.rb -o YoyodynePropulsionSystems -d "Feb 9 2020"
+ruby find_inactive_members.rb -o YoyodynePropulsionSystems -d "Feb 10 2020"
 ```
 
 ## How Inactivity is Defined
