@@ -298,7 +298,7 @@ The payload is defined in `JSON` format and will be stored in the pipeline as a 
   "required_pull_request_reviews": {
     "dismissal_restrictions": {
       "users": [
-        "hollyw0od",
+        "hollywood",
         "primetheus"
       ],
       "teams": [
@@ -310,7 +310,7 @@ The payload is defined in `JSON` format and will be stored in the pipeline as a 
   },
   "restrictions": {
     "users": [
-      "hollyw0od",
+      "hollywood",
       "primetheus"
     ],
     "teams": [
@@ -449,7 +449,7 @@ node {
       "required_pull_request_reviews": {
         "dismissal_restrictions": {
           "users": [
-            "hollyw0od",
+            "hollywood",
             "primetheus"
           ],
           "teams": [
@@ -461,7 +461,7 @@ node {
       },
       "restrictions": {
         "users": [
-          "hollyw0od",
+          "hollywood",
           "primetheus"
         ],
         "teams": [
