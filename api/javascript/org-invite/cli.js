@@ -19,8 +19,8 @@ var octokit;
 dotenv.config();
 
 program.option(
-  "-t, --token <PAT>",
-  "Your GitHub PAT (leave blank for prompt or set $GH_PAT)",
+  "-t, --token <Personal Access Token>",
+  "Your GitHub Personal Access Token (leave blank for prompt or set $GH_PAT)",
   process.env.GH_PAT
 );
 program.option(
@@ -44,7 +44,7 @@ const die = msg => {
   process.exit(1);
 };
 
-const findTeam = async ({ owner, org, team }) => {
+const findTeam = async ({ org, team }) => {
   const ui = new inquirer.ui.BottomBar();
 
   ui.log.write(
@@ -187,40 +187,37 @@ inquirer
     {
       type: "password",
       name: "PAT",
-      message: "What's your GitHub PAT?",
-      default: () => program.token
+      message: "What's your GitHub Personal Access Token?",
+      default: () => program.token,
     },
     {
       type: "input",
       name: "owner",
       message: "Your username?",
-      default: () => program.user
+      default: () => program.user,
     },
     {
       type: "input",
       name: "org",
       message: "Which organization?",
-      default: () => program.org
+      default: () => program.org,
     },
     {
       type: "input",
       name: "team",
       message: "Which team?",
-      suffix:
-        " (provide the slug of an existing team, or the full name of the team being created)",
-      validate: function(value) {
-        return value.length > 3
-          ? true
-          : "Please provide at least 4 characters.";
+      suffix: " (provide the slug of an existing team, or the full name of the team being created)",
+      validate: function (value) {
+        return value.length > 3 ? true : "Please provide at least 4 characters.";
       },
-      default: function() {
+      default: function () {
         return program.team;
-      }
-    }
+      },
+    },
   ])
-  .then(async function(answers) {
+  .then(async function (answers) {
     octokit = new Octokit({
-      auth: answers.PAT
+      auth: answers.PAT,
     });
 
     await findTeam({ ...answers });

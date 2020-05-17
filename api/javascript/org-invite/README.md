@@ -10,7 +10,7 @@ Checkout this repo and make sure you're using Node v10 or more recent.
 You can supply default values in an `.env` file (gitignored for security reasons):
 
 ```
-GH_PAT=YOUR_PAT_GOES_HERE
+GH_PAT=YOUR_PAT_GOES_HERE #Your GitHub Personal Access Token
 GH_USER=octocat
 GH_ORG=github
 ```
