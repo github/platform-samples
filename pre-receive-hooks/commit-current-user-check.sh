@@ -25,7 +25,7 @@ GITHUB_USER_EMAIL=`curl -s -k -u ${TOKEN} ${GHE_URL}/api/v3/users/${GITHUB_USER_
 if echo "${GITHUB_USER_EMAIL}" | grep "null,"
 then
    echo -e "ERROR: User does not have public email address set in GitHub Enterprise."
-   echo "Please set public email address at {GHE_URL}/settings/profile."
+   echo "Please set public email address at ${GHE_URL}/settings/profile."
    exit 1
 fi
 
