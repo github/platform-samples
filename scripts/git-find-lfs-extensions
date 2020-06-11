@@ -28,7 +28,7 @@ import os
 import sys
 
 # Threshold that defines a large file
-if len(sys.argv):
+if len(sys.argv) > 1:
     THRESHOLD_IN_MB = float(sys.argv[1]) / 1024
 else:
     THRESHOLD_IN_MB = 0.5
