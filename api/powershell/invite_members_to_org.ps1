@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-Invites GitHub Enterprise members to an organization
+Batch invite members to an organization
 
 .DESCRIPTION
 This script runs a batch organization invitation process for a given list of GitHub enterprise
