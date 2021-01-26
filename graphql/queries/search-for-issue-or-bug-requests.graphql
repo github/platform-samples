@@ -1,0 +1,61 @@
+# This query accepts a variable containing the search syntax that can be learned at:
+# https://docs.github.com/en/github/searching-for-information-on-github/understanding-the-search-syntax
+# 
+# Then will return any Issues & any associated PRs or Issues that reference the parent issue
+# Useful for finding a 'paper trail' of any particular feature requests or bug fixes
+#
+#
+query findFeedbackTrail($searchCriteria: String!) {
+  search(first: 20, type: ISSUE, query: $searchCriteria) {
+    edges {
+      node {
+        __typename
+        ... on Issue {
+          number
+          title
+          repository {
+            name
+          }
+          timelineItems(first: 50, itemTypes: CROSS_REFERENCED_EVENT) {
+            nodes {
+              ... on CrossReferencedEvent {
+                source {
+                  __typename
+									# Show any PRs associated with the Issue
+                  ... on PullRequest {
+                    title
+                    number
+                    files(first: 100) {
+                      nodes {
+                        path
+                      }
+                      pageInfo {
+                        hasNextPage
+                        endCursor
+                      }
+                    }
+                  }
+									# Show any Issues referencing the returned Issue
+                  ... on Issue {
+                    title
+                    number
+                    url
+                  }
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+
