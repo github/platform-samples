@@ -1,4 +1,4 @@
-#!/user/bin/env bash
+#!/usr/bin/env bash
 
 #
 # Git Block Outdated Clients pre-receive hook
