@@ -21,8 +21,8 @@ query {
             teamName
           }
 
-          ... on BusinessAuditEntryData {
-            businessUrl
+          ... on EnterpriseAuditEntryData {
+            enterpriseUrl
           }
 
           ... on OauthApplicationAuditEntryData {
