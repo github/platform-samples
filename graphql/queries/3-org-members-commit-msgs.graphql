@@ -2,7 +2,7 @@
     organization(login: "github") {
         login
         name
-        members(first: 100) {
+        membersWithRole(first: 100) {
             edges {
                 node {
                     login
