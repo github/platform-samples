@@ -1,0 +1,11 @@
+{
+  "name": "js-octokit",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha tests/**"
+  },
+  "author": "@k33g",
+  "dependencies": {
+    "node-fetch": "^1.6.3"
+  }
+}

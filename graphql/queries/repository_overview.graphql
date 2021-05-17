@@ -1,0 +1,19 @@
+query { 
+  repositoryOwner(login: "git") { 
+    repository(name: "git") {
+      description hasWikiEnabled
+      issues(states: OPEN) {
+        totalCount
+      } 
+      pullRequests(states: OPEN) {
+        totalCount 
+      } 
+      stargazers {
+        totalCount
+      } 
+      forks {
+        totalCount
+      }
+    }
+  }
+}

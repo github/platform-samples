@@ -1,0 +1,175 @@
+/*
+
+*/
+// Define variables that we'll set values to later on
+// We only need to define the vars we'll use across stages
+def settings
+def projectInfo
+// This is an array we'll use for dynamic parallization
+def repos = [:]
+String githubUrl = "https://github.example.com/api/v3"
+//def githubUrl = "https://api.github.com/"
+
+pipeline {
+  // This can run on any agent... we can lock it down to a 
+  // particular node if we have multiple nodes, but we won't here
+  agent any
+  triggers {
+    GenericTrigger(
+      genericVariables: [
+        [key: 'event', value: '$.webhookEvent'],
+        [key: 'version', value: '$.version'],
+        [key: 'projectId', value: '$.version.projectId'],
+        [key: 'name', value: '$.version.name'],
+        [key: 'description', value: '$.version.description']
+      ],
+
+      causeString: 'Triggered on $ref',
+      // This token is arbitrary, but is used to trigger this pipeline.
+      // Without a token, ALL pipelines that use the Generic Webhook Trigger
+      // plugin will trigger. The example below was generated with `uuidgen` 
+      token: '6BE4BF6E-A319-40A8-8FE9-D82AE08ABD03',
+      printContributedVariables: true,
+      printPostContent: true,
+      silentResponse: false,
+      regexpFilterText: '',
+      regexpFilterExpression: ''
+    )
+  }
+  stages {
+    // We'll read our settings in this step
+    stage('Get our settings') {
+      steps {
+        script {
+          try {
+            settings = readYaml(file: '.github/jira-workflow.yml')
+          } catch(err) {
+            echo "Please create .github/jira-workflow.yml"
+            throw err
+          }
+        }
+      }
+    }
+    stage('Get project info') {
+      steps {
+        script {
+          projectInfo = jiraGetProject(idOrKey: projectId, site: 'Jira')
+          jql = jiraJqlSearch(jql: "fixVersion=${name}", site: 'Jira') // Query Jira for issues related to the release
+          releaseDescription = "### Release Notes\\n${description}\\n### Associated Jira Issues\\n"
+          jql.data.issues.each { issue ->
+            releaseDescription += "[${issue.key}](https://jira.example.com/browse/${issue.key})\\n"
+          }
+        }
+      }
+    }
+    stage('Create Release Branches') {
+      when {
+        // Let's only run this stage when we have a 'version created' event
+        expression { event == 'jira:version_created' }
+      }
+      steps {
+        script {
+          // Loop through our list of Projects in Jira, which will map to Orgs in GitHub.
+          // We're assigning it 'p' since 'project' is assigned as part of the YAML structure
+          settings.project.each { p ->
+            // Only apply this release to the proper Org
+            if (p.name.toString() == projectInfo.data.name.toString()) {
+              // Loop through each repo in the Org
+              p.repos.each { repo ->
+                // Create an array that we will use to dynamically parallelize the 
+                // actions with. 
+                repos[repo] = {
+                  node {
+                    // Get the master refs to create the branches from
+                    httpRequest(
+                      authentication: '<github_credentials_id>',
+                      contentType: 'APPLICATION_JSON',
+                      consoleLogResponseBody: true,
+                      httpMode: 'GET',
+                      outputFile: "${p.org}_${repo}_master_refs.json",
+                      url: "${githubUrl}/repos/${p.org}/${repo}/git/refs/heads/master")
+                    // Create a variable with the values from the GET response
+                    masterRefs = readJSON(file: "${p.org}_${repo}_master_refs.json")
+                    // Define the payload for the GitHub API call
+                    payload = """{
+                      "ref": "refs/heads/${name}",
+                      "sha": "${masterRefs['object']['sha']}"
+                    }"""
+                    // Create the new branches
+                    httpRequest(
+                      authentication: '<github_credentials_id>',
+                      contentType: 'APPLICATION_JSON',
+                      consoleLogResponseBody: true,
+                      httpMode: 'POST',
+                      ignoreSslErrors: false,
+                      requestBody: payload,
+                      responseHandle: 'NONE',
+                      url: "${githubUrl}/repos/${p.org}/${repo}/git/refs")
+                  }
+                }
+              }
+              // Execute the API calls simultaneously for each repo in the Org
+              parallel repos
+            }
+          }
+        }
+      }
+    }
+    stage('Create Release') {
+      when {
+        // Let's only run this stage when we have a 'version created' event
+        expression { event == 'jira:version_released' }
+      }
+      steps {
+        script {
+          // Loop through our list of Projects in Jira, which will map to Orgs in GitHub.
+          // We're assigning it 'p' since 'project' is assigned as part of the YAML structure
+          settings.project.each { p ->
+            // Only apply this release to the proper Org
+            if (p.name.toString() == projectInfo.data.name.toString()) {
+              // Loop through each repo in the Org
+              p.repos.each { repo ->
+                // Create an array that we will use to dynamically parallelize the actions with. 
+                repos[repo] = {
+                  node {
+                    // Get the current releases
+                    httpRequest(
+                      authentication: '<github_credentials_id>',
+                      contentType: 'APPLICATION_JSON',
+                      consoleLogResponseBody: true,
+                      httpMode: 'GET',
+                      outputFile: "${p.org}_${repo}_releases.json",
+                      url: "${githubUrl}/repos/${p.org}/${repo}/releases")
+                    // Create a variable with the values from the GET response
+                    releases = readJSON(file: "${p.org}_${repo}_releases.json")
+                    // Define the payload for the GitHub API call
+                    def payload = """{
+                      "tag_name": "${name}",
+                      "target_commitish": "${name}",
+                      "name": "${name}",
+                      "body": "${description}",
+                      "draft": false,
+                      "prerelease": false
+                    }"""
+                    // Create the new release
+                    httpRequest(
+                      authentication: '<github_credentials_id>',
+                      contentType: 'APPLICATION_JSON',
+                      consoleLogResponseBody: true,
+                      httpMode: 'POST',
+                      ignoreSslErrors: false,
+                      requestBody: payload,
+                      responseHandle: 'NONE',
+                      url: "${githubUrl}/repos/${p.org}/${repo}/releases")
+                  }
+                }
+              }
+              // Execute the API calls simultaneously for each repo in the Org
+              parallel repos
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+query orgInfo($showRepoInfo: Boolean!) {
+    organization(login: "github") {
+        ...orgFrag
+    }
+}
+
+
+fragment orgFrag on Organization {
+    login
+    name
+    repositories @include(if: $showRepoInfo) {
+        totalCount
+        totalDiskUsage
+    }
+}
+
+variables {
+    "showRepoInfo": true
+}

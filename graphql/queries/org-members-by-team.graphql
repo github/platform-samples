@@ -1,0 +1,25 @@
+query getMembersByTeam($orgName: String!, $teamName: String!) {
+  organization(login: $orgName) {
+    id
+    name
+    teams(first: 1, query: $teamName) {
+      edges {
+        node {
+          id
+          name
+          members(first: 100) {
+            edges {
+              node {
+                id: databaseId
+                name
+              }
+            }
+            pageInfo {
+              endCursor #use this value to paginate through teams with more than 100 members
+            }
+          }
+        }
+      }
+    }
+  }
+}

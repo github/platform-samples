@@ -1,0 +1,31 @@
+query getRepoMergedPRDetails($orgName: String!, $repoName: String!) {
+  repository(owner: $orgName, name: $repoName) {
+    pullRequests(first: 100, states: MERGED) {
+      pageInfo {
+				endCursor #use this value in the pullRequests argument list
+        					#to paginate to the next page using the `after:` argument.
+        					#Use the `before:` argument with this value to specify the previous page
+      }
+      edges {
+        node {
+          mergedFrom: headRefName
+          mergedTo: baseRefName
+          labels(first: 10) {
+            nodes {
+              name
+            }
+          }
+          mergeCommit {
+            message
+            author {
+              name
+              email
+            }
+            additions
+            deletions
+          }
+        }
+      }
+    }
+  }
+}

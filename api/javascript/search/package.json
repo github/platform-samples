@@ -1,0 +1,28 @@
+{
+  "name": "github-search-api",
+  "version": "0.0.1",
+  "description": "Demo of the GitHub Search API, using several authentication strategies to avoid rate limits.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "node-fetch": "^2.5.0",
+    "node-localstorage": "^1.3.1",
+    "@octokit/app": "^1.1.0",
+    "@octokit/request": "^2.2.0"
+  },
+  "engines": {
+    "node": "8.x"
+  },
+  "repository": {
+    "url": "https://github-search-api.glitch.me/"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
