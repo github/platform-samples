@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+out=/dev/null
+
+function test_expect_success {
+    if ! eval "$* >$out"; then
+        echo "FAILURE: $(basename "${BASH_SOURCE[0]}: $*")"
+        exit 1
+    fi
+}
+
+function test_expect_failure {
+    if eval "$* >$out"; then
+        echo "SUCCESS although FAILURE expected: $(basename "${BASH_SOURCE[0]}: $*")"
+        exit 1
+    fi
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/..">/dev/null && pwd)"
+test_dir="$script_dir/tmp"
+
+rm -rf "$test_dir"
+mkdir "$test_dir"
+pushd "$test_dir" >/dev/null
+
+    git init -q .
+
+    mkdir foo
+    echo "foo" >foo/baz
+    git add .
+    git commit -qm "add foo dir with file"
+
+    ln -s foo bar
+    git add .
+    git commit -qm "add bar dir as link"
+
+    rm bar
+    mkdir bar
+    echo "bar" >bar/baz
+    git add .
+    git commit -qm "remove link and make bar dir real"
+
+    test_expect_success ../git-purge-files -c
+
+popd >/dev/null
+
+rm -rf "$test_dir"
+mkdir "$test_dir"
+pushd "$test_dir" >/dev/null
+
+    git init -q .
+
+    mkdir foo
+    echo "foo" >foo/baz
+    git add .
+    git commit -qm "add foo dir with file"
+
+    ln -s foo bar
+    git add .
+    git commit -qm "add bar dir as link"
+
+    rm bar
+    mkdir bar
+    echo "bar" >bar/baz
+    git add .
+    git commit -qm "remove link and make bar dir real"
+
+    # see https://public-inbox.org/git/95EF0665-9882-4707-BB6A-94182C01BE91@gmail.com/
+    test_expect_failure ../git-purge-files -c -d
+
+popd >/dev/null

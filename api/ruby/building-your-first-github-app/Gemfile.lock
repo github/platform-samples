@@ -1,0 +1,36 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    faraday (0.15.2)
+      multipart-post (>= 1.2, < 3)
+    jwt (2.1.0)
+    multipart-post (2.0.0)
+    mustermann (1.0.2)
+    octokit (4.9.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
+    public_suffix (3.0.2)
+    rack (2.2.2)
+    rack-protection (2.0.3)
+      rack
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
+    sinatra (2.0.3)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.3)
+      tilt (~> 2.0)
+    tilt (2.0.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  jwt (~> 2.1)
+  octokit (~> 4.0)
+  sinatra (~> 2.0)
+
+BUNDLED WITH
+   1.14.6

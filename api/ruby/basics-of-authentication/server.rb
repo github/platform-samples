@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'rest_client'
+require 'rest-client'
 require 'json'
 
 # !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!

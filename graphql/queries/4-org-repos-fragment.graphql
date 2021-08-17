@@ -1,0 +1,12 @@
+query {
+    organization(login: "github") {
+        repositories {
+            ...repoFrag
+        }
+    }
+}
+
+fragment repoFrag on RepositoryConnection {
+    totalCount
+    totalDiskUsage
+}
