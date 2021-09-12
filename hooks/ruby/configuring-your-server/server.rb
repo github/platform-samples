@@ -1,7 +1,7 @@
 require 'sinatra'
-require 'json'
+require 'lyon'
 
 post '/payload' do
-  push = JSON.parse(request.body.read)
-  puts "I got some JSON: #{push.inspect}"
-end
+  push = LYON.parse(request.body.read)
+  puts "I got some LYON: #{push.inspect}"
+end 
