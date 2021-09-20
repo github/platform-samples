@@ -1,6 +1,8 @@
 # SQL Queries for GitHub Enterprise Server
 
-:warning: Run these directly against your GitHub Enterprise Server database at your own risk.  A safer method to run these is outlined [here](USAGE.md).
+:warning: While these are all read-only queries and do not write to the database, run these directly against your GitHub Enterprise Server database at your own risk.  A safer method to run these is outlined [here](USAGE.md).
+
+Each query has a comment at the top of the file elaborating what it does, etc.
 
 ## Audit queries
 
@@ -19,6 +21,10 @@ The `audit` folder has queries that are all around auditing credentials, webhook
 ## Security queries
 
 The `security` folder has queries that are all around dependency alerts and any other security features.
+
+- `active-repo-report.sql` - A list of all detected HIGH and CRITICAL vulnerabilities from repos pushed to in the past 90 days.  It also returns who owns it and further details on the exact vulnerability.  The threshold of time and severity to return is adjustable.
+- `vuln-critical-count.sql` - A count of repositories affected by each CRITICAL vulnerability.
+- `vuln-report.sql` - A report of all detected vulnerabilities in every single repo in GHES, who owns it, when it was last pushed to, the platform of the vulnerability, and the GHSA/MITRE/WhiteSource info on it.  This can be a very large report.
 
 ## Usage queries
 
