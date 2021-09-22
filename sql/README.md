@@ -24,6 +24,7 @@ The `metrics` folder has queries that are all around usage of various features i
 
 - `actions-summary.sql` - A monthly summary of runtime hours, seconds waiting in queue before dispatch, and job count for GitHub Actions usage.
 - `commit-count.sql` - This pulls a "high score" report of all users, all commits, from all time.
+- `commit-summary.sql` - A month-by-month summary of commits pushed to GitHub Enterprise Server (using the commit date).
 - `count-tabs.sql` - A report of the custom tabs users put in their repositories.
 - `issue-report.sql` - A report of active issues within the past X days.
 - `linguist-report.sql` - This returns the "size" of each language in each repository and when the repo was last updated.  This can be a very large report.
