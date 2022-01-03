@@ -5,6 +5,7 @@ This is a public place for all sample projects related to the GitHub Platform.
 ## Hierarchy
 
 sample add
+日本語追加
 
 The directories are organized to correlate with guides found on developer.github.com.
 But here it is, broken down:
