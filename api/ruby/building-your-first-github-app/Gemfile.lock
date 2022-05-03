@@ -7,22 +7,24 @@ GEM
       multipart-post (>= 1.2, < 3)
     jwt (2.1.0)
     multipart-post (2.0.0)
-    mustermann (1.0.2)
+    mustermann (1.1.1)
+      ruby2_keywords (~> 0.0.1)
     octokit (4.9.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     public_suffix (3.0.2)
-    rack (2.2.2)
-    rack-protection (2.0.3)
+    rack (2.2.3)
+    rack-protection (2.2.0)
       rack
+    ruby2_keywords (0.0.5)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    sinatra (2.0.3)
+    sinatra (2.2.0)
       mustermann (~> 1.0)
-      rack (~> 2.0)
-      rack-protection (= 2.0.3)
+      rack (~> 2.2)
+      rack-protection (= 2.2.0)
       tilt (~> 2.0)
-    tilt (2.0.8)
+    tilt (2.0.10)
 
 PLATFORMS
   ruby
@@ -30,7 +32,7 @@ PLATFORMS
 DEPENDENCIES
   jwt (~> 2.1)
   octokit (~> 4.0)
-  sinatra (~> 2.0)
+  sinatra (~> 2.2)
 
 BUNDLED WITH
    1.14.6
