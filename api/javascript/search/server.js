@@ -65,19 +65,23 @@ class Server {
       }
     });
 
+    app.set('query parser', 'simple');
+
     app.get('/search/:query', async (req, res) => {
-      res.send(await this.searchQuery(req.params.query));
+      const query = String(req.params.query)
+
+      res.send(await this.searchQuery(query))
     });
-    
+
     app.get('/state', async (req, res) => {
       res.send(await this.getState());
     });
-    
+
     app.post('/hooks', (req, res) => {
       res.send(200);
     });
   }
-  
+
   // We could filter out the properties that we don't want the frontend to have
   async getState() {
     await this.refreshState();
