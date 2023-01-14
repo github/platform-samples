@@ -35,7 +35,7 @@ GEM
     faraday-retry (1.0.3)
     i18n (1.8.2)
       concurrent-ruby (~> 1.0)
-    json (2.1.0)
+    json (2.3.0)
     minitest (5.14.1)
     multipart-post (2.2.3)
     octokit (4.7.0)
@@ -71,7 +71,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  json (~> 2.1.0)
+  json (~> 2.3.0)
   octokit (~> 4.7.0)
   sinatra (~> 1.4.8)
   sinatra_auth_github (~> 1.2.0)
