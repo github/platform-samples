@@ -1,0 +1,11 @@
+mutation {
+    addComment (
+        input: {
+            body: "Added by GraphQL",
+            subjectId:"<RETURNED_BY_PREVIOUS_CALL>"
+        })
+
+    {
+        clientMutationId
+    }
+}

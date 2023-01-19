@@ -1,0 +1,227 @@
+<!--
+ *  Copyright (c) Facebook, Inc.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the license found in the
+ *  LICENSE file in the root directory of this source tree.
+-->
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta charset="utf-8">
+
+<head>
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    h2 {
+      color: rgba(255, 255, 255, 0.75);
+      font-weight: 100;
+      margin-left: 25px;
+      margin-top: -2px;
+    }
+
+    .header {
+      height: 54px;
+      padding: 10px;
+      background-color: #24292e;
+    }
+
+    #graphiql {
+      height: 100vh;
+    }
+  </style>
+
+  <!--
+      This GraphiQL example depends on Promise and fetch, which are available in
+      modern browsers, but can be "polyfilled" for older browsers.
+      GraphiQL itself depends on React DOM.
+      If you do not want to rely on a CDN, you can host these files locally or
+      include them directly in your favored resource bunder.
+    -->
+  <script src="//cdn.jsdelivr.net/es6-promise/4.0.5/es6-promise.auto.min.js"></script>
+  <script src="//cdn.jsdelivr.net/fetch/0.9.0/fetch.min.js"></script>
+
+  <script src="dist/react.min.js"></script>
+  <script src="dist/react-dom.min.js"></script>
+
+  <!--
+      These two files can be found in the npm module, however you may wish to
+      copy them directly into your environment, or perhaps include them in your
+      favored resource bundler.
+     -->
+  <link rel="stylesheet" href="dist/graphiql.css" />
+  <link rel="stylesheet" href="dist/primer-css.css" />
+  <script src="dist/graphiql.min.js"></script>
+  <style>
+
+  </style>
+</head>
+
+<body>
+  <div class="columns header">
+    <a href="." title="Reload to try a new token!" style="color:gray">
+      <h2>
+          Graph<em>i</em>QL on GitHub Pages
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <svg id="return" width="20px" height="25px" viewBox="0 0 14 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none;">
+              <!-- Generator: Sketch 3.7.1 (28215) - http://www.bohemiancoding.com/sketch -->
+              <title>mail-reply</title>
+              <desc>Created with Sketch.</desc>
+              <defs></defs>
+              <g id="Octicons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g id="mail-reply" fill="#FFF">
+                      <path d="M6,2.5 L0,7 L6,11.5 L6,8.5 C7.73,8.5 11.14,9.45 12,12.88 C12,8.33 8.94,5.83 6,5.5 L6,2.5 L6,2.5 Z" id="Shape"></path>
+                  </g>
+              </g>
+            </svg>
+        </h2>
+    </a>
+  </div>
+
+  <div id="graphiql">
+    <div class="blankslate blankslate-spacious">
+      <h3>Create a <a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Personal Access Token</a> and enter it here.</h3>
+      <div class="input-group">
+        <input class="form-control input-lg" style="width:40%;text-align:center;" type="text" id="token" onchange="loadGraphiQL(this.value)" placeholder="Input your PAT">
+        <button class="btn btn-primary" type="button" name="button">Submit</button>
+      </div>
+      <p>Once you submit the token, the GraphiQL IDE will appear.</p>
+
+    </div>
+  </div>
+  <script>
+    /**
+     * This GraphiQL example illustrates how to use some of GraphiQL's props
+     * in order to enable reading and updating the URL parameters, making
+     * link sharing of queries a little bit easier.
+     *
+     * This is only one example of this kind of feature, GraphiQL exposes
+     * various React params to enable interesting integrations.
+     */
+    // Get an Authorization token from the user
+    var authToken = document.getElementById("token").value
+
+    if (authToken === '') {
+      console.log('Get a token!')
+    } else {
+      console.log('Token is: ' + authToken);
+      loadGraphiQL(authToken)
+    }
+
+    function loadGraphiQL(authToken) {
+      // Parse the search string to get url parameters.
+      document.getElementById('return').style.display = "inline"
+      var search = window.location.search;
+      var parameters = {};
+      search.substr(1).split('&').forEach(function(entry) {
+        var eq = entry.indexOf('=');
+        if (eq >= 0) {
+          parameters[decodeURIComponent(entry.slice(0, eq))] =
+            decodeURIComponent(entry.slice(eq + 1));
+        }
+      });
+
+      // if variables was provided, try to format it.
+      if (parameters.variables) {
+        try {
+          parameters.variables =
+            JSON.stringify(JSON.parse(parameters.variables), null, 2);
+        } catch (e) {
+          // Do nothing, we want to display the invalid JSON as a string, rather
+          // than present an error.
+        }
+      }
+
+      // When the query and variables string is edited, update the URL bar so
+      // that it can be easily shared
+      function onEditQuery(newQuery) {
+        parameters.query = newQuery;
+        updateURL();
+      }
+
+      function onEditVariables(newVariables) {
+        parameters.variables = newVariables;
+        updateURL();
+      }
+
+      function onEditOperationName(newOperationName) {
+        parameters.operationName = newOperationName;
+        updateURL();
+      }
+
+      function updateURL() {
+        var newSearch = '?' + Object.keys(parameters).filter(function(key) {
+          return Boolean(parameters[key]);
+        }).map(function(key) {
+          return encodeURIComponent(key) + '=' +
+            encodeURIComponent(parameters[key]);
+        }).join('&');
+        history.replaceState(null, null, newSearch);
+      }
+
+      // Defines a GraphQL fetcher using the fetch API. You're not required to
+      // use fetch, and could instead implement graphQLFetcher however you like,
+      // as long as it returns a Promise or Observable.
+      function graphQLFetcher(graphQLParams) {
+        // Determine the API URL for this GitHub Enterprise server
+
+        const hostnames = location.hostname.split('.')
+
+        const apiHost = function () {
+         if (hostnames[0] === "pages") {
+           // subdomain isolation enabled, so remove the first part of the URL
+           hostnames.shift()
+           return location.protocol + '//' + hostnames.join('.')
+         } else {
+           // no subdomain isolation
+           return location.protocol + '//' + location.hostname
+         }
+       }()
+
+        return fetch(apiHost + '/api/graphql', {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + authToken,
+            'Content-Type': 'application/json'
+          },
+          mode: 'cors',
+          body: JSON.stringify(graphQLParams)
+        }).then(function(response) {
+          return response.text();
+        }).then(function(responseBody) {
+          try {
+            return JSON.parse(responseBody);
+          } catch (error) {
+            return responseBody;
+          }
+        });
+      }
+
+      // Render <GraphiQL /> into the body.
+      // See the README in the top level of this module to learn more about
+      // how you can customize GraphiQL by providing different values or
+      // additional child elements.
+      ReactDOM.render(
+        React.createElement(GraphiQL, {
+          fetcher: graphQLFetcher,
+          query: parameters.query,
+          variables: parameters.variables,
+          operationName: parameters.operationName,
+          onEditQuery: onEditQuery,
+          onEditVariables: onEditVariables,
+          onEditOperationName: onEditOperationName
+        }),
+        document.getElementById('graphiql')
+      );
+    }
+  </script>
+</body>
+
+</html>

@@ -10,8 +10,8 @@ module Example
     #  CLIENT_SECRET    = ENV['GITHUB_CLIENT_SECRET']
     # end
 
-    CLIENT_ID = ENV['GH_GRAPH_CLIENT_ID']
-    CLIENT_SECRET = ENV['GH_GRAPH_SECRET_ID']
+    CLIENT_ID = ENV['GITHUB_CLIENT_ID']
+    CLIENT_SECRET = ENV['GITHUB_CLIENT_SECRET']
 
     enable :sessions
 
@@ -28,7 +28,7 @@ module Example
       if !authenticated?
         authenticate!
       else
-        octokit_client = Octokit::Client.new(:login => github_user.login, :oauth_token => github_user.token)
+        octokit_client = Octokit::Client.new(:login => github_user.login, :access_token => github_user.token)
         repos = octokit_client.repositories
         language_obj = {}
         repos.each do |repo|

@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+'use strict';
+const fs = require('fs');
+const request = require('request');
+const queryObj = {};
+const program = require('commander');
+const variablesRegex = /variables([\s\S]*)}/gm;
+
+program
+    .version('0.0.1')
+    .usage('<file> <token>')
+    .arguments('<file> <token>')
+    .action(function(file, token){
+        //console.log("Running query: " + file);
+        runQuery(file, token);
+    })
+    .description('Execute specified GraphQL query.');
+
+program.on('--help', function(){
+    console.log('');
+    console.log('  Arguments:');
+    console.log('');
+    console.log('     file :  Path to file containing GraphQL');
+    console.log('     token: Properly scoped GitHub PAT');
+    console.log('');
+});
+
+//Commander doesn't seem to do anything when both required arguments are missing
+//So we'll check the old-fashioned way
+
+if(process.argv.length == 2)
+{
+    console.log("Usage: run-query <file> <token>");
+    process.exitCode = 1;
+}
+else
+{
+    program.parse(process.argv);
+}
+
+
+
+function runQuery(file, token) {
+    if(typeof file === undefined || typeof token === undefined)
+    {
+        console.log('Usage: ./index.js ' + program.usage());
+        process.exit(1);
+    }
+    try {
+        var queryText = fs.readFileSync(file, "utf8");
+    }
+    catch (e) {
+        console.log("Problem opening query file: " + e.message);
+        process.exit(1);
+    }
+
+    //If there is a variables section, extract the values and add them to the query JSON object.
+    queryObj.variables = variablesRegex.test(queryText) ? JSON.parse(queryText.match(variablesRegex)[0].split("variables ")[1]) : {}
+    //Remove the variables section from the query text, whether it exists or not
+    queryObj.query = queryText.replace(variablesRegex, '');
+
+    request({
+        url: "https://api.github.com/graphql"
+        , method: "POST"
+        , headers: {
+            'authorization': 'bearer ' + token
+            , 'content-type': 'application/json'
+            , 'user-agent': 'platform-samples'
+        }
+        , json: true
+        , body: queryObj
+    }, function (error, response, body) {
+        //Make some effort to pretty-print any output
+        console.log(JSON.stringify(body, null, 2));
+    });
+};

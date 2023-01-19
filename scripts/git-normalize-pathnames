@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+#
+# Normalize pathname casing in Git repositories. This makes it easier for
+# `git log` to visualize the history of a file. E.g. if a file was renamed
+# from "/foo/BAR" to "/foo/bar" then Git (and GitHub!) would not show the
+# entire history of that file by default. This script fixes this!
+#
+# TODO: This script detects only pathnames that have changed their casing!
+#       It does not yet detect subset of pathnames that have different casing
+#       and live next to each other. E.g.:
+#         /foo/bar1
+#         /Foo/bar2
+#
+# Usage:
+#   git-normalize-pathnames
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+use strict;
+use warnings;
+
+print "Scanning repo...\n";
+
+# Query all pathnames ever used in the Git repo in new to old order
+# Also disable all rename detection
+my @pathnames
+    = `git -c diff.rename=0 log --branches --name-only --pretty=format:`;
+
+# Generate list of case sensitive unique pathnames
+my %seen_cs;
+my @unique_cs;
+for my $p (@pathnames) {
+    next if $seen_cs{$p}++;
+    push( @unique_cs, $p );
+}
+
+# Generate list of case insensitive unique pathnames
+my %seen_ci;
+my @unique_ci;
+for my $p (@unique_cs) {
+    next if $seen_ci{ lc($p) }++;
+    push( @unique_ci, $p );
+}
+
+# Generate list of pathnames that have multiple case variants
+my @dups;
+for my $p (@unique_ci) {
+    next if $seen_ci{ lc($p) } < 2;
+    push( @dups, $p );
+}
+
+if ( scalar @dups == 0 ) {
+    print "\nNo pathname issues detected.\n";
+    exit 0;
+}
+
+print "\nPathname issues detected:\n";
+for my $p (@dups) {
+    print " " . $p;
+}
+print "\nRewriting history...\n";
+
+# TODO: check file touched twice?
+
+my %seen;
+my $skip = 0;
+open( my $pipe_in, "git fast-export --progress=100 --no-data HEAD |" ) or die $!;
+open( my $pipe_out, "| git fast-import --force --quiet" ) or die $!;
+while ( my $row = <$pipe_in> ) {
+    if ( length($row) > $skip ) {
+        my $s = $skip;
+        $skip = 0;
+        my $cmd = substr( $row, $s );
+
+        # skip data blocks
+        if ( $cmd =~ /^data ([0-9]+)$/ ) {
+            $skip = $1;
+        }
+        # ignore empty lines
+        elsif ( $cmd =~ /^$/ ) { }
+        # ignore commands
+        elsif ( $cmd =~ /^(reset|blob|checkpoint|progress|feature|option|done|from|mark|author|from)/ ) { }
+        elsif ( $cmd =~ /^(commit|tag|merge)/ ) {
+            %seen = ();
+        }
+        elsif ( $cmd =~ /^M [0-9]{6} [0-9a-f]{40} .+/ ) {
+            for my $p (@dups) {
+                if ( $cmd =~ s/\Q$p\E/\Q$p\E/i ) {
+                    # print "M" . $p . "\n";
+                    $seen{ $p }++;
+                    $row = substr( $row, 0, $s ) . $cmd;
+                    last;
+                }
+            }
+        }
+        # rewrite path names
+        elsif ( $cmd =~ /^D .+/ ) {
+            for my $p (@dups) {
+                if ( $cmd =~ s/\Q$p\E/\Q$p\E/i ) {
+                     # print "D" . $p . "\n";
+                    if ( $seen{ $p } ) {
+                        $cmd = "";
+                    }
+                    $row = substr( $row, 0, $s ) . $cmd;
+                    last;
+                }
+            }
+        }
+        else {
+            die "Unknown command:\n" . $cmd . "\nIn row:\n" . $row;
+        }
+    }
+    elsif ( $skip > 0 ) {
+        $skip -= length($row);
+    }
+    else {
+        die "Skipping data block failed: " . $skip;
+    }
+
+    print {$pipe_out} $row;
+}
+
+print "Done!\n";

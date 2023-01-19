@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# Append a trailer with the commit hash to every commit message.
+#
+# # Why would you do this?
+#
+# Git commit hashes change when you rewrite history. If you release your
+# software with the exact build hash (you should, it eases debugging!),
+# then all released hashes won't be in your repository anymore. If you
+# add the original hashes to the commit messages, then you can find them
+# even after a history rewrite.
+#
+# Another use case for the original hashes is if you keep the original
+# repository as archive for reference (e.g. because your industry
+# requires you to keep *exactly* every state of the repository). The
+# hash in the commit message will help you to find the corresponding
+# commit in the original repository if necessary.
+#
+# Attention: Since the commit message is part of the commit hash
+# calculation, this script changes the commit hashes too.
+#
+# Usage:
+# git-append-commit-trailer [<options>]
+#
+# Options:
+#   -f, --force   git filter-branch refuses to start with an existing
+#                 temporary directory or when there are already refs
+#                 starting with refs/original/, unless forced.
+#                 See `man git-filter-branch`
+#
+# Example:
+#   Purge the file `foo.dat` from the repository:
+#
+#   Step 1: Run `git-append-commit-trailer`
+#   Step 2: git-purge-files foo.dat
+#
+#   Result: The file `foo.dat` was purged from the history and every
+#           commit message has a link (original commit hash) to the
+#           original version.
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+filter=$(cat <<'EOF'
+	perl -se '
+	my $last;
+	my $found = 0;
+	while (my $line = <>) {
+  		print "$line";
+  		$found = 1 if ($line =~ m/^Original-commit: [a-f0-9]{40}$/);
+		$last = "$line";
+	}
+
+	# Add newline if there is none in the last line
+	print "\n" if (!($last =~ /\x0a$/));
+
+	# Add newline if there is no previous trailer
+	print "\n" if (!($last =~ /^\S+: /));
+
+	# Add commit hash if there was no other before
+	print "Original-commit: $hash\n" if (! $found);
+' -- -hash=$GIT_COMMIT
+EOF
+)
+
+git filter-branch $1 --msg-filter "$filter" --tag-name-filter cat -- --all
