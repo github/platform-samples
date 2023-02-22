@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "graphiql": "^0.11.11",
+    "graphiql": "^1.4.7",
     "primer-css": "^6.0.0",
     "react": "^15.5.4",
     "react-dom": "^16.0.1"
