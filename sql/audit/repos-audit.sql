@@ -84,4 +84,4 @@ LEFT JOIN (SELECT repository_id, SUM(size) as release_asset_disk_size
 			FROM release_assets 
 			GROUP BY repository_id) release_size on release_size.repository_id = repo.id
 ORDER BY repo.owner_login, repo.name
-LIMIT 100
+-- LIMIT 100
