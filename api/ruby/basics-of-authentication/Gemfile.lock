@@ -9,7 +9,7 @@ GEM
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     netrc (0.11.0)
-    rack (2.2.6.2)
+    rack (2.2.6.4)
     rack-protection (2.2.3)
       rack
     rest-client (1.8.0)
