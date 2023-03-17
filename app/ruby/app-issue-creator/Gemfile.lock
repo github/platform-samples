@@ -1,15 +1,15 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (6.0.6.1)
+    activesupport (6.1.7.3)
       concurrent-ruby (~> 1.0, >= 1.0.2)
-      i18n (>= 0.7, < 2)
-      minitest (~> 5.1)
-      tzinfo (~> 1.1)
-      zeitwerk (~> 2.2, >= 2.2.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+      zeitwerk (~> 2.3)
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
-    concurrent-ruby (1.2.0)
+    concurrent-ruby (1.2.2)
     faraday (1.10.3)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
@@ -37,7 +37,7 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.3.0)
     jwt (1.5.6)
-    minitest (5.17.0)
+    minitest (5.18.0)
     multipart-post (2.3.0)
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
@@ -56,17 +56,16 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.2.3)
       tilt (~> 2.0)
-    thread_safe (0.3.6)
     tilt (2.1.0)
-    tzinfo (1.2.11)
-      thread_safe (~> 0.1)
-    zeitwerk (2.6.6)
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
+    zeitwerk (2.6.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 6.0)
+  activesupport (~> 6.1)
   json (~> 2.3)
   jwt
   octokit
