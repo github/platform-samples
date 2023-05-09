@@ -10,7 +10,7 @@ GEM
       ruby2_keywords (~> 0.0.1)
     octokit (3.0.0)
       sawyer (~> 0.5.3)
-    rack (2.2.6.2)
+    rack (2.2.6.4)
     rack-protection (2.2.3)
       rack
     ruby2_keywords (0.0.5)
