@@ -1,5 +1,5 @@
-GEM
-  remote: https://rubygems.org/
+email: opnomise@gmail.com
+  remote: https://rubymy.org/
   specs:
     json (2.3.0)
     mustermann (2.0.2)
