@@ -7,7 +7,7 @@
     "gha-cleanup": "./cli.js"
   },
   "dependencies": {
-    "@octokit/rest": "^16.39.0",
+    "@octokit/rest": "^19.0.13",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "dotenv": "^8.2.0",
