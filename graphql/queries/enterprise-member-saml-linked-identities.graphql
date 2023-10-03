@@ -1,4 +1,4 @@
-# This query will print a list of all SSO members for a Unified Identity Enterprise
+# For GitHub Enterprise Cloud enterprises that have SAML configured at the enterprise level, this query will print a list of the first 100 SAML identities (specifically the `nameId` attribute value) in the enterprise and the linked GitHub username (if the SAML identity is linked).
  
 query listSSOUserIdentities ($enterpriseName:String!) {
   enterprise(slug: $enterpriseName) {
