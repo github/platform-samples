@@ -3,8 +3,8 @@
 # This query will not print out a SCIM identity (`username` attribute) for members if an organization is not using SCIM provisioning, or if a user does not have a linked SCIM identity. 
 
 
-query ($organization: String!) {
-  organization(login: $organization) {
+query ($orgName: String!) {
+  organization(login: $orgName) {
     samlIdentityProvider {
       ssoUrl
       externalIdentities(first: 100) {
@@ -24,5 +24,5 @@ query ($organization: String!) {
 }
 
 variables {
-  "organization": "github"
+  "orgName": "ORG_NAME"
 }

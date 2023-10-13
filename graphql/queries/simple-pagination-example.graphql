@@ -1,0 +1,45 @@
+# Here is a simple query that can be easily paginated with the gh clientMutationId
+
+query($orgName: String!, $endCursor: String) {
+  organization(login: $orgName) {
+    repositories(first: 10, after: $endCursor) {
+      nodes {
+        name
+        databaseId
+        id
+        owner {
+         login
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
+
+# To run it with pagination, use the following gh cli command and pass in your organization as orgName
+# Note that we do not need to specify the endCursor variable
+# For paginating through multiple objects, custom logic is required to pass in each endCursor into the query
+
+gh api graphql --paginate -F owner="orgName"  -f query='
+query($orgName: String!, $endCursor: String) {
+  organization(login: $orgName) {
+    repositories(first: 50, after: $endCursor) {
+      nodes {
+        name
+        databaseId
+        id
+        owner {
+         login
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
+'

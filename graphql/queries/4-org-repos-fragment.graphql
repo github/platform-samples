@@ -1,5 +1,5 @@
 query {
-    organization(login: "github") {
+    organization(login: "ORG_NAME") {
         repositories {
             ...repoFrag
         }

@@ -4,7 +4,7 @@
 # Then will return any Issues & any associated PRs or Issues that reference the parent issue
 # Useful for finding a 'paper trail' of any particular feature requests or bug fixes
 #
-#
+
 query findFeedbackTrail($searchCriteria: String!) {
   search(first: 20, type: ISSUE, query: $searchCriteria) {
     edges {
@@ -21,7 +21,7 @@ query findFeedbackTrail($searchCriteria: String!) {
               ... on CrossReferencedEvent {
                 source {
                   __typename
-									# Show any PRs associated with the Issue
+                  # Show any PRs associated with the Issue
                   ... on PullRequest {
                     title
                     number
@@ -29,13 +29,9 @@ query findFeedbackTrail($searchCriteria: String!) {
                       nodes {
                         path
                       }
-                      pageInfo {
-                        hasNextPage
-                        endCursor
-                      }
                     }
                   }
-									# Show any Issues referencing the returned Issue
+                  # Show any Issues referencing the returned Issue
                   ... on Issue {
                     title
                     number
@@ -44,18 +40,9 @@ query findFeedbackTrail($searchCriteria: String!) {
                 }
               }
             }
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
           }
         }
       }
     }
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
   }
 }
-
