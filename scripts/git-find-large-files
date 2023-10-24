@@ -21,6 +21,10 @@
 
 if [ -z "$1" ]; then
     MIN_SIZE_IN_KB=500
+elif ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    echo "Error: Expecting Integer Value" >&2
+    echo "Usage: $0 [MIN_SIZE_IN_KB]"
+    exit 1
 else
     MIN_SIZE_IN_KB=$1
 fi
