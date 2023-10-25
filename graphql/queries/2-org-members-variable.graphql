@@ -1,18 +1,14 @@
-query ($orgLogin:String!) {
-    organization(login: $orgLogin) {
-        login
-        name
-        members(first:100) {
-            edges {
-                node {
-                    login
-                    location
-                }
-            }
+query {
+  organization(login: "ORG_NAME") {
+    login
+    name
+    membersWithRole(first: 100) {
+      edges {
+        node {
+          login
+          location
         }
+      }
     }
-}
-
-variables {
-    "orgLogin": "bidnessforb"
+  }
 }

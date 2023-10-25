@@ -3,8 +3,8 @@
 # Make sure that you set the request to `POST` with URL `https://api.github.com/graphql`
 # Set `Headers` where `Content-Type` is `application/json` and `Accept` is `application/vnd.github.audit-log-preview+json`
 
-{
-  enterprise(slug: "<enterprise-slug>") {
+query {
+  enterprise(slug: "ENT_SLUG") {
     organizations(first: 100){
       nodes {
         auditLog(last: 5) {
@@ -31,7 +31,7 @@
 
 # If you'd like to use environment variables, this is what it would look like:
 
-query getAuditLog($slug: String!, $numEntries: Int!, $cursor: String){
+query getAuditLog($entSlug: String!, $numEntries: Int!, $cursor: String){
   enterprise(slug: $slug) {
     organizations(first: 100){
       nodes {
@@ -63,7 +63,7 @@ query getAuditLog($slug: String!, $numEntries: Int!, $cursor: String){
 
 # Envrionment variables:
 {
-	"slug": "<enterprise-slug>",
+	"entSlug": "<enterprise-slug>",
 	"numEntries": 5,
 	"cursor": null
 }

@@ -3,8 +3,8 @@
 # The SCIM identity attributes that are stored in a GitHub EMU enterprise are based on the attributes that the external Identity Provider has previously sent for each user via the SCIM integration which leverages the GitHub EMU SCIM API.
 # The query will not work for EMU enterprises that are using SAML as the enterprise authentication method. 
  
-{
-  enterprise(slug: "enterprise slug") {
+query {
+  enterprise(slug: "ENT_SLUG") {
     ownerInfo {
       oidcProvider {
         id
@@ -35,4 +35,3 @@
     }
   }
 }
-
