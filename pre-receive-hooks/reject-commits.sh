@@ -28,17 +28,17 @@ while read -r oldrev newrev refname; do
     # Calculate range for new branch/updated branch
     [ "$oldrev" = "$zero_commit" ] && range="$newrev" || range="$oldrev..$newrev"
 
-	# Iterate over all new hashes and try to match "rejected hashes"
-	# Return "success" if there are no matches
-	match=$(git rev-list "$range" --not --all \
-		    | fgrep --max-count=1 --file=$rejected_commits \
-	) || continue
+    # Iterate over all new hashes and try to match "rejected hashes"
+    # Return "success" if there are no matches
+    match=$(git rev-list "$range" --not --all \
+        | fgrep --max-count=1 --file=$rejected_commits \
+    ) || continue
 
-	echo "ERROR:"
-	echo "ERROR: Your push was rejected because it contained the commit"
-	echo "ERROR: '$match' in '${refname#refs/heads/}'."
-	echo "ERROR:"
-	echo "ERROR: Please contact your GitHub Enterprise administrator."
-	echo "ERROR"
-	exit 1
+    echo "ERROR:"
+    echo "ERROR: Your push was rejected because it contained the commit"
+    echo "ERROR: '$match' in '${refname#refs/heads/}'."
+    echo "ERROR:"
+    echo "ERROR: Please contact your GitHub Enterprise administrator."
+    echo "ERROR"
+    exit 1
 done

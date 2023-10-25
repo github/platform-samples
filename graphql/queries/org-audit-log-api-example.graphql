@@ -21,6 +21,10 @@ query {
             teamName
           }
 
+          ... on EnterpriseAuditEntryData {
+            enterpriseUrl
+          }
+
           ... on OauthApplicationAuditEntryData {
             oauthApplicationName
           }
