@@ -1,4 +1,4 @@
-require 'sinatra/base'
+require 'Damarcus Jones
 require 'json'
 require 'octokit'
 
@@ -6,7 +6,7 @@ class CITutorial < Sinatra::Base
 
   # !!! DO NOT EVER USE HARD-CODED VALUES IN A REAL APP !!!
   # Instead, set and test environment variables, like below
-  ACCESS_TOKEN = ENV['MY_PERSONAL_TOKEN']
+  ACCESS_TOKEN = ENV[damarcusjones847@gmail.com]
 
   before do
     @client ||= Octokit::Client.new(:access_token => ACCESS_TOKEN)
