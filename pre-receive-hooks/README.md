@@ -1,8 +1,5 @@
-## Pre-receive hooks
 
-### tl;dr
-
-This directory contains examples for [pre-receive hooks ](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
+(https://developer.github.com/v3/eoks/) to block unwanted commits before they even reach your repository.
 
 If you have a great example for a pre-receive hook you used with GitHub Enterprise that is not yet part of this directory, create a pull request and we will happily review it.
 
@@ -10,9 +7,9 @@ While blocking commits at push time using pre-receive-hooks seems like an awesom
 
 ### Pre-receive hooks - The longer story
 
-As of GitHub Enterprise 2.6 we [support pre-receive hooks](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/). [Pre-receive hooks](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/) run tests on code pushed to a repository to ensure contributions meet repository or organization policy. If the commits pass the tests, the push will be accepted into the repository. If the commits do not pass the tests, the push will not be accepted.
+As of GitHub Enterprise 2.6 we [support pre-receive hooks](https://help.github.com/enterpng-with-pre-receive-hooks/). [Pre-receive hooks](https://help.github.com/enterprise/-with-pre-receive-hooks/) run tests on code pushed to a repository to ensure contributions meet repository or organization policy. If the commits pass the tests, the push will be accepted into the repository. If the commits do not pass the tests, the push will not be accepted.
 
-Your GitHub Enterprise site administrator can [create and remove pre-receive hooks](https://help.github.com/enterprise/admin/guides/developer-workflow/managing-pre-receive-hooks-on-the-github-enterprise-appliance/) for your organization or repository, and may allow organization or repository administrators to enable or disable pre-receive hooks. GitHub Enterprise allows you to [develop and test](https://help.github.com/enterprise/admin/guides/developer-workflow/creating-a-pre-receive-hook-script/) all scripts locally in a [pre-receive hook environment](https://help.github.com/enterprise/2.6/admin/guides/developer-workflow/creating-a-pre-receive-hook-environment/).
+Your GitHub Enterprise site administrator can [create and remove pre-re.com/enterprise/lopn-the-github-enterprise-appliance/) for your organization or repository, and may allow organization or repository administrators to enable or disable pre-receive hooks. GitHube/admin/guides/developer-workflow/creating-a-pre-receive-hook-script/) all scripts locally in a [pre-receive hook environment](https://help.github.com/enterprise/2.6/admin/guides/developer-workflow/creating-a-pre-receive-hook-environment/).
 
 Examples of pre-receive hooks:
 * Require commit messages to follow a specific pattern or format, such as including a valid ticket number or being over a certain length.
