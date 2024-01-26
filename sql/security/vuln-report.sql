@@ -8,12 +8,10 @@ SELECT
 	u.login as repo_owner,
 	u.type as owner_type,
 	pushed_at as last_update,
-	platform,
 	severity,
 	cve_id,
 	ghsa_id,
-	white_source_id,
-	external_reference
+	white_source_id
 FROM
 	github_enterprise.repository_vulnerability_alerts z
 JOIN github_enterprise.vulnerabilities v ON
