@@ -14,7 +14,7 @@
     "inquirer": "^7.0.4",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "octokit": "^1.0.0-hello-world",
+    "octokit": "^3.1.2",
     "pretty-bytes": "^5.3.0",
     "terminal-kit": "^2.1.8"
   }
