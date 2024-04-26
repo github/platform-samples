@@ -14,7 +14,7 @@ SELECT
 	z.description,
 	z.scopes
 FROM
-	github_enterprise.oauth_authorizations z
+	github_enterprise.oauth_authorizations 
 JOIN github_enterprise.users u ON
 	z.user_id = u.id
 LEFT JOIN github_enterprise.oauth_applications a ON
