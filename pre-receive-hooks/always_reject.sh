@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+github#!/usr/bin/env bash
 
 #
 # Pre-receive hook that will reject all pushes
