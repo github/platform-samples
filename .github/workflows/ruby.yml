@@ -4,7 +4,6 @@
 # documentation.
 # This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
 # For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
-
 name: Ruby
 
 on:
@@ -19,7 +18,7 @@ permissions:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         ruby-version: ['2.6', '2.7', '3.0']

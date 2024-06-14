@@ -1,0 +1,238 @@
+name: Build Ruby for GitHub Actions
+on:
+  push:
+    paths-ignore:
+    - README.md
+jobs:
+  # Build stable releases
+  build:
+    if: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-11, macos-arm-oss ]
+        ruby: [ruby-3.1.6, ruby-3.3.2]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set tag name
+      id: info
+      run: |
+        tag=toolcache
+        echo "tag=$tag" >> $GITHUB_OUTPUT
+    - name: Set platform
+      id: platform
+      run: |
+        platform=${{ matrix.os }}
+        platform=${platform/macos-11/macos-latest}
+        platform=${platform/macos-arm-oss/macos-13-arm64}
+        echo "platform=$platform" >> $GITHUB_OUTPUT
+    - name: Set ruby
+      id: ruby
+      run: |
+        ruby=${{ matrix.ruby }}
+        if [[ "$ruby" == [0-9]* ]]; then
+          ruby="ruby-$ruby"
+        fi
+        echo "ruby=$ruby" >> $GITHUB_OUTPUT
+    - name: Check if already built
+      run: '! curl -s -L --head --fail https://github.com/ruby/ruby-builder/releases/download/${{ steps.info.outputs.tag }}/${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz'
+
+    - name: Set NO_DOCUMENT
+      run: |
+        if [[ "${{ steps.ruby.outputs.ruby }}" == ruby-1.9* ]]; then
+          echo "NO_DOCUMENT=--no-ri --no-rdoc" >> $GITHUB_ENV
+        else
+          echo "NO_DOCUMENT=--no-document" >> $GITHUB_ENV
+        fi
+    - name: Clone ruby-build
+      run: git clone https://github.com/rbenv/ruby-build.git
+    - name: Install ruby-build
+      run: sudo ./ruby-build/install.sh
+
+    - name: List versions
+      run: ruby-build --definitions
+
+      # Install packages
+    - run: sudo apt-get install -y --no-install-recommends libyaml-dev libgdbm-dev libreadline-dev libncurses5-dev
+      if: startsWith(matrix.os, 'ubuntu') && startsWith(steps.ruby.outputs.ruby, 'ruby-')
+    - run: sudo apt-get install -y --no-install-recommends libyaml-dev
+      if: startsWith(matrix.os, 'ubuntu') && startsWith(steps.ruby.outputs.ruby, 'truffleruby')
+
+    - name: Install system ruby for ruby-2.5.2
+      run: sudo apt-get install -y --no-install-recommends ruby
+      if: startsWith(matrix.os, 'ubuntu') && steps.ruby.outputs.ruby == 'ruby-2.5.2'
+
+    - name: Set RUBY_BUILD_RUBY_NAME
+      run: |
+        ruby="${{ steps.ruby.outputs.ruby }}"
+        if [[ $ruby == ruby-* ]]; then
+          echo "RUBY_BUILD_RUBY_NAME=${ruby#ruby-}" >> $GITHUB_ENV
+        else
+          echo "RUBY_BUILD_RUBY_NAME=$ruby" >> $GITHUB_ENV
+        fi
+    - name: Set PREFIX
+      run: |
+        ruby="${{ steps.ruby.outputs.ruby }}"
+        if [[ $ruby == ruby-* ]]; then
+          # See https://github.com/ruby/setup-ruby/issues/98
+          arch=$(node -e 'console.log(os.arch())')
+          echo "PREFIX=$RUNNER_TOOL_CACHE/Ruby/${ruby#ruby-}/$arch" >> $GITHUB_ENV
+        else
+          echo "PREFIX=$HOME/.rubies/$ruby" >> $GITHUB_ENV
+        fi
+    - run: rm -rf $PREFIX
+
+    # macOS runners seem to default to -Werror=implicit-function-declaration, but extconf.rb expects it to be not fatal
+    # See https://bugs.ruby-lang.org/issues/17777 for 2.6.7
+    - name: Set warnflags for Ruby <= 2.2
+      run: echo "warnflags=-Wno-error=implicit-function-declaration" >> $GITHUB_ENV
+      if: startsWith(steps.ruby.outputs.ruby, 'ruby-1.9') || startsWith(steps.ruby.outputs.ruby, 'ruby-2.0') || startsWith(steps.ruby.outputs.ruby, 'ruby-2.1') || startsWith(steps.ruby.outputs.ruby, 'ruby-2.2') || steps.ruby.outputs.ruby == 'ruby-2.6.7'
+
+    - name: Set RUBY_CONFIGURE_OPTS
+      run: echo 'RUBY_CONFIGURE_OPTS=--enable-shared --disable-install-doc' >> $GITHUB_ENV
+    # https://github.com/rbenv/ruby-build/discussions/1961#discussioncomment-4031745
+    - name: Override RUBY_CONFIGURE_OPTS if macos-arm64 ruby-3.1
+      run: echo 'RUBY_CONFIGURE_OPTS=--disable-shared --disable-install-doc' >> $GITHUB_ENV
+      if: matrix.os == 'macos-arm-oss' && startsWith(steps.ruby.outputs.ruby, 'ruby-3.1')
+
+    - name: Build Ruby
+      run: ruby-build --verbose $RUBY_BUILD_RUBY_NAME $PREFIX
+      env:
+        CPPFLAGS: "-DENABLE_PATH_CHECK=0" # https://github.com/actions/virtual-environments/issues/267
+    - name: Create archive
+      run: tar czf ${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz -C $(dirname $PREFIX) $(basename $PREFIX)
+    - name: Install Bundler if needed
+      run: |
+        if [ ! -e $PREFIX/bin/bundle ]; then
+          export PATH="$PREFIX/bin:$PATH"
+          gem install bundler -v '~> 1' $NO_DOCUMENT
+        fi
+    - run: echo "$PREFIX/bin" >> $GITHUB_PATH
+    - run: ruby --version
+    - run: ruby -ropen-uri -e 'puts URI.send(:open, %{https://rubygems.org/}) { |f| f.read(1024) }'
+    - name: Install JSON gem
+      run: gem install json -v '2.2.0' $NO_DOCUMENT
+    - run: bundle --version
+    - run: bundle install
+    - run: bundle exec rake --version
+    - run: ruby test_subprocess.rb
+
+    - name: Upload Built Ruby
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+      run: gh release upload "toolcache" "${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz"
+
+  buildJRubyWindows:
+    if: false
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2019 ]
+        jruby-version: [9.4.7.0]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set tag name
+      id: info
+      run: |
+        tag=toolcache
+        echo "tag=$tag" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Set platform
+      id: platform
+      run: |
+        platform=${{ matrix.os }}
+        platform=${platform/windows-*/windows-latest}
+        echo "platform=$platform" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Set ruby
+      id: ruby
+      run: |
+        ruby=jruby-${{ matrix.jruby-version }}
+        echo "ruby=$ruby" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Check if already built
+      run: '! curl -s -L --head --fail https://github.com/ruby/ruby-builder/releases/download/${{ steps.info.outputs.tag }}/${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz'
+      shell: bash
+
+    - name: Set PREFIX
+      run: echo "PREFIX=$HOME/.rubies/${{ steps.ruby.outputs.ruby }}" >> $GITHUB_ENV
+      shell: bash
+    - run: curl --fail -L -O 'https://repo1.maven.org/maven2/org/jruby/jruby-dist/${{ matrix.jruby-version }}/jruby-dist-${{ matrix.jruby-version }}-bin.tar.gz'
+      shell: bash
+    - name: Build JRuby
+      shell: bash
+      run: |
+        mkdir $(dirname $PREFIX)
+        tar xf jruby-dist-${{ matrix.jruby-version }}-bin.tar.gz -C $(dirname $PREFIX)
+        cd $PREFIX/bin
+        # Copy bash launcher, so 'ruby' works in bash
+        cp jruby ruby
+        # Create ruby.bat, so 'ruby' works in pwsh
+        echo -en "@ECHO OFF\r\n@\"%~dp0jruby.exe\" %*\r\n" > ruby.bat
+    - name: Create archive
+      run: tar czf ${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz -C $(dirname $PREFIX) $(basename $PREFIX)
+      shell: bash
+    - name: Install Bundler if needed
+      shell: bash
+      run: |
+        if [ ! -e $PREFIX/bin/bundle ]; then
+          export PATH="$PREFIX/bin:$PATH"
+          gem install bundler -v '~> 1' --no-document
+        fi
+    - run: echo "$Env:UserProfile\.rubies\${{ steps.ruby.outputs.ruby }}\bin" >> $Env:GITHUB_PATH
+    - run: echo $Env:PATH
+
+    - run: ruby --version
+    - run: ruby -ropen-uri -e 'puts URI.send(:open, %{https://rubygems.org/}) { |f| f.read(1024) }'
+    - run: gem install json:2.2.0 --no-document
+    - run: bundle --version
+    - run: bundle install
+    - run: bundle exec rake --version
+
+    - run: ruby --version
+      shell: bash
+    - run: ruby -ropen-uri -e 'puts URI.send(:open, %{https://rubygems.org/}) { |f| f.read(1024) }'
+      shell: bash
+    - run: gem install json:2.2.0 --no-document
+      shell: bash
+    - run: bundle --version
+      shell: bash
+    - run: bundle install
+      shell: bash
+    - run: bundle exec rake --version
+      shell: bash
+
+    - name: Upload Built Ruby
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+      run: gh release upload "toolcache" "${{ steps.ruby.outputs.ruby }}-${{ steps.platform.outputs.platform }}.tar.gz"
+
+
+  createPullRequest:
+    name: Create PR to setup-ruby
+    needs: [build]
+    if: startsWith(github.event.head_commit.message, 'Build ')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set versions
+      id: versions
+      env:
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      run: |
+        commit_message="$COMMIT_MESSAGE"
+        if [[ "$commit_message" =~ ^Build\ * ]]; then
+          versions=${commit_message#* }
+          echo "versions=$versions" >> $GITHUB_OUTPUT
+        else
+          exit 2
+        fi
+    - uses: ruby/ruby-builder/.github/actions/create-pr-to-setup-ruby@master
+      with:
+        versions: ${{ steps.versions.outputs.versions }}
+        title: Add ${{ steps.versions.outputs.versions }}
+        token: ${{ secrets.CHECK_NEW_RELEASES_TOKEN }}
+All OS · ruby/ruby-builder@de722c0 
