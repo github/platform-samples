@@ -11,3 +11,6 @@ app = Flask(__name__)
 def payload():
     print('I got some JSON: {}'.format(request.json))
     return 'ok'
+
+
+print ("Starting server on port 5000")
