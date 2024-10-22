@@ -1,5 +1,5 @@
 query( $cursor: String) {
-    organization(login: "another-boring-org") {
+    organization(login: "ORG_NAME") {
     url
     login
     repositories(first: 100, after: $cursor) {
