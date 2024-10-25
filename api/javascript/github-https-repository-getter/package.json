@@ -1,0 +1,32 @@
+{
+  "name": "github-repo-getter",
+  "version": "1.0.4",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
+    "download": "^7.1.0",
+    "figlet": "^1.2.1",
+    "inquirer": "^6.3.1",
+    "lodash": "^4.17.11",
+    "minimist": "^1.2.0",
+    "request": "^2.88.0",
+    "simple-git": "^1.113.0",
+    "touch": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alwell-kevin/github-repo-getter-cli"
+  },
+  "bin": {
+    "github-repo-getter": "./index.js"
+  },
+  "homepage": "https://github.com/alwell-kevin/github-repo-getter-cli"
+}
