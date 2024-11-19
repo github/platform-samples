@@ -1,5 +1,5 @@
 query getMembersByTeam {
-  organization(login: "ORGANIZATION_SLUG") {
+  organization(login: "ORG_NAME") {
     id
     name
     teams(first: 1, query: "TEAM_NAME") {

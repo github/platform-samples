@@ -1,5 +1,5 @@
 query getExistingRepoBranches {
-  organization(login: "ORGANIZATION_SLUG") {
+  organization(login: "ORG_NAME") {
     repository(name: "REPO_NAME") {
       id
       name

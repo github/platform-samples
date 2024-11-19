@@ -1,5 +1,5 @@
 query orgInfo($showRepoInfo: Boolean!) {
-    organization(login: "ORGANIZATION_SLUG") {
+    organization(login: "ORG_NAME") {
         login
         name
         repositories @include(if: $showRepoInfo) {

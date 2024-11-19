@@ -5,7 +5,7 @@
 # - The IP allow list for GitHub Apps enabled setting
 
 query GetOrganizationIPAllowList {
-    organization(login: "ORGANIZATION_SLUG") {
+    organization(login: "ORG_NAME") {
         owner_id: id
         organization_slug: login
         is_ip_allow_list_enabled: ipAllowListEnabledSetting

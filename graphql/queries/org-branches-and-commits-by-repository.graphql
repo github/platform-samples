@@ -1,5 +1,5 @@
 query getCommitsByBranchByRepo {
-  organization(login: "ORGANIZATION_SLUG") {
+  organization(login: "ORG_NAME") {
     name
     repository(name: "REPO_NAME") {
       name
