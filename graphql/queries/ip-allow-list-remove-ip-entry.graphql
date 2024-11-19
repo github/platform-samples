@@ -9,9 +9,7 @@
 # - enterprise accounts: https://github.com/github/platform-samples/blob/master/graphql/queries/enterprise-get-ip-allow-list.graphql
 
 mutation DeleteIPAddressFromIPAllowList {
-    deleteIpAllowListEntry(
-        input: { clientMutationId: "true", ipAllowListEntryId: "IP_ENTRY_ID" }
-    ) {
-        clientMutationId
-    }
+  deleteIpAllowListEntry(input: { ipAllowListEntryId: "IP_ENTRY_ID" }) {
+    clientMutationId
+  }
 }
