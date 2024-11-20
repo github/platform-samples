@@ -1,0 +1,29 @@
+# This query is used to add an IP address to the IP allow list.
+# This can be used on both organizations and enterprise accounts.
+#
+# The `OWNER_ID` is the ID of the organization or enterprise account. You can
+# get the ID of an organization or enterprise account by executing either of
+# the following queries and referring to the value from `owner_id` field:
+#
+# - organizations: https://github.com/github/platform-samples/blob/master/graphql/queries/org-get-ip-allow-list.graphql
+# - enterprise accounts: https://github.com/github/platform-samples/blob/master/graphql/queries/enterprise-get-ip-allow-list.graphql
+
+mutation AddIPAddressToIPAllowList {
+  createIpAllowListEntry(
+    input: {
+      ownerId: "OWNER_ID"
+      name: "DESCRIPTION_OF_IP_ADDRESS"
+      allowListValue: "IP_ADDRESS"
+      isActive: true
+    }
+  ) {
+    ipAllowListEntry {
+      ip_allow_list_entry_id: id
+      ip_allow_list_entry_name: name
+      ip_allow_list_entry_ip_address: allowListValue
+      ip_allow_list_entry_created: createdAt
+      ip_allow_list_entry_updated: updatedAt
+      is_ip_allow_list_entry_active: isActive
+    }
+  }
+}

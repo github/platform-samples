@@ -1,4 +1,4 @@
-# Get ISSUE_ID from graphql/queries/10-query-issue-comment-get-issue.graphql
+# Get ISSUE_ID from graphql/queries/repos-get-last-issue-comment.graphql
 
 mutation {
     addComment (

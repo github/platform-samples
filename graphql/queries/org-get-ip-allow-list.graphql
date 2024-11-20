@@ -1,0 +1,24 @@
+# Grab current IP allow list settings for an organization.
+# This includes:
+# - The IP allow list entries
+# - The IP allow list enabled setting
+# - The IP allow list for GitHub Apps enabled setting
+
+query GetOrganizationIPAllowList {
+  organization(login: "ORG_NAME") {
+    owner_id: id
+    organization_slug: login
+    is_ip_allow_list_enabled: ipAllowListEnabledSetting
+    is_ip_allow_list_for_github_apps_enabled: ipAllowListForInstalledAppsEnabledSetting
+    ipAllowListEntries(first: 100) {
+      totalCount
+      nodes {
+        ip_allow_list_entry_id: id
+        ip_allow_list_entry_name: name
+        ip_allow_list_entry_ip_address: allowListValue
+        ip_allow_list_entry_created: createdAt
+        is_ip_allow_list_entry_active: isActive
+      }
+    }
+  }
+}

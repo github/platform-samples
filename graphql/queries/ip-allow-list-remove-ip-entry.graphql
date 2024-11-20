@@ -1,0 +1,15 @@
+# This query is used to remove an IP allow list entry from the IP allow list.
+# This can be used on both organizations and enterprise accounts.
+#
+# The `IP_ENTRY_ID` is the ID of the IP allow list entry. You can
+# get the ID for this by executing either of the following queries
+# and referring to the value from `ip_allow_list_entry_id` field:
+#
+# - organizations: https://github.com/github/platform-samples/blob/master/graphql/queries/org-get-ip-allow-list.graphql
+# - enterprise accounts: https://github.com/github/platform-samples/blob/master/graphql/queries/enterprise-get-ip-allow-list.graphql
+
+mutation DeleteIPAddressFromIPAllowList {
+  deleteIpAllowListEntry(input: { ipAllowListEntryId: "IP_ENTRY_ID" }) {
+    clientMutationId
+  }
+}
