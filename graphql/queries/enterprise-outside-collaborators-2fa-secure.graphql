@@ -1,0 +1,25 @@
+# This GraphQL query will list any outside collaborators in an enterprise who have enabled 2FA on their GitHub account with a secure (non-SMS) method.
+
+query GetEnterpriseCollaboratorsWithSecure2fa {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    enterprise_owner_info: ownerInfo {
+      collaborators_with_secure_2fa: outsideCollaborators(
+        twoFactorMethodSecurity: SECURE
+        first: 100
+      ) {
+        num_of_collaborators: totalCount
+        nodes {
+          login
+        }
+        pageInfo {
+          endCursor
+          startCursor
+          hasNextPage
+          hasPreviousPage
+        }
+      }
+    }
+  }
+}

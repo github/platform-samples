@@ -1,0 +1,25 @@
+# This GraphQL query will list any outside collaborators in an enterprise who have yet to enable 2FA on their GitHub account.
+
+query GetEnterpriseollaboratorsWith2faDisabled {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    enterprise_owner_info: ownerInfo {
+      collaborators_with_no_2fa: outsideCollaborators(
+        twoFactorMethodSecurity: DISABLED
+        first: 100
+      ) {
+        num_of_collaborators: totalCount
+        nodes {
+          login
+        }
+        pageInfo {
+          endCursor
+          startCursor
+          hasNextPage
+          hasPreviousPage
+        }
+      }
+    }
+  }
+}
