@@ -7,7 +7,7 @@ query GetEnterpriseCollaboratorsWithInsecure2fa {
     enterprise_owner_info: ownerInfo {
       collaborators_with_insecure_2fa: outsideCollaborators(
         twoFactorMethodSecurity: INSECURE
-        first: 1
+        first: 100
       ) {
         num_of_collaborators: totalCount
         nodes {
