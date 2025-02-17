@@ -1,0 +1,33 @@
+# For GitHub Enterprise Cloud organizations that are in an enterprise and have SAML and SCIM configured at the organization level, this query will print out a list of the first 100 SCIM identities (specifically the `username` attribute value in these SCIM identities) in the first 100 organizations in the enterprise.
+# The query will also print out the linked GitHub username, if the SCIM identity is linked to a user. A SCIM identity can be unlinked if a user has not logged in with their GitHub.com user account, accepted the invitation and authenticated via SAML to link their SAML/SCIM identity.
+# This query will not print out a SCIM identity (`username` attribute) for members if an organization is not using SCIM provisioning, or if a user does not have a linked SCIM identity. 
+# This query will not work for GitHub Enterprise Cloud enterprises that are using Enterprise Managed Users (EMUs). 
+
+query ($entSlug: String!) {
+  enterprise(slug: $entSlug) {
+    organizations(first: 100) {
+      nodes {
+        samlIdentityProvider {
+          ssoUrl
+          externalIdentities(first: 100) {
+            edges {
+              node {
+                user {
+                  login
+                  email
+                }
+                scimIdentity {
+                  username
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+variables {
+  "entSlug": "ENT_SLUG"
+}

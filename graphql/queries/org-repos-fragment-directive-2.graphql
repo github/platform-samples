@@ -1,5 +1,5 @@
 query orgInfo($showRepoInfo: Boolean!) {
-    organization(login: "github") {
+    organization(login: "ORG_NAME") {
         ...orgFrag
     }
 }

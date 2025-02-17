@@ -1,0 +1,27 @@
+# For GitHub Enterprise Cloud organizations that have SAML configured at the organization level, this query will print out a list of the first 100 SAML identities (specifically the `nameid` attribute value in these SAML identities) in the organization and the GitHub username linked to them.
+# This query can be used to see which users in a GitHub Enterprise Cloud organization have a linked SAML identity.
+# This query will not print out a user username (`login`) value if there is not a GitHub user account linked to this SAML identity. 
+# If there are a large number of identities/users (greater than 100), pagination will need to be used. See https://graphql.org/learn/pagination/ for details on pagination. There is an example of pagination in simple-pagination-example.graphql.
+
+
+query OrgSAMLidentities {
+  organization(login: "ORG_NAME") {
+    samlIdentityProvider {
+      externalIdentities(first: 100) {
+        edges {
+          node {
+            samlIdentity {
+              nameId
+            }
+            user {
+              login
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+query {
+  organization(login: "ORG_NAME") {
+    login
+    name
+    membersWithRole(first: 100) {
+      edges {
+        node {
+          login
+          location
+        }
+      }
+    }
+  }
+}

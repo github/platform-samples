@@ -2,7 +2,7 @@
 # When querying an enterprise instance via GraphQL, the endpoint will follow the syntax: “https://<HOST>/api/graphql" - ex;"GRAPHQL_ENDPOINT": “https://34.208.232.154/api/graphql"
 
 query {
-  organization(login: "se-saml") {
+  organization(login: "ORG_NAME") {
     auditLog(first: 50) {
       edges {
         node {
@@ -21,8 +21,8 @@ query {
             teamName
           }
 
-          ... on BusinessAuditEntryData {
-            businessUrl
+          ... on EnterpriseAuditEntryData {
+            enterpriseUrl
           }
 
           ... on OauthApplicationAuditEntryData {

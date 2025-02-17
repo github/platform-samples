@@ -1,0 +1,28 @@
+# For GitHub Enterprise Cloud organizations that have SAML and SCIM provisioning configured at the organization level, this query will print out a list of the first 100 SCIM identities (specifically the `username` attribute value in these SCIM identities) in the organization.
+# The query will also print out the linked GitHub username, if the SCIM identity is linked to a user. A SCIM identity can be unlinked if a user has not logged in with their GitHub.com user account, accepted the invitation and authenticated via SAML to link their SAML/SCIM identity.
+# This query will not print out a SCIM identity (`username` attribute) for members if an organization is not using SCIM provisioning, or if a user does not have a linked SCIM identity. 
+
+
+query ($orgName: String!) {
+  organization(login: $orgName) {
+    samlIdentityProvider {
+      ssoUrl
+      externalIdentities(first: 100) {
+        edges {
+          node {
+            user {
+              login
+            }
+            scimIdentity {
+              username
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+variables {
+  "orgName": "ORG_NAME"
+}

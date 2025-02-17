@@ -1,0 +1,37 @@
+# For GitHub Enterprise Cloud enterprises that are using Enterprise Managed Users (EMUs) and have Azure AD OIDC setup in the enterprise authentication settings, this query will print a list of the first 100 SCIM identities and their GitHub usernames.
+# The SCIM identity attributes displayed in the query results will include the SCIM `username`, the first (`givenName`) and last (familyName`) name, and the `emails` attribute value. 
+# The SCIM identity attributes that are stored in a GitHub EMU enterprise are based on the attributes that the external Identity Provider has previously sent for each user via the SCIM integration which leverages the GitHub EMU SCIM API.
+# The query will not work for EMU enterprises that are using SAML as the enterprise authentication method. 
+ 
+query {
+  enterprise(slug: "ENT_SLUG") {
+    ownerInfo {
+      oidcProvider {
+        id
+        providerType
+        tenantId
+        externalIdentities(first: 100) {
+          totalCount
+          edges {
+            node {
+              scimIdentity {
+                username
+                givenName
+                familyName
+                emails {
+                  primary
+                  type
+                  value
+                }
+              }
+              user {
+                login
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

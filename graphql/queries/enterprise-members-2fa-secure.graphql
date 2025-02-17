@@ -1,0 +1,28 @@
+# This GraphQL query will list any enterprise members who have enabled 2FA on their GitHub account with a secure (non-SMS) method.
+# This does not list any outside collaborators, and will not work with Enterprise Managed Users other than the setup user.
+
+query GetEnterpriseMembersWithSecure2fa {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    members_with_secure_2fa: members(
+      first: 100
+      twoFactorMethodSecurity: SECURE
+    ) {
+      num_of_members: totalCount
+      edges {
+        node {
+          ... on EnterpriseUserAccount {
+            login
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
-query getCommitsByBranchByRepo($org:String!, $repo:String!) {
-  organization(login:$org) {
+query getCommitsByBranchByRepo {
+  organization(login: "ORG_NAME") {
     name
-    repository(name:$repo) {
+    repository(name: "REPO_NAME") {
       name
       refs(refPrefix: "refs/heads/", first: 10) {
         nodes {

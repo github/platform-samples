@@ -1,8 +1,8 @@
-query {
-    organization(login:"github") {
+query getOrg($orgName:String!) {
+    organization(login: $orgName) {
         login
         name
-        members(first:100) {
+        membersWithRole(first: 100) {
             edges {
                 node {
                     login
@@ -11,4 +11,8 @@ query {
             }
         }
     }
+}
+
+variables {
+    "orgName": "ORG_NAME"
 }

@@ -1,0 +1,23 @@
+# This GraphQL query will print a list of all EMU (Enterprise Managed User) member email addresses, usernames, and display names in an enterprise.
+# This query will not work properly for enterprises that do not use EMUs, as non-EMU enterprises contain personal user accounts and therefore email addresses may be private depending on the user profile configuration. 
+
+query {
+  enterprise(slug: "ENT_SLUG") {
+    members(first: 100) {
+      nodes {
+        ... on EnterpriseUserAccount {
+          login
+          name
+          user {
+            email
+          }
+          organizations(first: 10) {
+            nodes {
+              login
+            }
+          }
+        }
+      }
+    }
+  }
+}

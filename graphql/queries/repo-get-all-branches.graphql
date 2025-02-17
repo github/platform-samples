@@ -1,6 +1,6 @@
-query getExistingRepoBranches($orgName: String!, $repoName: String!) {
-  organization(login: $orgName) {
-    repository(name: $repoName) {
+query getExistingRepoBranches {
+  organization(login: "ORG_NAME") {
+    repository(name: "REPO_NAME") {
       id
       name
       refs(refPrefix: "refs/heads/", first: 10) {

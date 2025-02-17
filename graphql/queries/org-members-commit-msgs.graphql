@@ -1,0 +1,26 @@
+query {
+  organization(login: "ORG_NAME") {
+    login
+    name
+    members(first: 100) {
+      edges {
+        node {
+          login
+          location
+        }
+      }
+      edges {
+        node {
+          commitComments(first: 3) {
+            edges {
+              node {
+                id
+                body
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# For GitHub Enterprise Cloud enterprises that are using Enterprise Managed Users (EMUs) and SAML authentication, this GraphQL query will print a list (first 100 in this example) of the SCIM identities (specifically, the SCIM `username` attribute) and the linked GitHub usernames.
+# This query will not work for enterprises that do not use EMUs, as SCIM provisioning cannot be enabled at the enterprise level for enterprises that do not use EMUs.j
+# Modifying this query to also show member SAML identities will not work for EMU enterprises, since SAML identities are not currently stored for enterprises that use EMUs. 
+# This query will also not work for EMU enterprises that are using Azure AD OIDC for authentication. 
+# If there are a large number of identities/users (greater than 100), pagination will need to be used. See https://graphql.org/learn/pagination/ for details on pagination. There is an example of pagination in simple-pagination-example.graphql.
+
+query {
+  enterprise(slug: "ENT_SLUG") {
+    ownerInfo {
+      samlIdentityProvider {
+        externalIdentities(first: 100) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges{
+            node{
+              scimIdentity {
+                username
+              }
+              user {
+                login
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

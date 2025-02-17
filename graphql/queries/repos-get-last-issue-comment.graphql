@@ -1,0 +1,13 @@
+query getRepoIssue {
+  repository(owner: "ORG_NAME", name: "REPO_NAME") {
+    issues(last: 1) {
+      edges {
+        node {
+          number
+          id
+          body
+        }
+      }
+    }
+  }
+}
