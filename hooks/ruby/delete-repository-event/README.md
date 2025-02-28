@@ -6,7 +6,7 @@ This Ruby server:
 
 1. Listens for when a [repository is deleted](https://help.github.com/enterprise/user/articles/deleting-a-repository/) using the [`repository`](https://developer.github.com/enterprise/v3/activity/events/types/#repositoryevent) event and `deleted` action.
 
-2. Creates an issue in `GITHUB_NOTIFICATION_REPOSITORY` as a notification and includes: 
+2. Creates an issue in `GITHUB_NOTIFICATION_REPOSITORY` as a notification and includes:
 
     - a link to restore the repository
     - the delete repository payload
@@ -19,4 +19,4 @@ This Ruby server:
 
     - `GITHUB_HOST` - the domain of the GitHub Enterprise instance. e.g. github.example.com
     - `GITHUB_API_TOKEN` - a [Personal Access Token](https://help.github.com/enterprise/user/articles/creating-a-personal-access-token-for-the-command-line/) that has the ability to create an issue in the notification repository
-    - `GITHUB_NOTIFICATION_REPOSITORY` - the repository in which to create the nofication issue. e.g. github.example.com/administrative-notifications
+    - `GITHUB_NOTIFICATION_REPOSITORY` - the repository in which to create the notification issue. e.g. github.example.com/administrative-notifications. Should be in the form of `:owner/:repository`. 

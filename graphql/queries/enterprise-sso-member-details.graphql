@@ -1,0 +1,28 @@
+# This query will print a list of all SSO members for a Unified Identity Enterprise
+ 
+query listSSOUserIdentities ($enterpriseName:String!) {
+  enterprise(slug: $enterpriseName) {
+    ownerInfo {
+      samlIdentityProvider {
+        externalIdentities(first: 100) {
+          totalCount
+          edges {
+            node {
+              guid
+              samlIdentity {
+                nameId
+              }
+              user {
+                login
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+	    endCursor
+          }
+        }
+      }
+    }
+  }
+}

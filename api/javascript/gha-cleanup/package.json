@@ -1,0 +1,21 @@
+{
+  "name": "actions-admin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "gha-cleanup": "./cli.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^16.39.0",
+    "chalk": "^3.0.0",
+    "commander": "^4.1.0",
+    "dotenv": "^8.2.0",
+    "inquirer": "^7.0.4",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "octokit": "^1.0.0-hello-world",
+    "pretty-bytes": "^5.3.0",
+    "terminal-kit": "^1.32.3"
+  }
+}

@@ -8,8 +8,8 @@ GEM
     multipart-post (2.0.0)
     octokit (3.0.0)
       sawyer (~> 0.5.3)
-    rack (1.5.2)
-    rack-protection (1.5.2)
+    rack (1.6.13)
+    rack-protection (1.5.5)
       rack
     sawyer (0.5.4)
       addressable (~> 2.3.5)

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>GitHub Search API</title>
+    <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <style>
+    html, body {
+      height: 100%;}
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .content {
+      flex: 1 0 auto;
+    }
+    .footer {
+      flex-shrink: 0;
+      background: #eee; 
+    }
+    .search-error {
+      color: red;
+    }
+
+    </style>
+    
+    <link href="https://unpkg.com/primer/build/build.css" rel="stylesheet">
+    
+  </head>
+  <body>
+     
+    <div class="content container-lg p-6">
+      
+      <h2>
+        Try searching for a GitHub user:
+      </h2>
+      
+      <br>
+      
+      <input class="form-control search-input" type="text" placeholder="username"/>
+      <button class="btn btn-primary search" type="button">
+        Search
+      </button>
+      
+      <br>
+      
+      <p class="search-error"></p>
+      
+      <br>
+      
+      <div class="login">
+        <p class="login-text">
+          For more API queries, try logging in to GitHub?
+        </p>
+        <button class="btn login-button">
+          Login
+        </button>
+      </div>
+      
+      <br>
+      
+      <ul class="search-results pt-3 pl-3"></ul>
+
+    </div>
+    
+    <footer class="footer pb-2 pt-3 text-center">
+      <div class="scheme">
+        <p>
+          You are using <strong><span class="auth-type"></span> authentication</strong> against the <strong><span class="auth-target"></span> API</strong>.
+        </p>
+        <p>
+          <span class="hits-remaining"></span><span class="hits-total"></span>
+        </p>
+      </div>
+    </footer>
+    
+    <script src="/client.js"></script>
+    <!-- include the Glitch button to show what the webpage is about and
+      to make it easier for folks to view source and remix -->
+    <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
+    <script src="https://button.glitch.me/button.js"></script>
+  </body>
+</html>

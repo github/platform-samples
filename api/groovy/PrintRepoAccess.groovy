@@ -4,7 +4,7 @@
  * groovy script to show all users that can access a given repository in a GitHub Enterprise instance
  *
  * Run 'groovy PrintRepoAccess.groovy' to see the list of command line options
- * 
+ *
  * Example on how to list access rights for repos foo/bar and bar/foo on GitHub Enterprise instance https://foobar.com:
  *
  * groovy PrintRepoAccess.groovy  -u https://foobar.com -t <access token> foo/bar bar/foo
@@ -20,13 +20,13 @@
  *
  * Apart from Groovy (and Java), you do not need to install any libraries on your system as the script will download them when you first start it
  * The first run may take some time as required dependencies have to get downloaded, then it should be quite fast
- *  
+ *
  * If you do not have groovy yet, run 'brew install groovy' on a Mac, for Windows and Linux follow the instructions here:
  * http://groovy-lang.org/install.html
  *
  */
 
-@Grab(group='org.kohsuke', module='github-api', version='1.75')
+@Grab(group='org.kohsuke', module='github-api', version='1.99')
 import org.kohsuke.github.GitHub
 
 // parsing command line args
@@ -34,12 +34,15 @@ cli = new CliBuilder(usage: 'groovy PrintRepoAccess.groovy [options] [repos]\nPr
 cli.t(longOpt: 'token', 'personal access token of a GitHub Enterprise site admin with repo scope (or use GITHUB_TOKEN env variable)', required: false  , args: 1 )
 cli.u(longOpt: 'url', 'GitHub Enterprise URL (or use GITHUB_URL env variable), e.g. https://myghe.com', required: false  , args: 1 )
 cli.l(longOpt: 'localDirectory', 'Directory with org/repo directory structure (show access for all contained repos)', required: false, args: 1)
+cli.c(longOpt: 'csv', 'CSV file with repositories in the format produced by stafftools/reports (show access for all contained repos)', required: false, args: 1)
 cli.h(longOpt: 'help', 'Print this usage info', required: false  , args: 0 )
+cli.p(longOpt: 'permissions', 'Print user permissions on repo', required: false  , args: 0 )
 
 OptionAccessor opt = cli.parse(args)
 
 token = opt.t?opt.t:System.getenv("GITHUB_TOKEN")
 url = opt.u?opt.u:System.getenv("GITHUB_URL")
+printPerms = opt.p
 
 // bail out if help parameter was supplied or not sufficient input to proceed
 if (opt.h || !token || !url ) {
@@ -68,6 +71,15 @@ if (opt.l) {
   printAccessRightsForStoredRepos(localRepoStore)
 }
 
+if (opt.c) {
+  repoCSVFile = new File(opt.c)
+  if (!repoCSVFile.isFile()) {
+    printErr "${repoCSVFile.canonicalPath} is not a file"
+    return
+  }
+  printAccessRightsForCSVFile(repoCSVFile)
+}
+
 // END OF MAIN
 
 def printAccessRightsForRepo(org, repo) {
@@ -82,7 +94,7 @@ def printAccessRightsForRepo(org, repo) {
       println "${org}/${repo},ALL"
     } else {
       ghRepo.getCollaboratorNames().each {
-        println "${org}/${repo},${it}"
+        println "${org}/${repo},${it}"+ (printPerms?","+ghRepo.getPermission(it):"")
       }
     }
   } catch (Exception e) {
@@ -107,6 +119,17 @@ def printAccessRightsForStoredRepos(localRepoStore) {
   localRepoStore.eachDir { org ->
     org.eachDir { repo ->
         printAccessRightsForRepo(org.name,repo.name)
+    }
+  }
+}
+
+def printAccessRightsForCSVFile(csvFile) {
+  boolean firstLine=true
+  repoCSVFile.splitEachLine(',') { line ->
+    if (firstLine) {
+      firstLine=false
+    } else {
+      printAccessRightsForRepo(line[3],line[5])
     }
   }
 }

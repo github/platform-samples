@@ -84,7 +84,7 @@ pipeline {
 ```
 
 #### Setting up the triggers
-The *Generic Webhook Trigger* plugin makes use of a token to differentiate pipelines. You can generate a generic token for this pipeline by running `uuidgen` at the command line on a Unix system, or `[Guid]::NewGuid().ToString()` in PowerShell. 
+The *Generic Webhook Trigger* plugin makes use of a token to differentiate pipelines. You can generate a generic token for this pipeline by running `uuidgen` at the command line on a Unix system, or `New-Guid` in PowerShell. 
 
 ##### Bash
 ```bash
@@ -93,7 +93,7 @@ Shenmue:~ primetheus$ uuidgen
 ```
 ##### Powershell
 ```powershell
-PS /Users/primetheus> [Guid]::NewGuid().ToString()
+PS /Users/primetheus> New-Guid
 b92bd80d-375d-4d85-8ba5-0c923e482262
 ```
 

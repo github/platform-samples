@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+#
+# Print the largest files in a Git repository. The script must be called
+# from the root of the Git repository. You can pass a threshold to print
+# only files greater than a certain size (compressed size in Git database,
+# default is 500kb).
+#
+# Files that have a large compressed size should usually be stored in
+# Git LFS [2].
+#
+# Based on script from Antony Stubbs [1] and improved with ideas from Peff.
+#
+# [1] http://stubbisms.wordpress.com/2009/07/10/git-script-to-show-largest-pack-objects-and-trim-your-waist-line/
+# [2] https://git-lfs.github.com/
+#
+# Usage:
+# git-find-large-files [size threshold in KB]
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+if [ -z "$1" ]; then
+    MIN_SIZE_IN_KB=500
+elif ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    echo "Error: Expecting Integer Value" >&2
+    echo "Usage: $0 [MIN_SIZE_IN_KB]"
+    exit 1
+else
+    MIN_SIZE_IN_KB=$1
+fi
+
+# Use "look" if it is available, otherwise use "grep" (e.g. on Windows)
+if look >/dev/null 2>&1; then
+    # On Debian the "-b" is available and required to make "look" perform
+    # a binary search (see https://unix.stackexchange.com/a/499312/275508 ).
+    if look 2>&1 | grep -q .-b; then
+        search="look -b"
+    else
+        search=look
+    fi
+else
+    search=grep
+fi
+
+# set the internal field separator to line break,
+# so that we can iterate easily over the verify-pack output
+IFS=$'\n';
+
+# list all objects including their size, sort by compressed size
+OBJECTS=$(
+    git cat-file \
+        --batch-all-objects \
+        --batch-check='%(objectsize:disk) %(objectname)' \
+    | sort -nr
+)
+
+TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/git-find-large-files.XXXXXX") || exit
+trap "rm -rf '$TMP_DIR'" EXIT
+
+git rev-list --all --objects | sort > "$TMP_DIR/objects"
+git rev-list --all --objects --max-count=1 | sort > "$TMP_DIR/objects.1"
+
+for OBJ in $OBJECTS; do
+    # extract the compressed size in kilobytes
+    COMPRESSED_SIZE=$(($(echo $OBJ | cut -f 1 -d ' ')/1024))
+
+    if [ $COMPRESSED_SIZE -le $MIN_SIZE_IN_KB ]; then
+        break
+    fi
+
+    # extract the SHA
+    SHA=$(echo $OBJ | cut -f 2 -d ' ')
+
+    # find the objects location in the repository tree
+    LOCATION=$($search $SHA "$TMP_DIR/objects" | sed "s/$SHA //")
+    if $search $SHA "$TMP_DIR/objects.1" >/dev/null; then
+        # Object is in the head revision
+        HEAD="Present"
+    elif [ -e $LOCATION ]; then
+        # Objects path is in the head revision
+        HEAD="Changed"
+    else
+        # Object nor its path is in the head revision
+        HEAD="Deleted"
+    fi
+
+    echo "$COMPRESSED_SIZE,$HEAD,$LOCATION" >> "$TMP_DIR/output"
+done
+
+if [ -f "$TMP_DIR/output" ]; then
+    column -t -s ',' < "$TMP_DIR/output"
+fi
+
+rm -rf "$TMP_DIR"
+exit 0
