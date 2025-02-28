@@ -1,0 +1,69 @@
+# This graphql queries for audit logs at the enterprise level
+
+# Make sure that you set the request to `POST` with URL `https://api.github.com/graphql`
+# Set `Headers` where `Content-Type` is `application/json` and `Accept` is `application/vnd.github.audit-log-preview+json`
+
+{
+  enterprise(slug: "<enterprise-slug>") {
+    organizations(first: 100){
+      nodes {
+        auditLog(last: 5) {
+          edges {
+            node {
+              ... on AuditEntry {
+    #                   Get Audit Log Entry by 'Action'
+                action
+                actorLogin
+                createdAt
+    #           User 'Action' was performed on
+               user{
+                  name
+                    email
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# If you'd like to use environment variables, this is what it would look like:
+
+query getAuditLog($slug: String!, $numEntries: Int!, $cursor: String){
+  enterprise(slug: $slug) {
+    organizations(first: 100){
+      nodes {
+        auditLog(last: $numEntries, before: $cursor) {
+          edges {
+            node {
+              ... on AuditEntry { # Get Audit Log Entry by 'Action'
+                action
+                actorLogin
+                createdAt
+                user { # User 'Action' was performed on
+                  name
+                  email
+                }
+              }
+            }
+            cursor
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+          totalCount
+        }
+      }
+    }
+  }
+}
+
+# Envrionment variables:
+{
+	"slug": "<enterprise-slug>",
+	"numEntries": 5,
+	"cursor": null
+}

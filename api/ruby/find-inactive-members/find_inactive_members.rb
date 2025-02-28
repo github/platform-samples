@@ -82,7 +82,7 @@ private
   # get all organization members and place into an array of hashes
     info "Finding #{@organization} members "
     @members = @client.organization_members(@organization).collect do |m|
-      email = 
+      email =
       {
         login: m["login"],
         email: member_email(m[:login]),
@@ -127,36 +127,49 @@ private
       end
     rescue Octokit::Conflict
       info "...no commits"
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when the `commits_since` range is out of bounds of commits.
+      info "...no commits"
     end
   end
 
   def issue_activity(repo, date=@date)
     # get all issues after specified date and iterate
     info "...Issues"
-    @client.list_issues(repo, { :since => date }).each do |issue|
-      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if issue["user"].nil?
-        next
+    begin
+      @client.list_issues(repo, { :since => date }).each do |issue|
+        # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+        if issue["user"].nil?
+          next
+        end
+        # if creator is a member of the org and not active, make active
+        if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
       end
-      # if creator is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == issue["user"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when repo is a private fork for security advisories
+      info "...no access to issues in this repo ..."
     end
   end
 
   def issue_comment_activity(repo, date=@date)
     # get all issue comments after specified date and iterate
     info "...Issue comments"
-    @client.issues_comments(repo, { :since => date }).each do |comment|
-      # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
-      if comment["user"].nil?
-        next
+    begin
+      @client.issues_comments(repo, { :since => date }).each do |comment|
+        # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
+        if comment["user"].nil?
+          next
+        end
+        # if commenter is a member of the org and not active, make active
+        if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
+          make_active(t[:login])
+        end
       end
-      # if commenter is a member of the org and not active, make active
-      if t = @members.find {|member| member[:login] == comment["user"]["login"] && member[:active] == false }
-        make_active(t[:login])
-      end
+    rescue Octokit::NotFound
+      #API responds with a 404 (instead of an empty set) when repo is a private fork for security advisories
+      info "...no access to issue comments in this repo ..."
     end
   end
 
@@ -197,21 +210,27 @@ private
 
     # open a new csv for output
     CSV.open("inactive_users.csv", "wb") do |csv|
+      csv << ["login", "email"]
       # iterate and print inactive members
       @members.each do |member|
         if member[:active] == false
-          member_detail = "#{member[:login]},#{member[:email] unless member[:email].nil?}"
+          member_detail = []
+          member_detail << member[:login]
+          member_detail << member[:email] unless member[:email].nil?
           info "#{member_detail} is inactive\n"
-          csv << [member_detail]
+          csv << member_detail
         end
       end
     end
 
     CSV.open("unrecognized_authors.csv", "wb") do |csv|
+      csv << ["name", "email"]
       @unrecognized_authors.each do |author|
-        author_detail = "#{author[:name]},#{author[:email]}"
+        author_detail = []
+        author_detail << author[:name]
+        author_detail << author[:email]
         info "#{author_detail} is unrecognized\n"
-        csv << [author_detail]
+        csv << author_detail
       end
     end
   end

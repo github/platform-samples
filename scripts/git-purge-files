@@ -1,0 +1,149 @@
+#!/usr/bin/perl
+#
+# Purge files from Git repositories
+#
+
+use 5.010;
+use strict;
+use warnings;
+use version;
+use Getopt::Std;
+use File::Temp qw/ tempdir /;
+
+sub usage() {
+    print STDERR <<END;
+NAME
+       git-purge-files - Purge files from Git repositories
+
+SYNOPSIS
+       git-purge-files [-c] [-d] [-h] [<path-regex>] ...
+
+
+DESCRIPTION
+       This command purges files from a Git history by rewriting all
+       commits. Please note that this changes all commit hashes in the
+       history and therefore all branches and tags.
+
+       You want to run this script on a case sensitive file-system (e.g.
+       ext4 on Linux). Otherwise the resulting Git repository will not
+       contain changes that modify the casing of file paths.
+
+OPTIONS
+       <path-regex>...
+           A list of regular expressions that defines what files should
+           be purged from the history. Use a `/` to anchor a path to the
+           root of the repository.
+
+       -c
+           Run in checking mode. The script will run the underlaying
+           `git fast-export | git fast-import` command without any
+           modifications to the data stream. Afterwards the input
+           repository is compared against the output repository.
+
+           For large repositories we recommend to run this script in
+           checking mode (-c) mode first in order to determine if it can
+           run in the much faster diff mode (-d) mode.
+
+           ATTENTION: Although we run a check here, the repository
+                      under test is rewritten and potentially modified!
+
+       -d
+           Enable diff mode. This makes the underlaying `git fast-export`
+           output only the file differences between two commits. This
+           mode is quicker but more error prone. It is not recommended
+           in production usage.
+
+           See examples for potential problems here:
+           https://public-inbox.org/git/CABPp-BFLJ48BZ97Y9mr4i3q7HMqjq18cXMgSYdxqD1cMzH8Spg\@mail.gmail.com/
+
+       -h
+           This help.
+
+EXAMPLES
+       o   Remove the file "test.bin" from all directories:
+
+               \$ git-purge-files "/test.bin$"
+
+       o   Remove all "*.bin" files from all directories:
+
+               \$ git-purge-files "\.bin$"
+
+       o   Remove all files in the "/foo" directory:
+
+               \$ git-purge-files "^/foo/$"
+END
+    exit(1);
+}
+
+our($opt_h, $opt_d, $opt_c);
+getopts("hdc") or usage();
+usage if $opt_h;
+
+my ($git_version) = `git --version` =~ /([0-9]+([.][0-9]+)+)/;
+
+my $export_opts = "--all --no-data --progress=1000 --signed-tags=warn-strip --tag-of-filtered-object=rewrite --use-done-feature";
+$export_opts .= " --reencode=no" if (version->parse($git_version) ge version->parse('2.23.0'));
+$export_opts .= " --full-tree" if (not $opt_d);
+
+print $export_opts;
+
+my $import_opts = "--done --force --quiet";
+
+if ($opt_c) {
+    say "Checking 'git fast-export | git fast-import' pipeline... ";
+
+    # Print the changed files, author, committer, branches, and commit message
+    # for every commit of the Git repository. We intentionally do not output
+    # and compare any hashes here as commit and tree hashes can change due to
+    # slightly different object serialization methods in older Git clients.
+    # E.g. directories have been encoded as 40000 instead of 04000 for a brief
+    # period in ~2009 and "git fast-export | git fast-import" would fix that
+    # which would lead to different hashes.
+    my $git_log = "git log --all --numstat --full-history --format='%nauthor:    %an <%ae> %at%ncommitter: %cn <%ce> %ct%nbranch:    %S%nbody:      %B%n%n---' --no-renames";
+    my $tmp = tempdir('git-purge-files-XXXXX', TMPDIR => 1);
+
+    if (
+      system("$git_log > $tmp/expected") or
+      system("git fast-export $export_opts | git fast-import $import_opts") or
+      system("$git_log > $tmp/result") or
+      system("diff $tmp/expected $tmp/result")
+    ) {
+        say "";
+        say "Failure! Rewriting the repository with `git-purge-files` might alter the history.";
+        say "Inspect the following files to review the difference:";
+        say " - $tmp/expected";
+        say " - $tmp/result";
+        say "Try to omit the `-d` option!" if ($opt_d);
+        exit 1;
+    } else {
+        say "Success!";
+        exit 0;
+
+    }
+} else {
+    say "Purging files...\n";
+
+    exit 0 if (@ARGV == 0);
+    my $path_regex = join( "|", @ARGV );
+    my $start_time = time;
+
+    open( my $pipe_in, "git fast-export $export_opts |" ) or die $!;
+    open( my $pipe_out, "| git fast-import $import_opts" ) or die $!;
+
+    LOOP: while ( my $cmd = <$pipe_in> ) {
+        my $data = "";
+        if ( $cmd =~ /^data ([0-9]+)$/ ) {
+            # skip data blocks
+            my $skip_bytes = $1;
+            read($pipe_in, $data, $skip_bytes);
+        }
+        elsif ( $cmd =~ /^M [0-9]{6} [0-9a-f]{40} (.+)$/ ) {
+            my $pathname = $1;
+            next LOOP if ("/" . $pathname) =~ /$path_regex/o
+        }
+        print {$pipe_out} $cmd . $data;
+    }
+
+    my $duration = time - $start_time;
+    say "Done! Execution time: $duration s";
+}

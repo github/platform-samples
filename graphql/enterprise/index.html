@@ -170,13 +170,25 @@
       // as long as it returns a Promise or Observable.
       function graphQLFetcher(graphQLParams) {
         // Determine the API URL for this GitHub Enterprise server
+
         const hostnames = location.hostname.split('.')
-        const apiHost = location.protocol + '//' + hostnames[hostnames.length - 2] + '.' + hostnames[hostnames.length - 1]
+
+        const apiHost = function () {
+         if (hostnames[0] === "pages") {
+           // subdomain isolation enabled, so remove the first part of the URL
+           hostnames.shift()
+           return location.protocol + '//' + hostnames.join('.')
+         } else {
+           // no subdomain isolation
+           return location.protocol + '//' + location.hostname
+         }
+       }()
+
         return fetch(apiHost + '/api/graphql', {
           method: 'post',
           headers: {
             'Accept': 'application/json',
-            'Authorization': 'Basic ' + authToken,
+            'Authorization': 'Bearer ' + authToken,
             'Content-Type': 'application/json'
           },
           mode: 'cors',

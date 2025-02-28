@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Find and print files that are encoded with UTF-16
+#
+# Usage:
+# git-find-utf-16-encoded-files
+#
+# Author: Lars Schneider, https://github.com/larsxschneider
+#
+
+find . -type f -not -path "./.git/*" -exec file {} \; |
+	grep --ignore-case utf-16

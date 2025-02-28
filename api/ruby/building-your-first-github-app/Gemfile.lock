@@ -1,0 +1,59 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
+    faraday (1.10.3)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
+      faraday-excon (~> 1.1)
+      faraday-httpclient (~> 1.0)
+      faraday-multipart (~> 1.0)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.0)
+      faraday-patron (~> 1.0)
+      faraday-rack (~> 1.0)
+      faraday-retry (~> 1.0)
+      ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
+    faraday-excon (1.1.0)
+    faraday-httpclient (1.0.1)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
+    faraday-net_http (1.0.1)
+    faraday-net_http_persistent (1.2.0)
+    faraday-patron (1.0.0)
+    faraday-rack (1.0.0)
+    faraday-retry (1.0.3)
+    jwt (2.1.0)
+    multipart-post (2.3.0)
+    mustermann (2.0.2)
+      ruby2_keywords (~> 0.0.1)
+    octokit (4.9.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
+    public_suffix (5.0.1)
+    rack (2.2.6.4)
+    rack-protection (2.2.3)
+      rack
+    ruby2_keywords (0.0.5)
+    sawyer (0.8.2)
+      addressable (>= 2.3.5)
+      faraday (> 0.8, < 2.0)
+    sinatra (2.2.3)
+      mustermann (~> 2.0)
+      rack (~> 2.2)
+      rack-protection (= 2.2.3)
+      tilt (~> 2.0)
+    tilt (2.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  jwt (~> 2.1)
+  octokit (~> 4.0)
+  sinatra (~> 2.2)
+
+BUNDLED WITH
+   1.14.6

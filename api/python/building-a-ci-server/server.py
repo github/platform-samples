@@ -39,6 +39,11 @@ class PayloadView(object):
         # do busy work...
         return "nothing to pull request payload" # or simple {}
 
+    @view_config(header="X-Github-Event:ping")
+    def payload_push_ping(self):
+        """This method is responding to a webhook ping"""
+        return {'ping': True}
+
 
 if __name__ == "__main__":
     config = Configurator()
