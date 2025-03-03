@@ -1,0 +1,29 @@
+# You will need to replace <ORG_NAME> and <SAML Name ID> with the actual GitHub organization name and the SAML `NameID` value that you're searching stored external identities for in the GitHub organization. 
+# For GitHub Enterprise Cloud organizations that have SAML configured at the organization level, this will query the stored SAML `nameId` and SCIM `userName` external identity values in the GitHub organization, and if one is found that matches the value specified for `<SAML Name ID>`, it will print out the SAML `nameId` and GitHub username for that stored external identity.
+
+# Note that the query below will not tell you if the GitHub username/account associated with this linked identity is still a member of the organization. Organization owners can navigate to the Organization > People > Members UI and search for the user to determine this.
+
+# This query will not print out a user username (`login`) value if there is not a GitHub user account linked to this SAML identity. 
+# Pagination shouldn't be needed since there shouldn't be multiple entries in the organization that have the same SAML `NameID` or SCIM `userName`. However, for more information on pagination. There is also an example of pagination in simple-pagination-example.graphql.
+
+query OrganizationIdentitiesBySAMLNameID {
+  organization(login: "<ORG_NAME>") {
+    samlIdentityProvider {
+      externalIdentities(userName:"<SAML Name ID>", first: 25) {
+        edges {
+          node {
+            samlIdentity {
+              nameId
+            }
+            user {
+              login
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+        }
+      }
+    }
+  }
+}
