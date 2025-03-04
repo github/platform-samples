@@ -54,3 +54,25 @@ Members are defined as inactive if they **have not performed** any of the follow
 - Merged or pushed commits into the default branch
 - Opened an Issue or Pull Request
 - Commented on an Issue or Pull Request
+
+## Checkpoint
+
+The script sometimes breaks while parsing large organization either caused by timeout or connection error.
+To deal with that frustration, `checkpoint` flag helps by storing Octokit API responses as json files in `data/`, so that during re-run it will first try to use stored json files instead of calling Github API from the beginning.
+
+```
+ruby find_inactive_members.rb [-cehv] -o ORGANIZATION -d DATE --checkpoint
+```
+
+Or simply do this (since it is idempotent)
+
+```
+while true; do ruby find_inactive_members.rb -o ORGANIZATION -d DATE --checkpoint; sleep 10; done
+```
+
+To reset the checkpoint files, simply
+
+```
+rm -rf data/*.json
+rm -rf data/activities/*.json
+```
