@@ -394,8 +394,8 @@ dir-glob@^3.0.1:
     path-type "^4.0.0"
 
 dset@^3.1.0, dset@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.2.tgz#89c436ca6450398396dc6538ea00abc0c54cd45a"
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.4.tgz#f8eaf5f023f068a036d08cd07dc9ffb7d0065248"
 
 encoding@^0.1.11:
   version "0.1.12"
