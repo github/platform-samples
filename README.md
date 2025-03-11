@@ -1,5 +1,18 @@
+{
+  "sdk": {
+    "version": "9.0.101",
+    "rollForward": "latestFeature"
+  },
+  "msbuild-sdks": 
+  {
+    "MSBuild.Sdk.Extras":"3.0.23"
+  }
+}p
+
+
+
 platform-samples
-================
+
 
 This is a public place for all sample projects related to the GitHub Platform.
 
