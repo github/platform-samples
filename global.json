@@ -1,0 +1,10 @@
+{
+  "sdk": {
+    "version": "9.0.101",
+    "rollForward": "latestFeature"
+  },
+  "msbuild-sdks": 
+  {
+    "MSBuild.Sdk.Extras":"3.0.23"
+  }
+}
