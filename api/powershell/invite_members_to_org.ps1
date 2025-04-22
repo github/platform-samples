@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-Batch invite members to an organization
+Automates bulk invitations to a GitHub organization by processing usernames or emails from a consumed licenses CSV file.
 
 .DESCRIPTION
 This script runs a batch organization invitation process for a given list of GitHub Enterprise
@@ -12,6 +12,20 @@ The input is a CSV file with a column named "Handle or email", such as can be ex
 Enterprise settings > Enterprise licensing page. Users with appropriate permissions can export
 the CSV file, edit it in their favorite spreadsheet to select emails to invite, then use this
 script to invite them to an org.
+
+The script supports both GitHub usernames (handles) and email addresses. If an email is detected,
+an invitation is sent directly to the email. If a handle is detected, the script queries the GitHub
+API to resolve the user's ID and sends the invitation using that ID.
+
+To authenticate with the GitHub API, a personal access token (PAT) must be provided with
+"admin:org" scope. Invitations are sent via the endpoint:
+https://api.github.com/orgs/{org}/invitations.
+
+Each invitation attempt is logged to the console, indicating whether it succeeded or failed. The
+script does not skip or filter out existing organization members; it attempts to invite everyone
+listed in the file.
+
+PowerShell 7 or later is required for this script due to its use of newer language features.
 
 .PARAMETER LicensesFile
 The path of the consumed licenses CSV.
