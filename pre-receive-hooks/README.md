@@ -1,5 +1,8 @@
 ## Pre-receive hooks
 
+> [!IMPORTANT]
+> Many of the hooks mentioned in this article can now be natively implemented through GitHub Enterprise's [Rulesets](https://docs.github.com/en/enterprise-server@3.16/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets) and [Secret Protection](https://docs.github.com/en/enterprise-server@3.16/code-security/secret-scanning/introduction/about-secret-scanning) (requires GitHub Advanced Security) features. With it, you have the same effect as hooks, but in a more controlled, auditable and performant fashion, so we highly recommend looking at these before you implement pre-receive hooks.
+
 ### tl;dr
 
 This directory contains examples for [pre-receive hooks ](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
