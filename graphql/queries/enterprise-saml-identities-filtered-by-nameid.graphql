@@ -8,10 +8,10 @@
 
 
 query EnterpriseIdentitiesBySAMLNameID {
- enterprise(slug: "<ENTERPRISE_SLUG>") {
+ enterprise(slug: "lore-co") {
     ownerInfo {
       samlIdentityProvider {
-        externalIdentities(userName:"<SAML Name ID>", first: 25) {
+        externalIdentities(userName:"kherrington@sequel.ae", first: 25) {
           totalCount
           edges {
             node {
