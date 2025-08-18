@@ -5,7 +5,7 @@
 
 ### tl;dr
 
-This directory contains examples for [pre-receive hooks ](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
+This directory contains examples for [pre-receive hooks ](https://docs.github.com/enterprise-server/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/working-with-pre-receive-hooks) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
 
 If you have a great example for a pre-receive hook you used with GitHub Enterprise that is not yet part of this directory, create a pull request and we will happily review it.
 
@@ -13,9 +13,9 @@ While blocking commits at push time using pre-receive-hooks seems like an awesom
 
 ### Pre-receive hooks - The longer story
 
-As of GitHub Enterprise 2.6 we [support pre-receive hooks](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/). [Pre-receive hooks](https://help.github.com/enterprise/user/articles/working-with-pre-receive-hooks/) run tests on code pushed to a repository to ensure contributions meet repository or organization policy. If the commits pass the tests, the push will be accepted into the repository. If the commits do not pass the tests, the push will not be accepted.
+As of GitHub Enterprise 2.6 we [support pre-receive hooks](https://docs.github.com/enterprise-server/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/working-with-pre-receive-hooks). Pre-receive hooks run tests on code pushed to a repository to ensure contributions meet repository or organization policy. If the commits pass the tests, the push will be accepted into the repository. If the commits do not pass the tests, the push will not be accepted.
 
-Your GitHub Enterprise site administrator can [create and remove pre-receive hooks](https://help.github.com/enterprise/admin/guides/developer-workflow/managing-pre-receive-hooks-on-the-github-enterprise-appliance/) for your organization or repository, and may allow organization or repository administrators to enable or disable pre-receive hooks. GitHub Enterprise allows you to [develop and test](https://help.github.com/enterprise/admin/guides/developer-workflow/creating-a-pre-receive-hook-script/) all scripts locally in a [pre-receive hook environment](https://help.github.com/enterprise/2.6/admin/guides/developer-workflow/creating-a-pre-receive-hook-environment/).
+Your GitHub Enterprise site administrator can [create and remove pre-receive hooks](https://docs.github.com/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/managing-pre-receive-hooks-on-your-instance) for your organization or repository, and may allow organization or repository administrators to enable or disable pre-receive hooks. GitHub Enterprise allows you to [develop and test](https://docs.github.com/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/creating-a-pre-receive-hook-script) all scripts locally in a [pre-receive hook environment](https://docs.github.com/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/creating-a-pre-receive-hook-environment).
 
 Examples of pre-receive hooks:
 * Require commit messages to follow a specific pattern or format, such as including a valid ticket number or being over a certain length.
@@ -28,13 +28,13 @@ You can find examples on how to write pre-receive hooks on the [Pro Git website]
 
 ### Think twice before you deploy a pre-receive hook
 
-GitHub recommends a cautious and thoughtful approach when applying mechanisms like pre-receive hooks that can block Git push operations. Blocking pushes right away typically prevents contribution and visibility into proposed changes. We think it's best that individuals collaborate with each other to identify and fix any problems after changes have been proposed. Even some of our largest customers have found that a subtle shift to [non-blocking web-hooks](https://help.github.com/enterprise/admin/guides/developer-workflow/using-webhooks-for-continuous-integration/) allowed more individuals to contribute and provided more opportunities for learning and collaboration. Combined with asynchronous collaboration workflows like [GitHubFlow](https://guides.github.com/introduction/flow/), non-blocking web-hooks typically resulted in higher-quality output.
+GitHub recommends a cautious and thoughtful approach when applying mechanisms like pre-receive hooks that can block Git push operations. Blocking pushes right away typically prevents contribution and visibility into proposed changes. We think it's best that individuals collaborate with each other to identify and fix any problems after changes have been proposed. Even some of our largest customers have found that a subtle shift to [non-blocking web-hooks](https://docs.github.com/enterprise-server/webhooks/about-webhooks) allowed more individuals to contribute and provided more opportunities for learning and collaboration. Combined with asynchronous collaboration workflows like [GitHubFlow](https://guides.github.com/introduction/flow/), non-blocking web-hooks typically resulted in higher-quality output.
 
 That said, we understand there may be compliance or other organizational reasons to incorporate pre-receive hooks into a development workflow, e.g. ensuring that sensitive information is not included as part of pushed commits.
 
 ### Performance, stability and workflow implications of pre-receive hooks
 
-Pre-receive hooks can have unintended effects on the performance of the GitHub Enterprise appliance and should be carefully [implemented and reviewed](https://help.github.com/enterprise/admin/guides/developer-workflow/creating-a-pre-receive-hook-script/). A misconfigured pre-receive hook may block all developers from contributing/pushing to a repository or consume all system resources on the appliance.
+Pre-receive hooks can have unintended effects on the performance of the GitHub Enterprise appliance and should be carefully [created in a pre-receive hook environment](https://docs.github.com/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/creating-a-pre-receive-hook-environment). A misconfigured pre-receive hook may block all developers from contributing/pushing to a repository or consume all system resources on the appliance.
 
 Running scripts will be automatically terminated after 5 seconds (blocking the push). Consequently, pre-receive hooks should not rely on the results of external systems that may not be always available or on any other potentially blocking resource. As any negative exit code of a pre-receive hook will reject the associated push attempt, your scripts should handle unforeseen standard input and environment variable values in a robust way.
 
