@@ -5,7 +5,7 @@
 
 ### tl;dr
 
-This directory contains examples for [pre-receive hooks ](https://docs.github.com/en/enterprise-server/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/working-with-pre-receive-hooks) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
+This directory contains examples for [pre-receive hooks ](https://docs.github.com/enterprise-server/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/working-with-pre-receive-hooks) which are a [GitHub Enterprise feature](https://developer.github.com/v3/enterprise/pre_receive_hooks/) to block unwanted commits before they even reach your repository.
 
 If you have a great example for a pre-receive hook you used with GitHub Enterprise that is not yet part of this directory, create a pull request and we will happily review it.
 
