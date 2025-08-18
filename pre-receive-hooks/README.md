@@ -34,7 +34,7 @@ That said, we understand there may be compliance or other organizational reasons
 
 ### Performance, stability and workflow implications of pre-receive hooks
 
-Pre-receive hooks can have unintended effects on the performance of the GitHub Enterprise appliance and should be carefully [created in a pre-receive hook environment](https://docs.github.com/en/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/creating-a-pre-receive-hook-environment). A misconfigured pre-receive hook may block all developers from contributing/pushing to a repository or consume all system resources on the appliance.
+Pre-receive hooks can have unintended effects on the performance of the GitHub Enterprise appliance and should be carefully [created in a pre-receive hook environment](https://docs.github.com/enterprise-server/admin/enforcing-policies/enforcing-policy-with-pre-receive-hooks/creating-a-pre-receive-hook-environment). A misconfigured pre-receive hook may block all developers from contributing/pushing to a repository or consume all system resources on the appliance.
 
 Running scripts will be automatically terminated after 5 seconds (blocking the push). Consequently, pre-receive hooks should not rely on the results of external systems that may not be always available or on any other potentially blocking resource. As any negative exit code of a pre-receive hook will reject the associated push attempt, your scripts should handle unforeseen standard input and environment variable values in a robust way.
 
