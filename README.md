@@ -1,7 +1,7 @@
 platform-samples
 ================
 
-This is a public place for all sample projects related to the GitHub Platform.
+This is a public place for all sample projects related to the GitHub Platform. Please read _Contributor Covenant Code of Conduct_
 
 ## Hierarchy
 
