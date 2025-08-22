@@ -1,0 +1,26 @@
+# This GraphQL query can be used to generate a list of enterprise members and their SCIM account details in a GitHub Enterprise Cloud with Managed Users (EMU) enterprise account.
+#
+# Replace `ENTEPRISE_SLUG` with the slug of your enterprise. To get more than 10 members, you can adjust the "first" parameter.
+#
+# Note: the output will include suspended users (identified with their obfuscated account name), but it will not include personal user accounts that are not part of the EMU (Enterprise Managed Users) system.
+
+query ListAllEnterpriseUsers {
+  enterprise(slug: "ENTEPRISE_SLUG") {
+    ownerInfo {
+      samlIdentityProvider {
+        externalIdentities(first: 10) {
+          nodes {
+            user {
+              login
+              name
+            }
+            scimIdentity {
+              username
+              groups
+            }
+          }
+        }
+      }
+    }
+  }
+}
