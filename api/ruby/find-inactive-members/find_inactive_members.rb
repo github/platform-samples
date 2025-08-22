@@ -15,6 +15,7 @@ class ThrottleMiddleware < Faraday::Middleware
     @hour_start_time = Time.now
     @last_request_time = Time.now
     @mutex = Mutex.new
+    @debug_enabled = !ENV['THROTTLE_DEBUG'].nil? && !ENV['THROTTLE_DEBUG'].empty?
   end
 
   def call(env)
@@ -60,9 +61,11 @@ class ThrottleMiddleware < Faraday::Middleware
 
   def log_throttle_status
     # This method can be called for detailed debugging if needed
+    return unless @debug_enabled
+    
     elapsed_hour = Time.now - @hour_start_time
     rate_per_hour = elapsed_hour > 0 ? (@request_count / elapsed_hour * 3600).round(1) : 0
-    $stderr.print "Throttle debug: #{@request_count} requests in last #{elapsed_hour.round(1)}s (#{rate_per_hour}/hour rate)\n" if ENV['THROTTLE_DEBUG']
+    $stderr.print "Throttle debug: #{@request_count} requests in last #{elapsed_hour.round(1)}s (#{rate_per_hour}/hour rate)\n"
   end
 end
 
