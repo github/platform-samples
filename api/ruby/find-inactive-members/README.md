@@ -24,7 +24,7 @@ cd platform-samples/api/ruby/find-inactive-members
 ### Install dependencies
 
 ```shell
-gem install octokit
+gem install octokit faraday
 ```
 
 ### Configure Octokit
