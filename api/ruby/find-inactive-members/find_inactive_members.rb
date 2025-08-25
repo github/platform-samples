@@ -183,6 +183,35 @@ private
     $stdout.print message
   end
 
+  # Helper method to manually paginate requests with proper throttling
+  def paginated_request(method, *args, **kwargs)
+    results = []
+    page = 1
+    per_page = 100
+    
+    loop do
+      # Merge pagination parameters with existing kwargs
+      page_kwargs = kwargs.merge(page: page, per_page: per_page)
+      
+      # Handle different method signatures
+      if args.empty?
+        response = @client.send(method, page_kwargs)
+      else
+        response = @client.send(method, *args, page_kwargs)
+      end
+      
+      break if response.empty?
+      
+      results.concat(response)
+      page += 1
+      
+      # Break if we got less than a full page (indicates last page)
+      break if response.length < per_page
+    end
+    
+    results
+  end
+
   def member_email(login)
     @email ? @client.user(login)[:email] : ""
   end
@@ -190,7 +219,8 @@ private
   def organization_members
   # get all organization members and place into an array of hashes
     info "Finding #{@organization} members "
-    @members = @client.organization_members(@organization).collect do |m|
+    members_data = paginated_request(:organization_members, @organization)
+    @members = members_data.collect do |m|
       email =
       {
         login: m["login"],
@@ -204,7 +234,8 @@ private
   def organization_repositories
     info "Gathering a list of repositories..."
     # get all repos in the organizaton and place into a hash
-    @repositories = @client.organization_repositories(@organization).collect do |repo|
+    repos_data = paginated_request(:organization_repositories, @organization)
+    @repositories = repos_data.collect do |repo|
       repo["full_name"]
     end
     info "#{@repositories.length} repositories discovered\n"
@@ -224,7 +255,8 @@ private
     # get all commits after specified date and iterate
     info "...commits"
     begin
-      @client.commits_since(repo, @date).each do |commit|
+      commits = paginated_request(:commits_since, repo, @date)
+      commits.each do |commit|
         # if commmitter is a member of the org and not active, make active
         if commit["author"].nil?
           add_unrecognized_author(commit[:commit][:author])
@@ -246,7 +278,8 @@ private
     # get all issues after specified date and iterate
     info "...Issues"
     begin
-      @client.list_issues(repo, { :since => date }).each do |issue|
+      issues = paginated_request(:list_issues, repo, since: date)
+      issues.each do |issue|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if issue["user"].nil?
           next
@@ -266,7 +299,8 @@ private
     # get all issue comments after specified date and iterate
     info "...Issue comments"
     begin
-      @client.issues_comments(repo, { :since => date }).each do |comment|
+      comments = paginated_request(:issues_comments, repo, since: date)
+      comments.each do |comment|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if comment["user"].nil?
           next
@@ -285,7 +319,8 @@ private
   def pr_activity(repo, date=@date)
     # get all pull request comments comments after specified date and iterate
     info "...Pull Request comments"
-    @client.pull_requests_comments(repo, { :since => date }).each do |comment|
+    comments = paginated_request(:pull_requests_comments, repo, since: date)
+    comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
       if comment["user"].nil?
         next
@@ -401,7 +436,7 @@ stack = Faraday::RackBuilder.new do |builder|
 end
 
 Octokit.configure do |kit|
-  kit.auto_paginate = true
+  kit.auto_paginate = false  # Disable auto-pagination to ensure throttling on each request
   kit.middleware = stack
 end
 
