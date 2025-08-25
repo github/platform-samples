@@ -66,6 +66,23 @@ class ThrottleMiddleware < Faraday::Middleware
   def throttle_request
     current_time = Time.now
     
+    # Check if rate limit is critically low and pause until reset if needed
+    if @github_rate_limit_remaining && @github_rate_limit_remaining < 50 && @github_rate_limit_reset
+      time_until_reset = [@github_rate_limit_reset - current_time.to_i, 0].max
+      if time_until_reset > 0
+        pause_time = time_until_reset + 5  # Add 5 second buffer
+        minutes = (pause_time / 60.0).round(1)
+        $stderr.print "\n⚠️  RATE LIMIT LOW: Only #{@github_rate_limit_remaining} requests remaining!\n"
+        $stderr.print "⏸️  Pausing for #{minutes} minutes until rate limit resets (#{pause_time} seconds total)\n"
+        $stderr.print "⏰  Will resume at approximately #{(Time.now + pause_time).strftime('%H:%M:%S')}\n\n"
+        sleep(pause_time)
+        
+        # Reset our tracking after the pause
+        @github_rate_limit_remaining = nil  # Will be updated on next response
+        @github_rate_limit_reset = nil
+      end
+    end
+    
     # Reset counter if we've moved to a new hour (sliding window)
     if current_time - @hour_start_time >= 3600
       @request_count = 0
