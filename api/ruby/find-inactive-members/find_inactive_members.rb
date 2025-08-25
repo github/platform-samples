@@ -133,6 +133,14 @@ class InactiveMemberSearch
 
   def initialize(options={})
     @client = options[:client]
+    @options = options  # Store options for later use
+    
+    # Warn if throttling is disabled
+    if options[:no_throttle]
+      $stderr.print "⚠️  WARNING: API throttling is DISABLED! This may cause rate limit errors.\n"
+      $stderr.print "🚨 Use this option only for testing or with GitHub Enterprise instances with higher limits.\n\n"
+    end
+    
     if options[:check]
       check_app
       check_scopes
@@ -269,6 +277,23 @@ private
     results
   end
 
+  # Smart request method that uses auto-pagination when throttling is disabled
+  def smart_request(method, *args, **kwargs)
+    if @options[:no_throttle]
+      # Use auto-pagination (simpler, faster, but no throttling)
+      retry_on_403("fetching #{method}") do
+        if args.empty?
+          @client.send(method, kwargs)
+        else
+          @client.send(method, *args, kwargs)
+        end
+      end
+    else
+      # Use manual pagination with throttling
+      paginated_request(method, *args, **kwargs)
+    end
+  end
+
   def member_email(login)
     return "" unless @email
     
@@ -280,7 +305,7 @@ private
   def organization_members
   # get all organization members and place into an array of hashes
     info "Finding #{@organization} members "
-    members_data = paginated_request(:organization_members, @organization)
+    members_data = smart_request(:organization_members, @organization)
     @members = members_data.collect do |m|
       email =
       {
@@ -295,7 +320,7 @@ private
   def organization_repositories
     info "Gathering a list of repositories..."
     # get all repos in the organizaton and place into a hash
-    repos_data = paginated_request(:organization_repositories, @organization)
+    repos_data = smart_request(:organization_repositories, @organization)
     @repositories = repos_data.collect do |repo|
       repo["full_name"]
     end
@@ -316,7 +341,7 @@ private
     # get all commits after specified date and iterate
     info "...commits"
     begin
-      commits = paginated_request(:commits_since, repo, @date)
+      commits = smart_request(:commits_since, repo, @date)
       commits.each do |commit|
         # if commmitter is a member of the org and not active, make active
         if commit["author"].nil?
@@ -339,7 +364,7 @@ private
     # get all issues after specified date and iterate
     info "...Issues"
     begin
-      issues = paginated_request(:list_issues, repo, since: date)
+      issues = smart_request(:list_issues, repo, since: date)
       issues.each do |issue|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if issue["user"].nil?
@@ -360,7 +385,7 @@ private
     # get all issue comments after specified date and iterate
     info "...Issue comments"
     begin
-      comments = paginated_request(:issues_comments, repo, since: date)
+      comments = smart_request(:issues_comments, repo, since: date)
       comments.each do |comment|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if comment["user"].nil?
@@ -380,7 +405,7 @@ private
   def pr_activity(repo, date=@date)
     # get all pull request comments comments after specified date and iterate
     info "...Pull Request comments"
-    comments = paginated_request(:pull_requests_comments, repo, since: date)
+    comments = smart_request(:pull_requests_comments, repo, since: date)
     comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
       if comment["user"].nil?
@@ -481,14 +506,24 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
+  opts.on('-t', '--no-throttle', "Disable API request throttling (use with caution)") do |t|
+    puts "DEBUG: -t flag was triggered, t value = #{t.inspect}"
+    options[:no_throttle] = true
+  end
+
   opts.on('-h', '--help', "Display this help") do |h|
     puts opts
     exit 0
   end
 end.parse!
 
+# Debug: Check if no_throttle option is set
+if options[:no_throttle]
+  puts "DEBUG: no_throttle option is set to: #{options[:no_throttle]}"
+end
+
 stack = Faraday::RackBuilder.new do |builder|
-  builder.use ThrottleMiddleware
+  builder.use ThrottleMiddleware unless options[:no_throttle]
   builder.use Octokit::Middleware::FollowRedirects
   builder.use Octokit::Response::RaiseError
   builder.use Octokit::Response::FeedParser
@@ -496,8 +531,9 @@ stack = Faraday::RackBuilder.new do |builder|
   builder.adapter Faraday.default_adapter
 end
 
+# Conditionally enable auto-pagination when throttling is disabled
 Octokit.configure do |kit|
-  kit.auto_paginate = false  # Disable auto-pagination to ensure throttling on each request
+  kit.auto_paginate = options[:no_throttle] ? true : false
   kit.middleware = stack
 end
 
