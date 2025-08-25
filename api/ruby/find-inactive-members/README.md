@@ -7,6 +7,7 @@ find_inactive_members.rb - Find and output inactive members in an organization
     -e, --email                      Fetch the user email (can make the script take longer)
     -o, --organization MANDATORY     Organization to scan for inactive users
     -v, --verbose                    More output to STDERR
+    -t, --no-throttle                Disable API request throttling (use with caution)
     -h, --help                       Display this help
 ```
 
