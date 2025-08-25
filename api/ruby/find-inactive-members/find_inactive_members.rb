@@ -161,11 +161,16 @@ class InactiveMemberSearch
   end
 
   def check_scopes
-    info "Scopes: #{@client.scopes.join ','}\n"
+    scopes = retry_on_403("checking scopes") do
+      @client.scopes
+    end
+    info "Scopes: #{scopes.join ','}\n"
   end
 
   def check_rate_limit
-    rate_limit = @client.rate_limit
+    rate_limit = retry_on_403("checking rate limit") do
+      @client.rate_limit
+    end
     info "Rate limit: #{rate_limit.remaining}/#{rate_limit.limit}\n"
     info "Rate limit resets at: #{rate_limit.resets_at}\n"
     info "Throttling: Limited to #{ThrottleMiddleware::MAX_REQUESTS_PER_HOUR} requests/hour (#{ThrottleMiddleware::MIN_DELAY_SECONDS.round(2)}s min delay)\n"
@@ -200,6 +205,39 @@ private
     $stdout.print message
   end
 
+  # Helper method to handle 403 errors with retry logic
+  def retry_on_403(description, max_retries = 3)
+    retries = 0
+    
+    loop do
+      begin
+        return yield
+      rescue Octokit::Forbidden => e
+        retries += 1
+        info "⚠️  403 Forbidden error occurred while #{description}\n"
+        
+        if retries <= max_retries
+          info "🔄 Waiting 5 seconds before retry #{retries}/#{max_retries}...\n"
+          sleep(5)
+          next
+        else
+          info "❌ Failed after #{max_retries} retries for #{description}\n"
+          print "🤔 Do you want to continue retrying? (Y/N): "
+          response = gets.chomp.upcase
+          
+          if response == 'Y'
+            info "🔄 Continuing with another #{max_retries} retry attempts...\n"
+            retries = 0  # Reset retry counter
+            next
+          else
+            info "🛑 User chose to exit. Stopping application.\n"
+            exit(1)
+          end
+        end
+      end
+    end
+  end
+
   # Helper method to manually paginate requests with proper throttling
   def paginated_request(method, *args, **kwargs)
     results = []
@@ -210,11 +248,13 @@ private
       # Merge pagination parameters with existing kwargs
       page_kwargs = kwargs.merge(page: page, per_page: per_page)
       
-      # Handle different method signatures
-      if args.empty?
-        response = @client.send(method, page_kwargs)
-      else
-        response = @client.send(method, *args, page_kwargs)
+      # Handle different method signatures with 403 retry logic
+      response = retry_on_403("fetching #{method} page #{page}") do
+        if args.empty?
+          @client.send(method, page_kwargs)
+        else
+          @client.send(method, *args, page_kwargs)
+        end
       end
       
       break if response.empty?
@@ -230,7 +270,11 @@ private
   end
 
   def member_email(login)
-    @email ? @client.user(login)[:email] : ""
+    return "" unless @email
+    
+    retry_on_403("fetching email for user #{login}") do
+      @client.user(login)[:email]
+    end
   end
 
   def organization_members
