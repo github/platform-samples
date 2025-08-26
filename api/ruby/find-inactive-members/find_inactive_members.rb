@@ -112,7 +112,7 @@ class ThrottleMiddleware < Faraday::Middleware
       elapsed_hour = @last_request_time - @hour_start_time
       current_rate = elapsed_hour > 0 ? (@request_count / elapsed_hour * 3600).round(1) : 0
       github_info = @github_rate_limit_remaining ? " GitHub: #{@github_rate_limit_remaining} remaining" : ""
-      $stderr.print "Throttling status: #{@request_count} requests in #{elapsed_hour.round(1)}s (#{current_rate}/hour rate)#{github_info}\n"
+      $stderr.print "\nThrottling status: #{@request_count} requests in #{elapsed_hour.round(1)}s (#{current_rate}/hour rate)#{github_info}\n"
     end
   end
 
@@ -122,7 +122,7 @@ class ThrottleMiddleware < Faraday::Middleware
     
     elapsed_hour = Time.now - @hour_start_time
     rate_per_hour = elapsed_hour > 0 ? (@request_count / elapsed_hour * 3600).round(1) : 0
-    $stderr.print "Throttle debug: #{@request_count} requests in last #{elapsed_hour.round(1)}s (#{rate_per_hour}/hour rate)\n"
+    $stderr.print "\nThrottle debug: #{@request_count} requests in last #{elapsed_hour.round(1)}s (#{rate_per_hour}/hour rate)\n"
   end
 end
 
@@ -179,7 +179,7 @@ class InactiveMemberSearch
     rate_limit = retry_on_403("checking rate limit") do
       @client.rate_limit
     end
-    info "Rate limit: #{rate_limit.remaining}/#{rate_limit.limit}\n"
+    info "\nRate limit: #{rate_limit.remaining}/#{rate_limit.limit}\n"
     info "Rate limit resets at: #{rate_limit.resets_at}\n"
     info "Throttling: Limited to #{ThrottleMiddleware::MAX_REQUESTS_PER_HOUR} requests/hour (#{ThrottleMiddleware::MIN_DELAY_SECONDS.round(2)}s min delay)\n"
   end
@@ -222,7 +222,7 @@ private
         return yield
       rescue Octokit::Forbidden => e
         retries += 1
-        info "⚠️  403 Forbidden error occurred while #{description}\n"
+        info "\n⚠️  403 Forbidden error occurred while #{description}\n"
         
         if retries <= max_retries
           info "🔄 Waiting 5 seconds before retry #{retries}/#{max_retries}...\n"
@@ -507,7 +507,6 @@ OptionParser.new do |opts|
   end
 
   opts.on('-t', '--no-throttle', "Disable API request throttling (use with caution)") do |t|
-    puts "DEBUG: -t flag was triggered, t value = #{t.inspect}"
     options[:no_throttle] = true
   end
 
