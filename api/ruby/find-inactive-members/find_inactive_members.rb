@@ -15,7 +15,9 @@ class ThrottleMiddleware < Faraday::Middleware
     @hour_start_time = Time.now
     @last_request_time = Time.now
     @mutex = Mutex.new
-    @debug_enabled = !ENV['THROTTLE_DEBUG'].nil? && !ENV['THROTTLE_DEBUG'].empty?
+    # Set @debug_enabled to true if the THROTTLE_DEBUG environment variable is set and not empty.  
+    # When enabled, ThrottleMiddleware will output debug information to help diagnose throttling behavior.  
+    # Usage: export THROTTLE_DEBUG=1  @debug_enabled = !ENV['THROTTLE_DEBUG'].nil? && !ENV['THROTTLE_DEBUG'].empty?
     @github_rate_limit_remaining = nil
     @github_rate_limit_reset = nil
   end
@@ -98,8 +100,6 @@ class ThrottleMiddleware < Faraday::Middleware
     if time_since_last < required_delay
       sleep_time = required_delay - time_since_last
       if sleep_time > 0
-        #delay_reason = @github_rate_limit_remaining ? "dynamic" : "standard"
-        #$stderr.print "Throttling: waiting #{sleep_time.round(2)}s (#{delay_reason} delay)\n"
         sleep(sleep_time)
       end
     end
@@ -307,7 +307,6 @@ private
     info "Finding #{@organization} members "
     members_data = smart_request(:organization_members, @organization)
     @members = members_data.collect do |m|
-      email =
       {
         login: m["login"],
         email: member_email(m[:login]),
@@ -516,9 +515,9 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-# Debug: Check if no_throttle option is set
+# Check if no_throttle option is set and warn user
 if options[:no_throttle]
-  puts "DEBUG: no_throttle option is set to: #{options[:no_throttle]}"
+  puts "WARNING: no_throttle option is set to: #{options[:no_throttle]}"
 end
 
 stack = Faraday::RackBuilder.new do |builder|
