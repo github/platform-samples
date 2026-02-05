@@ -150,41 +150,16 @@ fi
 ##################################################
 # Grab JSON of all repositories for organization #
 ##################################################
-
-###########################################################
-# Get the rel="last" link and harvest the page number     #
-# Use this value to build a list of URLs to batch-request #
-###########################################################
-
-LAST_PAGE_ID=$(curl -snI "${API_ROOT}/orgs/${ORG_NAME}/repos" | awk '/Link:/ { gsub(/=/, " "); gsub(/>/, " "); print $3 }')
-
-for PAGE in $(seq 1 $LAST_PAGE_ID)
-do
-        URLS=$URLS"--url ${API_ROOT}/orgs/${ORG_NAME}/repos?page=$PAGE "
-done
-
 echo "Getting a list of the repositories within "${ORG_NAME}
 
 REPO_RESPONSE="$(curl --request GET \
-$URLS \
+--url ${API_ROOT}/orgs/${ORG_NAME}/repos \
 -s \
+--write-out response=%{http_code} \
 --header "authorization: Bearer ${GITHUB_TOKEN}" \
 --header "content-type: application/json")"
 
-#############################################################
-# REPO_RESPONSE_CODE collected seperately to not confuse jq #
-#############################################################
-
-REPO_RESPONSE_CODE="$(curl --request GET \
-${API_ROOT}/orgs/${ORG_NAME}/repos \
--s \
--o /dev/null \
---write-out %{http_code} \
---header "authorization: Bearer ${GITHUB_TOKEN}" \
---header "content-type: application/json"
-)"
-
-echo "Getting a list of the repositories within "${ORG_NAME}
+REPO_RESPONSE_CODE=$(echo "${REPO_RESPONSE}" | grep 'response=' | sed 's/response=\(.*\)/\1/')
 
 ########################
 # Check for any errors #
