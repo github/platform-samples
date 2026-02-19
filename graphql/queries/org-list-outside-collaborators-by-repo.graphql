@@ -1,0 +1,25 @@
+query( $cursor: String) {
+    organization(login: "ORG_NAME") {
+    url
+    login
+    repositories(first: 100, after: $cursor) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      nodes {
+        name
+        collaborators(affiliation: OUTSIDE, first: 100) {
+
+          nodes {
+            url
+            login
+          }
+          edges {
+            permission
+          }
+          }
+        }
+      }
+    }
+  }

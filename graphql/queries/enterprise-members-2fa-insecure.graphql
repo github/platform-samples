@@ -1,0 +1,28 @@
+# This GraphQL query will list any enterprise members who have enabled 2FA on their GitHub account, but amongst their 2FA methods is SMS (which is deemed insecure).
+# This does not list any outside collaborators, and will not work with Enterprise Managed Users other than the setup user.
+
+query GetEnterpriseMembersWithInsecure2fa {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    members_with_insecure_2fa: members(
+      first: 100
+      twoFactorMethodSecurity: INSECURE
+    ) {
+      num_of_members: totalCount
+      edges {
+        node {
+          ... on EnterpriseUserAccount {
+            login
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+}

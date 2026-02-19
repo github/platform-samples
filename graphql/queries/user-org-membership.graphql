@@ -1,0 +1,15 @@
+# This GraphQL query can be used to generate a list of organizations a user belongs to on GitHub.com
+# replace GITHUB_LOGIN with the username that you would like to view
+#
+# Note: the organizations listed are only ones that the calling user is a member of. If the calling member is not part of any organizations that the searched user belong to, it will not be shown here.
+
+query GetUserOrganizations {
+  user(login: "GITHUB_LOGIN") {
+    organizations(first: 100) {
+      nodes {
+        organization_name: name
+        organization_slug: login
+      }
+    }
+  }
+}

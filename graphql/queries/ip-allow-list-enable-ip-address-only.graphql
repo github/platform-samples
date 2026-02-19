@@ -1,0 +1,17 @@
+# This query is used to enable the IP allow list feature. This will apply to IP addresses only.
+# This can be used on both organizations and enterprise accounts.
+#
+# The `OWNER_ID` is the ID of the organization or enterprise account. You can
+# get the ID of an organization or enterprise account by executing either of
+# the following queries and referring to the value from `owner_id` field:
+#
+# - organizations: https://github.com/github/platform-samples/blob/master/graphql/queries/org-get-ip-allow-list.graphql
+# - enterprise accounts: https://github.com/github/platform-samples/blob/master/graphql/queries/enterprise-get-ip-allow-list.graphql
+
+mutation EnableAllowListForIpsOnly {
+  updateIpAllowListEnabledSetting(
+    input: { ownerId: "OWNER_ID", settingValue: ENABLED }
+  ) {
+    clientMutationId
+  }
+}

@@ -6,6 +6,6 @@
   },
   "author": "@k33g",
   "dependencies": {
-    "node-fetch": "^1.6.3"
+    "node-fetch": "^3.3.2"
   }
 }

@@ -1,0 +1,25 @@
+# Grab current IP allow list settings for an enterprise.
+# This includes:
+# - The IP allow list entries
+# - The IP allow list enabled setting
+# - The IP allow list for GitHub Apps enabled setting
+
+query GetEnterpriseIPAllowList {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    owner_id: id
+    enterprise_slug: slug
+    enterprise_owner_info: ownerInfo {
+      is_ip_allow_list_enabled: ipAllowListEnabledSetting
+      is_ip_allow_list_for_github_apps_enabled: ipAllowListForInstalledAppsEnabledSetting
+      ipAllowListEntries(first: 100) {
+        nodes {
+          ip_allow_list_entry_id: id
+          ip_allow_list_entry_name: name
+          ip_allow_list_entry_value: allowListValue
+          ip_allow_list_entry_created: createdAt
+          is_ip_allow_list_entry_active: isActive
+        }
+      }
+    }
+  }
+}

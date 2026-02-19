@@ -1,8 +1,8 @@
-query getMembersByTeam($orgName: String!, $teamName: String!) {
-  organization(login: $orgName) {
+query getMembersByTeam {
+  organization(login: "ORG_NAME") {
     id
     name
-    teams(first: 1, query: $teamName) {
+    teams(first: 1, query: "TEAM_NAME") {
       edges {
         node {
           id

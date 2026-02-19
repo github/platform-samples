@@ -1,0 +1,25 @@
+# This GraphQL query will list any outside collaborators in an enterprise who have enabled 2FA on their GitHub account, but amongst the 2FA methods is SMS (which is deemed insecure).
+
+query GetEnterpriseCollaboratorsWithInsecure2fa {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    enterprise_owner_info: ownerInfo {
+      collaborators_with_insecure_2fa: outsideCollaborators(
+        twoFactorMethodSecurity: INSECURE
+        first: 100
+      ) {
+        num_of_collaborators: totalCount
+        nodes {
+          login
+        }
+        pageInfo {
+          endCursor
+          startCursor
+          hasNextPage
+          hasPreviousPage
+        }
+      }
+    }
+  }
+}

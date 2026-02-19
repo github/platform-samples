@@ -1,0 +1,28 @@
+# This GraphQL query will list any enterprise members who have yet to enable 2FA on their personal GitHub account.
+# This does not list any outside collaborators, and will not work with Enterprise Managed Users other than the setup user.
+
+query GetEnterpriseMembersWith2faDisabled {
+  enterprise(slug: "ENTERPRISE_SLUG") {
+    enterprise_id: id
+    enterprise_slug: slug
+    members_with_no_2fa: members(
+      first: 100
+      twoFactorMethodSecurity: DISABLED
+    ) {
+      num_of_members: totalCount
+      edges {
+        node {
+          ... on EnterpriseUserAccount {
+            login
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+}
