@@ -3,6 +3,129 @@ require "octokit"
 require 'optparse'
 require 'optparse/date'
 
+# Custom Faraday middleware for API request throttling
+class ThrottleMiddleware < Faraday::Middleware
+  # Throttle to 5000 requests per hour (approximately 1.39 requests per second)
+  MAX_REQUESTS_PER_HOUR = 5000
+  MIN_DELAY_SECONDS = 3600.0 / MAX_REQUESTS_PER_HOUR  # 0.72 seconds
+
+  def initialize(app, options = {})
+    super(app)
+    @request_count = 0
+    @hour_start_time = Time.now
+    @last_request_time = Time.now
+    @mutex = Mutex.new
+    # Set @debug_enabled to true if the THROTTLE_DEBUG environment variable is set and not empty.  
+    # When enabled, ThrottleMiddleware will output debug information to help diagnose throttling behavior.  
+    # Usage: export THROTTLE_DEBUG=1  @debug_enabled = !ENV['THROTTLE_DEBUG'].nil? && !ENV['THROTTLE_DEBUG'].empty?
+    @github_rate_limit_remaining = nil
+    @github_rate_limit_reset = nil
+  end
+
+  def call(env)
+    @mutex.synchronize do
+      throttle_request
+      log_throttle_status
+    end
+    
+    response = @app.call(env)
+    
+    # Update GitHub rate limit info from response headers
+    @mutex.synchronize do
+      update_github_rate_limit(response)
+    end
+    
+    response
+  end
+
+  private
+
+  def update_github_rate_limit(response)
+    if response.headers['x-ratelimit-remaining']
+      @github_rate_limit_remaining = response.headers['x-ratelimit-remaining'].to_i
+      @github_rate_limit_reset = response.headers['x-ratelimit-reset'].to_i if response.headers['x-ratelimit-reset']
+    end
+  end
+
+  def calculate_dynamic_delay
+    return MIN_DELAY_SECONDS unless @github_rate_limit_remaining && @github_rate_limit_reset
+    
+    # Calculate time until rate limit resets
+    current_time = Time.now.to_i
+    time_until_reset = [@github_rate_limit_reset - current_time, 1].max
+    
+    # Calculate required delay to not exceed remaining requests
+    if @github_rate_limit_remaining > 0
+      required_delay = time_until_reset.to_f / @github_rate_limit_remaining
+      # Use the more conservative delay (either our standard delay or the calculated one)
+      [MIN_DELAY_SECONDS, required_delay].max
+    else
+      # No requests remaining, wait until reset
+      time_until_reset
+    end
+  end
+
+  def throttle_request
+    current_time = Time.now
+    
+    # Check if rate limit is critically low and pause until reset if needed
+    if @github_rate_limit_remaining && @github_rate_limit_remaining < 50 && @github_rate_limit_reset
+      time_until_reset = [@github_rate_limit_reset - current_time.to_i, 0].max
+      if time_until_reset > 0
+        pause_time = time_until_reset + 5  # Add 5 second buffer
+        minutes = (pause_time / 60.0).round(1)
+        $stderr.print "\n⚠️  RATE LIMIT LOW: Only #{@github_rate_limit_remaining} requests remaining!\n"
+        $stderr.print "⏸️  Pausing for #{minutes} minutes until rate limit resets (#{pause_time} seconds total)\n"
+        $stderr.print "⏰  Will resume at approximately #{(Time.now + pause_time).strftime('%H:%M:%S')}\n\n"
+        sleep(pause_time)
+        
+        # Reset our tracking after the pause
+        @github_rate_limit_remaining = nil  # Will be updated on next response
+        @github_rate_limit_reset = nil
+      end
+    end
+    
+    # Reset counter if we've moved to a new hour (sliding window)
+    if current_time - @hour_start_time >= 3600
+      @request_count = 0
+      @hour_start_time = current_time
+      @last_request_time = current_time
+    end
+    
+    # Use dynamic delay based on actual GitHub rate limit if available
+    required_delay = @github_rate_limit_remaining ? calculate_dynamic_delay : MIN_DELAY_SECONDS
+    
+    # Ensure minimum delay between requests
+    time_since_last = current_time - @last_request_time
+    if time_since_last < required_delay
+      sleep_time = required_delay - time_since_last
+      if sleep_time > 0
+        sleep(sleep_time)
+      end
+    end
+    
+    @request_count += 1
+    @last_request_time = Time.now
+    
+    # Log warning if we're approaching the limit  
+    if @request_count % 1000 == 0
+      elapsed_hour = @last_request_time - @hour_start_time
+      current_rate = elapsed_hour > 0 ? (@request_count / elapsed_hour * 3600).round(1) : 0
+      github_info = @github_rate_limit_remaining ? " GitHub: #{@github_rate_limit_remaining} remaining" : ""
+      $stderr.print "\nThrottling status: #{@request_count} requests in #{elapsed_hour.round(1)}s (#{current_rate}/hour rate)#{github_info}\n"
+    end
+  end
+
+  def log_throttle_status
+    # This method can be called for detailed debugging if needed
+    return unless @debug_enabled
+    
+    elapsed_hour = Time.now - @hour_start_time
+    rate_per_hour = elapsed_hour > 0 ? (@request_count / elapsed_hour * 3600).round(1) : 0
+    $stderr.print "\nThrottle debug: #{@request_count} requests in last #{elapsed_hour.round(1)}s (#{rate_per_hour}/hour rate)\n"
+  end
+end
+
 class InactiveMemberSearch
   attr_accessor :organization, :members, :repositories, :date, :unrecognized_authors
 
@@ -10,6 +133,14 @@ class InactiveMemberSearch
 
   def initialize(options={})
     @client = options[:client]
+    @options = options  # Store options for later use
+    
+    # Warn if throttling is disabled
+    if options[:no_throttle]
+      $stderr.print "⚠️  WARNING: API throttling is DISABLED! This may cause rate limit errors.\n"
+      $stderr.print "🚨 Use this option only for testing or with GitHub Enterprise instances with higher limits.\n\n"
+    end
+    
     if options[:check]
       check_app
       check_scopes
@@ -38,11 +169,19 @@ class InactiveMemberSearch
   end
 
   def check_scopes
-    info "Scopes: #{@client.scopes.join ','}\n"
+    scopes = retry_on_403("checking scopes") do
+      @client.scopes
+    end
+    info "Scopes: #{scopes.join ','}\n"
   end
 
   def check_rate_limit
-    info "Rate limit: #{@client.rate_limit.remaining}/#{@client.rate_limit.limit}\n"
+    rate_limit = retry_on_403("checking rate limit") do
+      @client.rate_limit
+    end
+    info "\nRate limit: #{rate_limit.remaining}/#{rate_limit.limit}\n"
+    info "Rate limit resets at: #{rate_limit.resets_at}\n"
+    info "Throttling: Limited to #{ThrottleMiddleware::MAX_REQUESTS_PER_HOUR} requests/hour (#{ThrottleMiddleware::MIN_DELAY_SECONDS.round(2)}s min delay)\n"
   end
 
   def env_help
@@ -74,15 +213,100 @@ private
     $stdout.print message
   end
 
+  # Helper method to handle 403 errors with retry logic
+  def retry_on_403(description, max_retries = 3)
+    retries = 0
+    
+    loop do
+      begin
+        return yield
+      rescue Octokit::Forbidden => e
+        retries += 1
+        info "\n⚠️  403 Forbidden error occurred while #{description}\n"
+        
+        if retries <= max_retries
+          info "🔄 Waiting 5 seconds before retry #{retries}/#{max_retries}...\n"
+          sleep(5)
+          next
+        else
+          info "❌ Failed after #{max_retries} retries for #{description}\n"
+          print "🤔 Do you want to continue retrying? (Y/N): "
+          response = gets.chomp.upcase
+          
+          if response == 'Y'
+            info "🔄 Continuing with another #{max_retries} retry attempts...\n"
+            retries = 0  # Reset retry counter
+            next
+          else
+            info "🛑 User chose to exit. Stopping application.\n"
+            exit(1)
+          end
+        end
+      end
+    end
+  end
+
+  # Helper method to manually paginate requests with proper throttling
+  def paginated_request(method, *args, **kwargs)
+    results = []
+    page = 1
+    per_page = 100
+    
+    loop do
+      # Merge pagination parameters with existing kwargs
+      page_kwargs = kwargs.merge(page: page, per_page: per_page)
+      
+      # Handle different method signatures with 403 retry logic
+      response = retry_on_403("fetching #{method} page #{page}") do
+        if args.empty?
+          @client.send(method, page_kwargs)
+        else
+          @client.send(method, *args, page_kwargs)
+        end
+      end
+      
+      break if response.empty?
+      
+      results.concat(response)
+      page += 1
+      
+      # Break if we got less than a full page (indicates last page)
+      break if response.length < per_page
+    end
+    
+    results
+  end
+
+  # Smart request method that uses auto-pagination when throttling is disabled
+  def smart_request(method, *args, **kwargs)
+    if @options[:no_throttle]
+      # Use auto-pagination (simpler, faster, but no throttling)
+      retry_on_403("fetching #{method}") do
+        if args.empty?
+          @client.send(method, kwargs)
+        else
+          @client.send(method, *args, kwargs)
+        end
+      end
+    else
+      # Use manual pagination with throttling
+      paginated_request(method, *args, **kwargs)
+    end
+  end
+
   def member_email(login)
-    @email ? @client.user(login)[:email] : ""
+    return "" unless @email
+    
+    retry_on_403("fetching email for user #{login}") do
+      @client.user(login)[:email]
+    end
   end
 
   def organization_members
   # get all organization members and place into an array of hashes
     info "Finding #{@organization} members "
-    @members = @client.organization_members(@organization).collect do |m|
-      email =
+    members_data = smart_request(:organization_members, @organization)
+    @members = members_data.collect do |m|
       {
         login: m["login"],
         email: member_email(m[:login]),
@@ -95,7 +319,8 @@ private
   def organization_repositories
     info "Gathering a list of repositories..."
     # get all repos in the organizaton and place into a hash
-    @repositories = @client.organization_repositories(@organization).collect do |repo|
+    repos_data = smart_request(:organization_repositories, @organization)
+    @repositories = repos_data.collect do |repo|
       repo["full_name"]
     end
     info "#{@repositories.length} repositories discovered\n"
@@ -115,7 +340,8 @@ private
     # get all commits after specified date and iterate
     info "...commits"
     begin
-      @client.commits_since(repo, @date).each do |commit|
+      commits = smart_request(:commits_since, repo, @date)
+      commits.each do |commit|
         # if commmitter is a member of the org and not active, make active
         if commit["author"].nil?
           add_unrecognized_author(commit[:commit][:author])
@@ -137,7 +363,8 @@ private
     # get all issues after specified date and iterate
     info "...Issues"
     begin
-      @client.list_issues(repo, { :since => date }).each do |issue|
+      issues = smart_request(:list_issues, repo, since: date)
+      issues.each do |issue|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if issue["user"].nil?
           next
@@ -157,7 +384,8 @@ private
     # get all issue comments after specified date and iterate
     info "...Issue comments"
     begin
-      @client.issues_comments(repo, { :since => date }).each do |comment|
+      comments = smart_request(:issues_comments, repo, since: date)
+      comments.each do |comment|
         # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
         if comment["user"].nil?
           next
@@ -176,7 +404,8 @@ private
   def pr_activity(repo, date=@date)
     # get all pull request comments comments after specified date and iterate
     info "...Pull Request comments"
-    @client.pull_requests_comments(repo, { :since => date }).each do |comment|
+    comments = smart_request(:pull_requests_comments, repo, since: date)
+    comments.each do |comment|
       # if there's no user (ghost user?) then skip this   // THIS NEEDS BETTER VALIDATION
       if comment["user"].nil?
         next
@@ -195,7 +424,22 @@ private
 
     # for each repo
     @repositories.each do |repo|
-      info "rate limit remaining: #{@client.rate_limit.remaining}  "
+      # Show rate limit from last response headers (more efficient than API call)
+      if @client.last_response
+        remaining = @client.last_response.headers['x-ratelimit-remaining']
+        limit = @client.last_response.headers['x-ratelimit-limit']
+        if remaining && limit
+          reset_time = @client.last_response.headers['x-ratelimit-reset']
+          if reset_time
+            minutes_until_reset = [(reset_time.to_i - Time.now.to_i) / 60.0, 0].max.round(1)
+            reset_info = " (resets in #{minutes_until_reset}min)"
+          else
+            reset_info = ""
+          end
+          info "#{remaining} requests remaining#{reset_info}  "
+        end
+      end
+      
       info "analyzing #{repo}"
 
       commit_activity(repo)
@@ -261,23 +505,34 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
+  opts.on('-t', '--no-throttle', "Disable API request throttling (use with caution)") do |t|
+    options[:no_throttle] = true
+  end
+
   opts.on('-h', '--help', "Display this help") do |h|
     puts opts
     exit 0
   end
 end.parse!
 
+# Check if no_throttle option is set and warn user
+if options[:no_throttle]
+  puts "WARNING: no_throttle option is set to: #{options[:no_throttle]}"
+end
+
 stack = Faraday::RackBuilder.new do |builder|
+  builder.use ThrottleMiddleware unless options[:no_throttle]
   builder.use Octokit::Middleware::FollowRedirects
   builder.use Octokit::Response::RaiseError
   builder.use Octokit::Response::FeedParser
-  builder.response :logger
+  builder.response :logger if @debug
   builder.adapter Faraday.default_adapter
 end
 
+# Conditionally enable auto-pagination when throttling is disabled
 Octokit.configure do |kit|
-  kit.auto_paginate = true
-  kit.middleware = stack if @debug
+  kit.auto_paginate = options[:no_throttle] ? true : false
+  kit.middleware = stack
 end
 
 options[:client] = Octokit::Client.new
