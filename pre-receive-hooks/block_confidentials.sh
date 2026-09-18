@@ -22,7 +22,7 @@ regex_list=(
   '(\-){5}BEGIN\s?(RSA|OPENSSH|DSA|EC|PGP)?\s?PRIVATE KEY\s?(BLOCK)?(\-){5}.*'
   # block AWS API Keys
   'AKIA[0-9A-Z]{16}'
-  # block AWS Secret Access Key (TODO: adjust to not find validd Git SHA1s; false positives)
+  # block AWS Secret Access Key (TODO: adjust to not find valid Git SHA1s; false positives)
   # '([^A-Za-z0-9/+=])?([A-Za-z0-9/+=]{40})([^A-Za-z0-9/+=])?'
   # block confidential content
   'CONFIDENTIAL'

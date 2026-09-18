@@ -16,7 +16,7 @@
 # - ./script.sh <path/to/scan>
 #
 # Script will scan that directory for size and
-# files with extensions that could be ommitted
+# files with extensions that could be omitted
 #
 
 ########
@@ -98,7 +98,7 @@ GetRepoSize()
    # Grab the current size of the repository on disk
    SIZE=($(du -sh $DIR_TO_SCAN))
 
-   # Print the size thats cleaned up
+   # Print the size that's cleaned up
    echo "Total size of repository on disk:[$SIZE]"
 }
 ################################################################################

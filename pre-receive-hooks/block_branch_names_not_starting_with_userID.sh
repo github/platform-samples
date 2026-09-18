@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Pre-receive hook that will block any new commits that their names do not being with the userID
+# Pre-receive hook that will block any new commits that their names do not begin with the userID
 #
 # More details on pre-receive hooks and how to apply them can be found on
 # https://help.github.com/enterprise/admin/guides/developer-workflow/managing-pre-receive-hooks-on-the-github-enterprise-appliance/

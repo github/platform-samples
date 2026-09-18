@@ -23,7 +23,7 @@
 # $ sh git_hook_outdated_clients.sh
 # ```
 #
-# Edit this variables to set the policy for the git version
+# Edit these variables to set the policy for the git version
 #
 # max_minor_diff: the number of git versions allowed from the latest one.
 # block_list: a list containing specific versions that are blocked by policy
@@ -31,7 +31,7 @@ max_minor_diff=3
 block_list=(
 )
 
-# Edit this variables to get the right version to compare as latest
+# Edit these variables to get the right version to compare as latest
 # latest_version: add the latest version to check or leave it empty to let the script get it dynamically
 # authentication: provide a PAT on the environment if you want to execute the request to get the version without triggering the rate limit.
 # If you don't provide the latest version we strongly recommend to add a GH_TOKEN to the environment. It requires jq as dependency
@@ -45,7 +45,7 @@ function block_version {
   echo "##     Outdated git version $1     ##"
   echo "#########################################"
   echo ""
-  echo "Update the git version to a newest one: https://git-scm.com/downloads"
+  echo "Update the git version to a newer one: https://git-scm.com/downloads"
 
   exit 1;
 }
