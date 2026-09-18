@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Pre-receive hook that will block any unsigned commits and tagswhen pushed to a GitHub Enterprise repository
+# Pre-receive hook that will block any unsigned commits and tags when pushed to a GitHub Enterprise repository
 # The script will not actually validate the GPG signature (would need access to PKI)
 # but just checks whether all new commits and tags have been signed
 #
