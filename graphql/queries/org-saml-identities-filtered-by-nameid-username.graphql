@@ -7,9 +7,9 @@
 # Pagination shouldn't be needed since there shouldn't be multiple entries in the organization that have the same SAML `NameID` or SCIM `userName`. However, for more information on pagination. There is also an example of pagination in simple-pagination-example.graphql.
 
 query OrganizationIdentitiesBySAMLNameID {
-  organization(login: "<ORG_NAME>") {
+  organization(login: "centurylinkFederal") {
     samlIdentityProvider {
-      externalIdentities(userName:"<SAML Name ID>", first: 25) {
+      externalIdentities(userName:"chaithrabk152", first: 25) {
         edges {
           node {
             samlIdentity {
