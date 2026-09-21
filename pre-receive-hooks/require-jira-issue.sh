@@ -15,7 +15,7 @@
 set -e
 
 zero_commit='0000000000000000000000000000000000000000'
-msg_regex='[JIRA\-[0-9]+\]'
+msg_regex='JIRA-[0-9]+'
 
 while read -r oldrev newrev refname; do
 
