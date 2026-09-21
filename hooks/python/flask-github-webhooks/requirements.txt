@@ -1,4 +1,4 @@
 Flask
 ipaddress
 requests
-pyOpenSSL==17.5.0
+pyOpenSSL==26.0.0
