@@ -7,6 +7,9 @@ You can adjust the lifetime of a session, and how often a managed user account n
 
 The `GitHub Enterprise Managed User (OIDC)` app is a multi-tenant app, and when an admin configures OIDC authentication for an enterprise, it registers an instance of this app in the admin's tenant. The token lifetime policy needs to be assigned to the ID of the **Service Principal** object associated with the `GitHub Enterprise Managed User (OIDC)` app (rather than the application ID). Note that the PowerShell steps in [this section of that Microsoft article](https://learn.microsoft.com/en-us/entra/identity-platform/configure-token-lifetimes#create-a-policy-and-assign-it-to-an-app) will not allow you to do this, however the [MS Graph API](https://learn.microsoft.com/en-us/graph/use-the-api) will allow you to configure and assign a token lifetime policy to the Service Principal ID of the instance of the OIDC app in your Entra tenant. 
 
+**Note:** GitHub does not support [Continuous Access Evaluation (CAE)](https://devblogs.microsoft.com/devops/real-time-security-with-continuous-access-evaluation-cae-comes-to-azure-devops/)
+
+
 ## MS Graph Explorer steps for creating a `tokenLifetimePolicy` and assigning it to the GitHub Enterprise Managed User (OIDC) app in Azure AD/Entra
 
 Here is an example of the steps for creating a `tokenLifetimePolicy` in your tenant and assigning it to the `ServicePrincipal Id` of the GitHub Enterprise Managed User (OIDC) app using [Microsoft Graph Explorer](https://developer.microsoft.com/en-us/graph/graph-explorer).
