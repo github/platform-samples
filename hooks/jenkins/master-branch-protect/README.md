@@ -34,7 +34,7 @@ In order to achieve this goal, we will enable a webhook at the _Organization_ le
 Before getting started, ensure that you have a trusted certificate, or that you import the GitHub certificate into Jenkins. Without this step, Jenkins will fail to clone any repositories via `HTTPS`, and the webhook will likely fail as well.
 
 ## Installing Jenkins
-For this instance we will be using **_Jenkins 2.x_** because of its support for storing _Pipeline as Code_ and keeping in line with the DevOps phylosophy and spirit of collaboration.
+For this instance we will be using **_Jenkins 2.x_** because of its support for storing _Pipeline as Code_ and keeping in line with the DevOps philosophy and spirit of collaboration.
 
 ### Running Jenkins in Docker
 Let's create a container in `Docker` to run Jenkins. In this demo, we want it to run as a service and behave in a _production-like_ manner. To do this, we'll utilize the following flags:
