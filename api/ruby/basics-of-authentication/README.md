@@ -16,5 +16,5 @@ For the correct server, enter `ruby advanced_server.rb` on the command line.
 
 Both commands will run the server at `localhost:4567`.
 
-[basics of auth]: http://developer.github.com/guides/basics-of-authentication/
+[basics of auth]: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app
 [bundler]: http://gembundler.com/

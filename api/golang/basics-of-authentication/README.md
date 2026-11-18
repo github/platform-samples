@@ -27,4 +27,4 @@ This command will run the server at `localhost:4567`. Visit `http://localhost:45
 
 If you should get any errors while redirecting to GitHub, double check your environmental variables and the callback URL you set while registering your OAuth app.
 
-[basics of auth]: http://developer.github.com/guides/basics-of-authentication/
+[basics of auth]: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app

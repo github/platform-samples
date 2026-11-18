@@ -24,4 +24,4 @@ To start the server, type `ruby server.rb` on the command line.
 
 The [sinatra server](http://www.sinatrarb.com/) will be running at `localhost:4567`.
 
-[basics of auth]: http://developer.github.com/guides/basics-of-authentication/
+[basics of auth]: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app
