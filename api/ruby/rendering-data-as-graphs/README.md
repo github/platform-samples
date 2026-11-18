@@ -9,5 +9,5 @@ To run these projects, make sure you have [Bundler][bundler] installed; then typ
 
 Then, enter `bundle exec rackup -p 4567` on the command line.
 
-[rendering data]: http://developer.github.com/guides/rendering-data-as-graphs/
+[rendering data]: https://docs.github.com/en/rest/guides/rendering-data-as-graphs
 [bundler]: http://gembundler.com/

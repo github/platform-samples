@@ -2,7 +2,7 @@
 
 A sample implementation for using GitHub Deployment API.
 
-Ported [this](https://developer.github.com/guides/delivering-deployments/) by Java. Powered by [Spark](http://sparkjava.com/).
+Ported [this](https://docs.github.com/en/rest/guides/delivering-deployments) by Java. Powered by [Spark](http://sparkjava.com/).
 
 ## Prerequisite
 - JDK8
@@ -36,4 +36,4 @@ Then you can see it works on `http://localhost:4567`.
 
 After you make sure this sever deployed a place where GitHub can reach out to, you can test how it interacts with GitHub via its Deployment API.
 
-You can also place it on your local pc, then expose it by using ngrok. Please refer the direction described [here](https://developer.github.com/guides/delivering-deployments/).
+You can also place it on your local pc, then expose it by using ngrok. Please refer the direction described [here](https://docs.github.com/en/rest/guides/delivering-deployments).
